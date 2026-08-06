@@ -65,6 +65,7 @@ const navData = [
       { label: 'Interior Design', path: '/expertise/interior-design' },
       { label: 'Design & Build', path: '/expertise/design-build' },
       { label: 'Fit-Out', path: '/expertise/fit-out' },
+      { label: 'Engineering & Project Management', path: '/expertise/engineering-project-management' },
     ],
   },
   {

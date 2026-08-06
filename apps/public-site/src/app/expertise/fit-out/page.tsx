@@ -83,6 +83,7 @@ export default async function FitOutPage() {
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Interior Design', href: '/expertise/interior-design' },
           { name: 'Design & Build', href: '/expertise/design-build' },
+          { name: 'Engineering & Project Management', href: '/expertise/engineering-project-management' },
         ]}
       />
     </>

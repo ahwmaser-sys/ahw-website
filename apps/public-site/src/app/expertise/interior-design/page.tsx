@@ -85,6 +85,7 @@ export default async function InteriorDesignPage() {
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Design & Build', href: '/expertise/design-build' },
           { name: 'Fit-Out', href: '/expertise/fit-out' },
+          { name: 'Engineering & Project Management', href: '/expertise/engineering-project-management' },
         ]}
       />
     </>

@@ -79,7 +79,12 @@ const nextConfig = {
       },
       {
             "source": "/projects/stone-park-landscape",
-            "destination": "/projects/stone-park-landscape-new-cairo",
+            "destination": "/projects/diyar-park-landscape-new-cairo",
+            "permanent": true
+      },
+      {
+            "source": "/projects/stone-park-landscape-new-cairo",
+            "destination": "/projects/diyar-park-landscape-new-cairo",
             "permanent": true
       },
       {

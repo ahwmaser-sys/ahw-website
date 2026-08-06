@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: '%s | AHW Architects',
       default: 'AHW Architects | Premium Architectural Design',
     },
-    description: 'Premium MENA/GCC architecture, interior design, and fit-out practice. Modern, precise, internationally credible, regionally rooted.',
+    description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice. Modern, precise, internationally credible, regionally rooted.',
     robots: {
       index: true,
       follow: true,
@@ -47,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       title: 'AHW Architects',
-      description: 'Premium MENA/GCC architecture, interior design, and fit-out practice.',
+      description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
       url: siteUrl,
       siteName: 'AHW Architects',
       locale: 'en_US',
@@ -64,7 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: 'AHW Architects',
-      description: 'Premium MENA/GCC architecture, interior design, and fit-out practice.',
+      description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
       images: ['/og-image.jpg'],
     },
     icons: {
@@ -122,7 +122,7 @@ export default async function RootLayout({
     url: siteUrl,
     logo: `${siteUrl}/images/logo-white.webp`,
     foundingDate: '2012',
-    description: 'Premium MENA/GCC architecture, interior design, and fit-out practice.',
+    description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
     sameAs,
     location: offices.map((office) => ({
       '@type': 'Place',

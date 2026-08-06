@@ -103,6 +103,13 @@ export const TheDatum: React.FC = () => {
             <p className={styles.thresholdText} style={{ color: 'rgba(242, 244, 247, 0.6)' }}>Execution is the proof.</p>
           </div>
         </div>
+
+        {/* HOLD II */}
+        <Hold
+          imageSrc="/images/expertise/ahw_act2_built.jpg"
+          text="Explore Engineering & Project Management →"
+          href="/expertise/engineering-project-management"
+        />
       </div>
 
       {/* 9. ACT III - DESIGN & BUILD */}

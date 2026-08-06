@@ -35,7 +35,7 @@ export const PROJECT_DISPLAY_ORDER: string[] = [
   'nozha-private-villa-kuwait',
   'samsung-store-nasr-city-egypt',
   'shrouk-city-apartment-egypt',
-  'stone-park-landscape-new-cairo',
+  'diyar-park-landscape-new-cairo',
   'stone-residence-new-cairo-egypt',
   'tmreya-cafe-kout-mall-kuwait',
 ];

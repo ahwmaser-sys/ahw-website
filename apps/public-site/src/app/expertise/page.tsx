@@ -8,20 +8,20 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Architecture, Interior Design & Fit-Out Services',
-  description: 'Full-service architecture, interior design, engineering, and design-build fit-out — spanning residential, commercial, retail, hospitality, and workplace design across Egypt and the Gulf.',
+  title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
+  description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
   alternates: {
     canonical: '/expertise',
   },
   openGraph: {
-    title: 'Architecture, Interior Design & Fit-Out Services',
-    description: 'Full-service architecture, interior design, engineering, and design-build fit-out — spanning residential, commercial, retail, hospitality, and workplace design across Egypt and the Gulf.',
+    title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
+    description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
     url: '/expertise',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Architecture, Interior Design & Fit-Out Services',
-    description: 'Full-service architecture, interior design, engineering, and design-build fit-out — spanning residential, commercial, retail, hospitality, and workplace design across Egypt and the Gulf.',
+    title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
+    description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
   },
 };
 

@@ -1403,10 +1403,10 @@ export const projects: Project[] = [
   },
   {
     id: '15',
-    slug: "stone-park-landscape-new-cairo",
-    title: 'Stone Park Landscape',
+    slug: "diyar-park-landscape-new-cairo",
+    title: 'Diyar Park Landscape',
     sector: 'Residential',
-    city: 'Stone Park',
+    city: 'Diyar Park',
     market: 'Egypt',
     area: '200',
     year: '2024',
@@ -1414,14 +1414,14 @@ export const projects: Project[] = [
     services: ['Landscape Design', 'Fit-out'],
     client: 'Private Client',
     status: 'Completed',
-    resultStatement: 'A 200 sqm rooftop landscape transformation in Stone Park, designed and built by AHW Architects.',
+    resultStatement: 'A 200 sqm rooftop landscape transformation in Diyar Park, designed and built by AHW Architects.',
     heroImage: '/ahw-projects-assets/15-stone-park-landscape/orignal/stone-park-landscape-interior-detail-118-h4fw.jpg',
     hubFlagshipImage: '/ahw-projects-assets/15-stone-park-landscape/orignal/stone-park-landscape-interior-detail-119-3qwj.jpg',
     ogImage: '/ahw-projects-assets/15-stone-park-landscape/orignal/stone-park-landscape-interior-detail-118-h4fw.jpg',
     caseStudy: {
       brief: {
         clientProblem: "The client felt the villa's rooftop was a wasted asset and that the main entrance lacked the welcoming impression expected from a premium home. Although the property was spacious, the rooftop remained unused, leaving the family to spend their leisure time in cafés and restaurants instead of enjoying their own home.",
-        definitionalSentence: "From an unused rooftop to the family's favorite destination — a complete outdoor living transformation and entrance redesign in Stone Park."
+        definitionalSentence: "From an unused rooftop to the family's favorite destination — a complete outdoor living transformation and entrance redesign in Diyar Park."
       },
       design: {
         images: [
@@ -1490,13 +1490,13 @@ export const projects: Project[] = [
           subtext: "Let's talk about turning it into the room your family actually chooses."
         },
         seo: {
-          title: 'Rooftop Landscape & Entrance Redesign — Stone Park, Cairo | AHW Architects',
-          description: 'A 200 sqm rooftop and entrance transformation in Stone Park, New Cairo — from unused space to the family\'s primary living area. By AHW Architects.',
+          title: 'Rooftop Landscape & Entrance Redesign — Diyar Park, Cairo | AHW Architects',
+          description: 'A 200 sqm rooftop and entrance transformation in Diyar Park, New Cairo — from unused space to the family\'s primary living area. By AHW Architects.',
           focusKeyword: 'rooftop design Cairo',
           secondaryKeywords: ['outdoor living design Egypt', 'villa entrance redesign', 'rooftop landscape Egypt', 'outdoor entertainment space design'],
           ogTitle: 'From an Empty Rooftop to the Family\'s Favorite Room',
           ogDescription: 'How AHW turned an unused 200 sqm rooftop in New Cairo into a fully zoned outdoor living space the family uses daily.',
-          twitterTitle: 'Stone Park: The Rooftop That Gets Used',
+          twitterTitle: 'Diyar Park: The Rooftop That Gets Used',
           twitterDescription: 'An unused rooftop in New Cairo, transformed into a family\'s most-used space in 8–10 weeks. By AHW Architects.'
         }
       }
