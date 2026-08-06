@@ -10,5 +10,5 @@ import { getCapabilityStatementQrCodes } from './qrcodes';
 export default async function CapabilityStatement() {
   const [offices, siteUrl] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl()]);
   const qrCodes = await getCapabilityStatementQrCodes(siteUrl);
-  return <CapabilityStatementContent offices={offices} siteUrl={siteUrl} qrCodes={qrCodes.global} officeMapQrCodes={qrCodes.officeMaps} />;
+  return <CapabilityStatementContent offices={offices} siteUrl={siteUrl} websiteQr={qrCodes.website} officeQrCodes={qrCodes.byOffice} />;
 }

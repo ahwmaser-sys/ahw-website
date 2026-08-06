@@ -32,7 +32,7 @@ import {
   coverImage,
   firmImage,
 } from './content';
-import type { CapabilityQrCode, OfficeQrCode } from './qrcodes';
+import type { CapabilityQrCode, OfficeQrCodes } from './qrcodes';
 import styles from './CapabilityStatement.module.css';
 
 const breadcrumbs = [
@@ -46,15 +46,15 @@ interface CapabilityStatementContentProps {
   // one contact block per office, however many exist.
   offices: readonly Office[];
   siteUrl: string;
-  qrCodes: readonly CapabilityQrCode[];
-  officeMapQrCodes: readonly OfficeQrCode[];
+  websiteQr: CapabilityQrCode | null;
+  officeQrCodes: readonly OfficeQrCodes[];
 }
 
-export function CapabilityStatementContent({ offices, siteUrl, qrCodes, officeMapQrCodes }: CapabilityStatementContentProps) {
+export function CapabilityStatementContent({ offices, siteUrl, websiteQr, officeQrCodes }: CapabilityStatementContentProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const capabilityDoc = getDocumentById('capabilityStatement');
   const galleryImages = featuredWork.map((w) => w.image);
-  const mapQrFor = (officeId: string) => officeMapQrCodes.find((q) => q.officeId === officeId);
+  const codesFor = (officeId: string) => officeQrCodes.find((q) => q.officeId === officeId)?.codes ?? [];
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -332,7 +332,7 @@ export function CapabilityStatementContent({ offices, siteUrl, qrCodes, officeMa
 
         <div className={styles.contactGrid}>
           {offices.map((office) => {
-            const mapQr = mapQrFor(office.id);
+            const codes = codesFor(office.id);
             return (
               <div key={office.id} className={styles.officeBlock}>
                 <h3 className={styles.officeTitle}>
@@ -346,11 +346,15 @@ export function CapabilityStatementContent({ offices, siteUrl, qrCodes, officeMa
                   ))}
                   <a href={`mailto:${office.contact.primaryEmail}`} className={styles.officeLine}>{office.contact.primaryEmail}</a>
                 </div>
-                {mapQr && (
-                  <div className={styles.officeQr}>
-                    {/* eslint-disable-next-line @next/next/no-img-element -- generated server-side as a data URI, not an optimizable static asset */}
-                    <img src={mapQr.dataUri} alt={`QR code with directions to the ${office.displayName} office`} className={styles.officeQrImage} />
-                    <span className={styles.officeQrLabel}>Get Directions</span>
+                {codes.length > 0 && (
+                  <div className={styles.officeQrRow}>
+                    {codes.map((qr) => (
+                      <div key={qr.label} className={styles.officeQr}>
+                        {/* eslint-disable-next-line @next/next/no-img-element -- generated server-side as a data URI, not an optimizable static asset */}
+                        <img src={qr.dataUri} alt={`QR code — ${office.displayName} ${qr.label}`} className={styles.officeQrImage} />
+                        <span className={styles.officeQrLabel}>{qr.label}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -358,15 +362,13 @@ export function CapabilityStatementContent({ offices, siteUrl, qrCodes, officeMa
           })}
         </div>
 
-        {qrCodes.length > 0 && (
+        {websiteQr && (
           <div className={styles.qrRow}>
-            {qrCodes.map((qr) => (
-              <div key={qr.label} className={styles.qrItem}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- generated server-side as a data URI, not an optimizable static asset */}
-                <img src={qr.dataUri} alt={`QR code linking to AHW Architects on ${qr.label}`} className={styles.qrImage} />
-                <span className={styles.qrLabel}>{qr.label}</span>
-              </div>
-            ))}
+            <div className={styles.qrItem}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- generated server-side as a data URI, not an optimizable static asset */}
+              <img src={websiteQr.dataUri} alt="QR code linking to the AHW Architects website" className={styles.qrImage} />
+              <span className={styles.qrLabel}>{websiteQr.label}</span>
+            </div>
           </div>
         )}
 

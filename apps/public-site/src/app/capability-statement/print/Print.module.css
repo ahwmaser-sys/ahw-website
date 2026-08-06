@@ -783,11 +783,19 @@
   margin-bottom: 1.5mm;
 }
 
+.officeQrRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4mm;
+  margin-top: 4mm;
+}
+
 .officeQr {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 3mm;
-  margin-top: 4mm;
+  gap: 1mm;
+  width: 16mm;
 }
 
 .officeQrImage {
@@ -799,10 +807,12 @@
 }
 
 .officeQrLabel {
-  font-size: 7pt;
-  letter-spacing: 0.06em;
+  font-size: 5.5pt;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  line-height: 1.2;
 }
 
 .closeFooter {

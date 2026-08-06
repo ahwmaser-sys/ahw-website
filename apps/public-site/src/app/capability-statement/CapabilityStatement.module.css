@@ -865,11 +865,19 @@
   color: #fff;
 }
 
+.officeQrRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
 .officeQr {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
+  gap: var(--space-1);
+  width: 64px;
 }
 
 .officeQrImage {
@@ -882,10 +890,11 @@
 }
 
 .officeQrLabel {
-  font-size: var(--font-size-xs);
+  font-size: 10px;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.6);
+  text-align: center;
 }
 
 .qrRow {

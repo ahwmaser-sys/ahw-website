@@ -65,7 +65,7 @@ export default async function CapabilityStatementPrint() {
   const [workHero, ...workRest] = featuredWork;
   const [offices, siteUrl] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl()]);
   const qrCodes = await getCapabilityStatementQrCodes(siteUrl);
-  const mapQrFor = (officeId: string) => qrCodes.officeMaps.find((q) => q.officeId === officeId);
+  const codesFor = (officeId: string) => qrCodes.byOffice.find((q) => q.officeId === officeId)?.codes ?? [];
   const displayUrl = siteUrl.replace(/^https?:\/\//, '');
 
   return (
@@ -292,7 +292,7 @@ export default async function CapabilityStatementPrint() {
 
         <div className={styles.contactGrid}>
           {offices.map((office) => {
-            const mapQr = mapQrFor(office.id);
+            const codes = codesFor(office.id);
             return (
               <div key={office.id} className={styles.officeBlock}>
                 <h3 className={styles.officeTitle}>
@@ -304,10 +304,14 @@ export default async function CapabilityStatementPrint() {
                   <a key={phone} href={buildTelLink(phone)} className={styles.officeLine}>{phone}</a>
                 ))}
                 <a href={`mailto:${office.contact.primaryEmail}`} className={styles.officeLine}>{office.contact.primaryEmail}</a>
-                {mapQr && (
-                  <div className={styles.officeQr}>
-                    <P src={mapQr.dataUri} alt={`QR code with directions to the ${office.displayName} office`} className={styles.officeQrImage} />
-                    <span className={styles.officeQrLabel}>Get Directions</span>
+                {codes.length > 0 && (
+                  <div className={styles.officeQrRow}>
+                    {codes.map((qr) => (
+                      <div key={qr.label} className={styles.officeQr}>
+                        <P src={qr.dataUri} alt={`QR code — ${office.displayName} ${qr.label}`} className={styles.officeQrImage} />
+                        <span className={styles.officeQrLabel}>{qr.label}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -315,14 +319,12 @@ export default async function CapabilityStatementPrint() {
           })}
         </div>
 
-        {qrCodes.global.length > 0 && (
+        {qrCodes.website && (
           <div className={styles.qrRow}>
-            {qrCodes.global.map((qr) => (
-              <div key={qr.label} className={styles.qrItem}>
-                <P src={qr.dataUri} alt={`QR code linking to AHW Architects on ${qr.label}`} className={styles.qrImage} />
-                <span className={styles.qrLabel}>{qr.label}</span>
-              </div>
-            ))}
+            <div className={styles.qrItem}>
+              <P src={qrCodes.website.dataUri} alt="QR code linking to the AHW Architects website" className={styles.qrImage} />
+              <span className={styles.qrLabel}>{qrCodes.website.label}</span>
+            </div>
           </div>
         )}
 

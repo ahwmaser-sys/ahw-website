@@ -63,7 +63,7 @@ export const documentsData: Record<string, DocumentMeta> = {
     fileType: 'PDF',
     downloadUrl: '/documents/ahw-capability-statement.pdf',
     viewOnlineUrl: '/capability-statement',
-    version: '1.2',
+    version: '1.3',
   },
   brochures: {
     id: 'brochures',
