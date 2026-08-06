@@ -18,7 +18,14 @@ import { getSiteUrl } from '../../../lib/site-config';
 // separately — there's no ATS/applicant-tracking model in this schema,
 // and building one would be new product scope; email is the same
 // destination a small firm's HR inbox already works from today.
-const resend = new Resend(process.env.RESEND_API_KEY);
+//
+// The Resend client is constructed lazily inside the handler, not at
+// module scope — Next.js imports route modules during `next build`'s
+// page-data-collection pass, and a module-level `new Resend(undefined)`
+// throws "Missing API key" the instant RESEND_API_KEY isn't present in
+// the build environment, failing the whole build over a key that's only
+// actually needed at request time. Same reasoning already applied in
+// lib/portal/email.ts's sendEmail().
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB, matches the client-side check
 const ACCEPTED_FILE_TYPES = [
   'application/pdf',
@@ -28,6 +35,7 @@ const ACCEPTED_FILE_TYPES = [
 
 export async function POST(request: Request) {
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const ip = getClientIp(request) ?? 'unknown';
     if (await isRateLimited(`careers:${ip}`, 5, 1000 * 60 * 15)) {
       return NextResponse.json({ error: 'Too many submissions. Please try again later.' }, { status: 429 });

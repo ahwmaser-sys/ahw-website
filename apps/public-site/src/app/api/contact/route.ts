@@ -11,11 +11,17 @@ import { getOfficeBySlug } from '../../../lib/portal/offices';
 import { getEmailSettings, resolveSenderIdentity } from '../../../lib/portal/email-settings';
 import { getSiteUrl } from '../../../lib/site-config';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
   try {
+    // Constructed lazily here, not at module scope — Next.js imports
+    // route modules during `next build`'s page-data-collection pass, and
+    // a module-level `new Resend(undefined)` throws "Missing API key"
+    // the instant RESEND_API_KEY isn't present in the build environment,
+    // failing the whole build over a key only actually needed at request
+    // time. Same reasoning already applied in lib/portal/email.ts's
+    // sendEmail().
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
     // 0. Rate limiting — this route had none despite being fully public
     // and (as of this pass) writing to the database; same sliding-window
     // limiter and per-IP key the login/forgot-password routes already

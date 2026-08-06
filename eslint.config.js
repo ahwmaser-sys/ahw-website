@@ -39,7 +39,10 @@ export default tseslint.config(
           allowDefaultProject: [
             "vitest.config.ts",
             "vitest.integration.config.ts",
-            "tools/scripts/setup-integration-tests.ts"
+            "tools/scripts/setup-integration-tests.ts",
+            "apps/public-site/prisma/seed.ts",
+            "apps/public-site/scripts/seed-c3-fixtures.ts",
+            "apps/public-site/scripts/seed-official-templates.ts"
           ]
         },
         tsconfigRootDir: import.meta.dirname
