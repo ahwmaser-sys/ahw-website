@@ -1,0 +1,241 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  /* Single condense transition, 200ms cubic-bezier(0.4,0,0.2,1) per spec. */
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Row height = 48px (logo and MenuTrigger's hit-area are both 48px here,
+     whichever is tallest sets the row). 16px padding + 48px row = 80px,
+     inside the 76-88px resting target range. */
+  padding: var(--space-4) 0;
+  background-color: transparent;
+  opacity: 1;
+}
+
+.scrolled {
+  background-color: var(--color-glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  /* 8px padding + 48px row = 64px — center of the 60-68px condensed
+     sticky target range. */
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+.hidden {
+  transform: translateY(-100%);
+}
+
+.fadeHidden {
+  opacity: 0;
+  /* We don't use pointer-events: none here because we still want to detect mouse hover to reveal it */
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  transition: opacity var(--transition-fast);
+}
+
+.logoWhite, .logoDark {
+  height: 48px; /* Increased by 20% from 40px */
+  width: auto;
+  transition: opacity var(--transition-fast);
+}
+
+.logoDark {
+  display: none;
+}
+
+:global([data-theme="light"]) .logoWhite {
+  display: none;
+}
+
+:global([data-theme="light"]) .logoDark {
+  display: block;
+}
+
+.logo:hover {
+  opacity: 0.8;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  /* Make sure floating panel anchors to this group */
+  position: relative;
+  /* Minimalist: No background, no border, just raw icons */
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border);
+}
+
+/* Single primary CTA — the one visually distinct, filled/bordered control
+   in an otherwise icon-only header. Reachable on mobile without opening
+   the nav panel. */
+.headerCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-brand-accent);
+  border-radius: 999px;
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.headerCta:hover {
+  background-color: var(--color-brand-accent);
+  color: var(--color-brand-ink);
+}
+
+.headerCta:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 3px;
+}
+
+.ctaShort {
+  display: none;
+}
+
+/* Below 375px there isn't room for the full label alongside the toggle +
+   menu trigger without wrapping/overflow (measured empirically). The
+   accessible name stays "Start Your Project" via aria-label on the link;
+   only the visible glyph swaps, matching the icon-only language already
+   used by MenuTrigger/AppearanceToggle at this size. */
+@media (max-width: 374px) {
+  .ctaFull {
+    display: none;
+  }
+
+  .ctaShort {
+    display: inline;
+  }
+
+  .headerCta {
+    padding: 0 var(--space-3);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  .logoWhite, .logoDark {
+    height: 36px;
+  }
+
+  /* Row height on mobile is still the 48px MenuTrigger hit-area (taller
+     than the 36px mobile logo), so 8px padding + 48px row = 64px — inside
+     the 56-64px mobile target range. Resting and condensed states share
+     this height; there's no further room to condense without going below
+     the 56px floor. */
+  .header,
+  .scrolled {
+    padding: var(--space-2) 0;
+  }
+
+  .nav {
+    gap: var(--space-2);
+  }
+
+  .controlGroup {
+    gap: var(--space-2);
+  }
+
+  .headerCta {
+    padding: 0 var(--space-2);
+  }
+}
+
+/* ==========================================================================
+   PAGE BACKDROP (For Floating Navigation)
+   ========================================================================== */
+.pageBackdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 80; /* Below Header (100) */
+  background-color: rgba(5, 5, 5, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.pageBackdrop.backdropOpen {
+  opacity: 1;
+  pointer-events: auto; /* Catch clicks if we want to close when clicking outside */
+}
+
+/* ==========================================================================
+   DYNAMIC HOVER PREVIEWS (Cinematic Image Overlay)
+   ========================================================================== */
+.previewBackdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 85; /* Above base blur (80), below Header (100) */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  /* Luxurious crossfade timing */
+  transition: opacity 0.8s var(--ease-out);
+  will-change: opacity;
+}
+
+.previewBackdrop.previewVisible {
+  opacity: 1;
+}
+
+/* Consolidated reduced-motion override for every transition/animation
+   declared in this stylesheet (header condense, CTA hover, logo hover,
+   cinematic hover previews). Users who ask the OS for reduced motion get
+   instant state changes instead. */
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .headerCta,
+  .logo,
+  .logoWhite,
+  .logoDark,
+  .pageBackdrop,
+  .previewBackdrop {
+    transition: none;
+  }
+}

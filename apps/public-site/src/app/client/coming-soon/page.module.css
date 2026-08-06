@@ -1,0 +1,6 @@
+.main {
+  /* NavigationHeader renders nothing on /client (see NavigationHeader.tsx)
+     — cancel the global header-clearance padding rather than leaving a
+     blank gap at the top of the page. */
+  margin-top: calc(-1 * var(--header-height));
+}

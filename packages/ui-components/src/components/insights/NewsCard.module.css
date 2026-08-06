@@ -1,0 +1,113 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: transparent;
+  break-inside: avoid;
+  margin-bottom: var(--space-8);
+}
+
+.imageWrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  background-color: var(--color-brand-ink);
+  width: 100%;
+  /* Explicit ratio reserves the box before the image loads — the
+     previous width:100%/height:auto pattern on a plain <img> with no
+     width/height attributes had no intrinsic size to reserve space
+     with, a real CLS source. */
+  aspect-ratio: 4 / 3;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.imageWrapper:hover .image {
+  transform: scale(1.05);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  margin-bottom: var(--space-3);
+}
+
+.separator {
+  opacity: 0.5;
+}
+
+.titleLink {
+  text-decoration: none;
+}
+
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-3) 0;
+  line-height: var(--line-height-tight);
+  transition: color var(--transition-fast);
+}
+
+.titleLink:hover .title {
+  color: var(--color-brand-accent);
+}
+
+.excerpt {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  line-height: var(--line-height-relaxed);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+}
+
+.readingTime {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+}
+
+.readMore {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  transition: color var(--transition-fast);
+}
+
+.readMore:hover {
+  color: var(--color-brand-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .readMore {
+    transition: none;
+  }
+}

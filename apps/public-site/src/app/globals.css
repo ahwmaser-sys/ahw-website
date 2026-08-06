@@ -1,0 +1,106 @@
+@import '@agp/design-tokens/styles/tokens.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100vh;
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Global header clearance ───
+   The NavigationHeader is position:fixed with height ~72px (logo 48px + padding).
+   We push the app-root down so content never hides behind it.
+   Using CSS custom property so it can be changed in one place.
+   ─────────────────────────────── */
+:root {
+  /* Matches Header.module.css .header: logo(48px) + padding-top(20px) + padding-bottom(20px) */
+  --header-height: 88px;
+  --tracking-wider: 0.08em;
+  --space-5: 1.25rem;
+  --space-20: 5rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    /* Matches Header.module.css mobile .header/.scrolled: logo(36px) + padding-top(12px) + padding-bottom(12px) */
+    --header-height: 60px;
+  }
+}
+
+#app-root {
+  padding-top: var(--header-height);
+}
+
+/* Reset Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Keyboard focus visibility (mouse/touch users unaffected) */
+:focus-visible {
+  outline: 2px solid var(--color-brand-accent, #7FB8E0);
+  outline-offset: 2px;
+}
+
+/* Skip-to-content link — visually hidden until keyboard-focused */
+.skipLink {
+  position: absolute;
+  top: -100px;
+  left: var(--space-6);
+  z-index: 200;
+  background-color: var(--color-brand-paper);
+  color: var(--color-brand-ink);
+  padding: var(--space-3, 0.75rem) var(--space-6);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skipLink:focus {
+  top: var(--space-6);
+}
+
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-secondary);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-4);
+}
+
+h1 { font-size: var(--font-size-display); }
+h2 { font-size: var(--font-size-4xl); }
+h3 { font-size: var(--font-size-3xl); }
+h4 { font-size: var(--font-size-2xl); }
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Utility classes to support the global grid layout */
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--space-12);
+  }
+}

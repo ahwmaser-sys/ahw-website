@@ -1,0 +1,139 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background-color: rgba(5, 5, 5, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    animation: none;
+  }
+}
+
+.imageWrapper {
+  position: relative;
+  width: 90vw;
+  height: 80vh;
+  max-width: 1600px;
+}
+
+.image {
+  /* Consistent aspect-ratio strategy: always contain, never crop, in the
+     lightbox — cropping is fine for the inline slider, wrong for a
+     gallery view meant to show the whole image. */
+  object-fit: contain;
+  /* Download deterrent, not protection — see A5 in /PRELAUNCH.md. Any of
+     these are trivially bypassed via devtools/network inspection; this
+     just removes the easy, casual save-image-as path. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  line-height: 1;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: var(--color-brand-paper, #fff);
+  cursor: pointer;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--color-brand-accent, #fff);
+  outline-offset: 3px;
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: var(--color-brand-paper, #fff);
+  cursor: pointer;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navButton:focus-visible {
+  outline: 2px solid var(--color-brand-accent, #fff);
+  outline-offset: 3px;
+}
+
+.prevButton {
+  left: var(--space-6);
+}
+
+.nextButton {
+  right: var(--space-6);
+}
+
+.counter {
+  position: absolute;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone, #8b929a);
+  letter-spacing: var(--tracking-wide);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .closeButton,
+  .navButton {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .prevButton {
+    left: var(--space-2);
+  }
+
+  .nextButton {
+    right: var(--space-2);
+  }
+
+  .imageWrapper {
+    width: 95vw;
+    height: 70vh;
+  }
+}

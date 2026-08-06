@@ -1,0 +1,53 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  group: card;
+  cursor: pointer;
+}
+
+.imageWrapper {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background-color: var(--color-neutral-100);
+  margin-bottom: var(--space-6);
+  position: relative;
+}
+
+/* Simulated Image for placeholder */
+.imageWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, var(--color-brand-ink), var(--color-neutral-900));
+  transition: transform var(--transition-epic);
+}
+
+.card:hover .imageWrapper::before {
+  transform: scale(1.08); /* Slow, cinematic zoom on hover */
+}
+
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin-bottom: var(--space-2);
+  transition: color var(--transition-normal);
+}
+
+.description {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-brand-stone);
+  line-height: var(--line-height-relaxed);
+  transition: transform var(--transition-normal);
+}
+
+.card:hover .title {
+  color: var(--color-brand-accent);
+}

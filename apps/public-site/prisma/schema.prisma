@@ -1,0 +1,1192 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // shadowDatabaseUrl for `migrate dev` is configured in prisma.config.ts
+  // (Prisma 7 moved connection URLs there) — see that file's comment for
+  // why it's needed at all.
+}
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  office  String // 'egypt' or 'kuwait'
+  name    String
+  company String?
+  email   String
+  phone   String
+  country String
+
+  projectType String
+  budget      String?
+  timeline    String
+  message     String  @db.Text
+
+  ipAddress String?
+  userAgent String?
+  status    String  @default("New") // New, Contacted, Closed
+
+  // Raw attribution signal only — website's job stops at capturing where a
+  // submission came from, never scoring/qualifying it. Lead pipeline and
+  // conversion tracking belong to the future ERP's CRM (see
+  // /CONTENT-STUDIO-PLAN.md §0/§11).
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  landingPath String?
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Client Portal / Admin Panel — see /PORTAL-PLAN.md for the full
+// architecture writeup this schema implements.
+// ─────────────────────────────────────────────────────────────────
+
+// ── Identity & Access ──
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  CLIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+model User {
+  id              String     @id @default(cuid())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  email           String     @unique
+  passwordHash    String
+  role            Role
+  status          UserStatus @default(ACTIVE)
+  emailVerifiedAt DateTime?
+  name            String
+  phone           String?
+
+  // Client-realm users are linked to exactly one Client record. Staff
+  // (SUPER_ADMIN/ADMIN/EDITOR) have no Client — realm is inferred from
+  // role, not a separate column.
+  client   Client? @relation(fields: [clientId], references: [id])
+  clientId String? @unique
+
+  memberships        ProjectMember[]
+  sentMessages       Message[]                @relation("MessageSender")
+  notifications      Notification[]
+  activityLogs       ActivityLog[]
+  sessions           Session[]
+  passwordResets     PasswordResetToken[]
+  emailVerifications EmailVerificationToken[]
+  uploadedDocuments  Document[]
+  authoredUpdates    ProjectUpdate[]
+  authoredNewsPosts  NewsPost[]
+
+  // ── Marketing Studio ──
+  uploadedMediaAssets MediaAsset[]
+  createdCampaigns    Campaign[]
+  createdLandingPages LandingPage[]
+  createdGraphics     GeneratedGraphic[]
+  createdTemplates    SocialTemplate[]
+
+  // ── Go-live: Settings Center ──
+  connectedIntegrations IntegrationConfig[]
+  invitedById           String?
+  invitedBy             User?     @relation("StaffInvitedBy", fields: [invitedById], references: [id])
+  invitedUsers          User[]    @relation("StaffInvitedBy")
+
+  @@index([role])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ── Offices (Multi-Office Architecture) ──
+// Global Company (BrandKit's companyInfo/legalName/websiteUrl) sits
+// above every office; everything office-specific — contact identity,
+// social accounts, publishing participation, Clients, Projects — hangs
+// off an Office row instead of a single hardcoded company profile.
+// Unlimited, admin-creatable: nothing in this schema or the code that
+// reads it assumes exactly two offices, or that Egypt/Kuwait are the
+// only ones that will ever exist.
+
+enum OfficeStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model Office {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  name           String // internal/back-office label, e.g. "Kuwait Head Office" — never shown to site visitors
+  displayName    String // the public-facing label, e.g. "GCC Office" — may deliberately differ from `name` (regional branding, etc.)
+  slug           String       @unique // "egypt" — used in /contact/[office] and as a stable machine key
+  country        String
+  city           String
+  isHeadquarters Boolean      @default(false)
+  status         OfficeStatus @default(ACTIVE)
+  sortOrder      Int          @default(0)
+
+  addressFull     String
+  addressStreet   String?
+  addressBuilding String?
+  mapLink         String? // short share link (e.g. maps.app.goo.gl/...)
+  mapEmbedUrl     String? // full google.com/maps/embed?pb=... iframe src
+
+  phones String[]
+  emails String[] // first entry is the primary/display email by convention
+  website String? // office-specific page/domain, if distinct from the global site
+  workingHours String?
+  timezone     String?
+  defaultLanguage String @default("en")
+
+  // Public-facing listing link (distinct from the GOOGLE_BUSINESS
+  // IntegrationConfig credential below, which is for automated posting).
+  googleBusinessProfileUrl String?
+
+  // Public social profile URLs for display (footer/contact page icons) —
+  // distinct from the per-office IntegrationConfig rows that hold the
+  // actual publishing credential for the same platforms.
+  socialLinks Json? // { instagram, facebook, linkedin, whatsapp, bookingUrl }
+
+  ctaLabel String?
+  ctaUrl   String?
+
+  // Optional per-office overrides — absent means "inherit from the
+  // global BrandKit," never a second source of truth to keep in sync.
+  brandOverride   Json? // partial BrandColors
+  logoOverrideId  String?
+  qrCodeAssetId   String?
+
+  clients                Client[]
+  projects               Project[]
+  integrationConfigs     IntegrationConfig[]
+  socialPosts            SocialPost[]
+  publishingDestinations PublishingDestination[]
+
+  @@index([status])
+}
+
+// ── Clients & Projects ──
+
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
+}
+
+model Client {
+  id          String          @id @default(cuid())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  companyName String
+  officeId    String
+  office      Office          @relation(fields: [officeId], references: [id])
+  // Soft delete — a Client is referenced by Users, ProjectMembers, and
+  // (through Project) years of Portal history, so hard-deleting one would
+  // either cascade away real records or need to be blocked outright.
+  // Archiving hides it from the default admin list and blocks new client
+  // logins (see requireProjectAccess) without losing anything.
+  archivedAt  DateTime?
+  user        User?
+  memberships ProjectMember[]
+
+  @@index([officeId])
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  name            String
+  description     String?
+  progressPercent Int           @default(0)
+  status          ProjectStatus @default(ACTIVE)
+  officeId        String
+  office          Office        @relation(fields: [officeId], references: [id])
+
+  members      ProjectMember[]
+  milestones   Milestone[]
+  updates      ProjectUpdate[]
+  photos       Photo[]
+  documents    Document[]
+  invoices     Invoice[]
+  messages     Message[]
+  activityLogs ActivityLog[]
+  mediaAssets  MediaAsset[]
+
+  @@index([status])
+  @@index([officeId])
+}
+
+// Explicit join table, not an implicit m:n — real per-membership metadata
+// and a DB-level uniqueness constraint per user/client x project.
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@unique([projectId, clientId])
+  @@index([projectId])
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  dueDate     DateTime?
+  completedAt DateTime?
+  sortOrder   Int       @default(0)
+
+  @@index([projectId])
+}
+
+model ProjectUpdate {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+enum PhotoPhase {
+  BEFORE
+  DURING
+  AFTER
+}
+
+model Photo {
+  id         String     @id @default(cuid())
+  projectId  String
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  storageKey String
+  caption    String?
+  phase      PhotoPhase @default(DURING)
+  takenAt    DateTime?
+  createdAt  DateTime   @default(now())
+
+  @@index([projectId])
+}
+
+enum DocumentCategory {
+  DRAWING
+  CONTRACT
+  BOQ
+  REPORT
+  WARRANTY
+  INVOICE
+  OTHER
+}
+
+model Document {
+  id           String           @id @default(cuid())
+  projectId    String
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  storageKey   String
+  fileName     String
+  fileType     String
+  fileSize     Int
+  category     DocumentCategory
+  uploadedById String
+  uploadedBy   User             @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime         @default(now())
+
+  @@index([projectId])
+}
+
+enum InvoiceStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
+model Invoice {
+  id         String        @id @default(cuid())
+  projectId  String
+  project    Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  amount     Decimal
+  currency   String        @default("USD")
+  status     InvoiceStatus @default(PENDING)
+  dueDate    DateTime?
+  documentId String?
+  createdAt  DateTime      @default(now())
+
+  payments Payment[]
+
+  @@index([projectId])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount    Decimal
+  paidAt    DateTime @default(now())
+  method    String?
+  reference String?
+
+  @@index([invoiceId])
+}
+
+// ── Communication ──
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id])
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+// ── Content & Social (Stage D) ──
+
+enum NewsPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+// "Articles" in the admin UI and in /CONTENT-STUDIO-PLAN.md's language — the
+// model keeps its original name (NewsPost) rather than being renamed, since a
+// rename would touch every already-verified public route
+// (getPublicNewsItems, feed.xml, sitemap) for zero functional gain. Extended
+// in place, not replaced.
+model NewsPost {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  title         String
+  slug          String         @unique
+  excerpt       String
+  body          String         @db.Text
+  coverImageKey String? // legacy field predating the Media Library — superseded by featuredImageId, kept for existing rows
+  status        NewsPostStatus @default(DRAFT)
+  publishedAt   DateTime?
+  authorId      String
+  author        User           @relation(fields: [authorId], references: [id])
+
+  campaignId String?
+  campaign   Campaign? @relation(fields: [campaignId], references: [id])
+
+  featuredImageId String?
+  featuredImage   MediaAsset?            @relation("NewsPostFeaturedImage", fields: [featuredImageId], references: [id])
+  ogImageId       String?
+  ogImage         MediaAsset?            @relation("NewsPostOgImage", fields: [ogImageId], references: [id])
+  gallery         NewsPostGalleryImage[]
+
+  categories NewsPostCategory[]
+  tags       NewsPostTag[]
+
+  // SEO / Open Graph — all optional, all fall back to title/excerpt/featuredImage
+  // at render time rather than blocking publish on missing values.
+  metaTitle          String?
+  metaDescription    String?
+  canonicalUrl       String?
+  ogTitle            String?
+  ogDescription      String?
+  structuredDataType String  @default("NewsArticle") // schema.org type: "Article" | "NewsArticle" | "BlogPosting"
+
+  // AI Marketing Assistant output — see lib/portal/ai/. Suggestions an editor
+  // reviews and applies, never auto-applied to the live metaTitle/
+  // metaDescription fields above.
+  aiSeoTitle          String?
+  aiMetaDescription   String?
+  aiAltText           String?
+  aiCaption           String?  @db.Text
+  aiSuggestedHashtags String[]
+  aiSuggestedKeywords String[]
+  aiSuggestedCta      String?
+  aiMarketingSummary  String?  @db.Text
+
+  socialPosts       SocialPost[]
+  generatedGraphics GeneratedGraphic[]
+
+  // "Publishing Target" — which offices' connected accounts dispatch
+  // picks up when this post is published. Empty array is the "All
+  // Offices" convention (dispatch.ts iterates every ACTIVE office when
+  // this is empty), a non-empty list scopes it to exactly those offices
+  // ("Egypt only", "Egypt + Kuwait", ...). Never a fixed two-office
+  // assumption — works the same whether there are 2 offices or 20.
+  publishToOfficeIds String[]
+
+  @@index([status])
+  @@index([campaignId])
+}
+
+model NewsPostGalleryImage {
+  id         String     @id @default(cuid())
+  newsPostId String
+  newsPost   NewsPost   @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  assetId    String
+  asset      MediaAsset @relation(fields: [assetId], references: [id])
+  sortOrder  Int        @default(0)
+
+  @@index([newsPostId])
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  FACEBOOK
+  LINKEDIN
+  GOOGLE_BUSINESS
+}
+
+enum SocialPostMode {
+  AUTO
+  MANUAL
+}
+
+enum SocialPostStatus {
+  PENDING
+  POSTED
+  MANUAL
+  FAILED
+}
+
+model SocialPost {
+  id           String           @id @default(cuid())
+  newsPostId   String
+  newsPost     NewsPost         @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  campaignId   String?
+  campaign     Campaign?        @relation(fields: [campaignId], references: [id])
+  // Which office's connected account this dispatch used — required, not
+  // optional, since "platform" alone no longer identifies a unique
+  // account once an office can have its own Instagram/Facebook/LinkedIn/
+  // Google Business connection.
+  officeId     String
+  office       Office           @relation(fields: [officeId], references: [id])
+  platform     SocialPlatform
+  mode         SocialPostMode
+  status       SocialPostStatus @default(PENDING)
+  caption      String?          @db.Text
+  permalink    String?
+  errorMessage String?
+  attemptCount Int              @default(0)
+  postedAt     DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Google Business Profile-specific fields — nullable, only set for
+  // GOOGLE_BUSINESS rows. Kept on the shared table rather than a parallel
+  // model since the rest of the shape (mode/status/caption/permalink/
+  // retry) is identical; see the publishing destination registry for how
+  // adapters branch on platform.
+  gbpTopicType String?
+  gbpCtaType   String?
+  gbpCtaUrl    String?
+
+  @@unique([newsPostId, platform, officeId])
+  @@index([status])
+  @@index([campaignId])
+  @@index([officeId])
+}
+
+// ── Marketing Studio: Campaigns ──
+// Top-level marketing object. A campaign is a container, not a workflow —
+// it doesn't gate or sequence the items linked to it, it just groups them
+// so "everything for the Q1 launch" is one query away.
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  name        String
+  slug        String         @unique
+  description String?
+  status      CampaignStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdById String
+  createdBy   User           @relation(fields: [createdById], references: [id])
+
+  newsPosts         NewsPost[]
+  socialPosts       SocialPost[]
+  generatedGraphics GeneratedGraphic[]
+  landingPages      LandingPage[]
+
+  @@index([status])
+}
+
+// ── Marketing Studio: Landing Pages ──
+
+enum LandingPageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// `blocks` is an ordered array of content blocks (hero, rich text, image,
+// gallery, CTA, testimonial, form-embed, ...) rather than a fixed set of
+// columns — a landing page's structure varies per campaign in a way a rigid
+// schema can't anticipate. Each block references MediaAsset ids by string
+// inside the JSON (tracked for reuse via MediaAssetUsage, not a DB-enforced
+// FK) rather than a relational structure, the same trade-off BrandKit makes
+// below and for the same reason.
+model LandingPage {
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  title           String
+  slug            String            @unique
+  status          LandingPageStatus @default(DRAFT)
+  publishedAt     DateTime?
+  campaignId      String?
+  campaign        Campaign?         @relation(fields: [campaignId], references: [id])
+  blocks          Json
+  metaTitle       String?
+  metaDescription String?
+  ogImageId       String?
+  ogImage         MediaAsset?       @relation("LandingPageOgImage", fields: [ogImageId], references: [id])
+  createdById     String
+  createdBy       User              @relation(fields: [createdById], references: [id])
+
+  @@index([status])
+  @@index([campaignId])
+}
+
+// ── Marketing Studio: Media Library (Digital Asset Manager) ──
+
+enum MediaAssetKind {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  ICON
+  LOGO
+}
+
+enum AssetOrientation {
+  LANDSCAPE
+  PORTRAIT
+  SQUARE
+}
+
+enum ServiceLine {
+  ARCHITECTURE
+  INTERIOR_DESIGN
+  DESIGN_BUILD
+  FIT_OUT
+}
+
+model MediaAsset {
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  kind            MediaAssetKind
+  storageKey      String
+  fileName        String
+  fileType        String
+  fileSize        Int
+  width           Int?
+  height          Int?
+  durationSeconds Int? // VIDEO only, via ffprobe when available at runtime — see lib/portal/media/video.ts
+  orientation     AssetOrientation?
+  dominantColors  String[]
+  keywords        String[]
+  aiTags          String[]
+  photographer    String?
+  copyright       String?
+  altText         String?
+  projectId       String?
+  project         Project?          @relation(fields: [projectId], references: [id])
+  service         ServiceLine?
+  uploadedById    String
+  uploadedBy      User              @relation(fields: [uploadedById], references: [id])
+  // Soft delete — hard-deleting a MediaAsset still in use (see
+  // MediaAssetUsage) would break whatever references it; archiving hides
+  // it from the default library view without breaking anything already
+  // published. Hard delete is only offered in the UI once usages is
+  // empty, which is the one case it's genuinely safe.
+  archivedAt      DateTime?
+
+  categories          MediaAssetCategory[]
+  tags                MediaAssetTag[]
+  collections         MediaCollectionAsset[]
+  variants            MediaAssetVariant[]
+  usages              MediaAssetUsage[]
+  newsPostsFeatured   NewsPost[]             @relation("NewsPostFeaturedImage")
+  newsPostsOgImage    NewsPost[]             @relation("NewsPostOgImage")
+  galleryEntries      NewsPostGalleryImage[]
+  landingPagesOgImage LandingPage[]          @relation("LandingPageOgImage")
+  generatedGraphics   GeneratedGraphic[]
+
+  @@index([kind])
+  @@index([orientation])
+  @@index([projectId])
+}
+
+// One row per (asset, purpose) — a purpose is a free string ("instagram-
+// portrait", "og", "hero-1920"), not a closed enum, so a new output target
+// (Section: output-targets.ts registry) never needs a migration. cropRegion
+// holds a manual override rectangle when the automatic attention-crop was
+// adjusted by an editor; null means "use the automatic crop."
+model MediaAssetVariant {
+  id         String     @id @default(cuid())
+  createdAt  DateTime   @default(now())
+  assetId    String
+  asset      MediaAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  purpose    String
+  storageKey String
+  width      Int
+  height     Int
+  cropRegion Json?
+
+  @@unique([assetId, purpose])
+  @@index([assetId])
+}
+
+// Tracks where an asset is actually referenced across the site, so the
+// Media Library can show "used in 3 places" and warn before deleting
+// something still in use — written by the code path that sets an asset
+// reference (featured image, gallery entry, landing-page block, generated
+// graphic source), not inferred after the fact.
+model MediaAssetUsage {
+  id         String     @id @default(cuid())
+  assetId    String
+  asset      MediaAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  entityType String // "NewsPost" | "LandingPage" | "GeneratedGraphic" | "BrandKit" | ...
+  entityId   String
+  createdAt  DateTime   @default(now())
+
+  @@unique([assetId, entityType, entityId])
+  @@index([entityType, entityId])
+}
+
+model MediaCollection {
+  id          String                 @id @default(cuid())
+  createdAt   DateTime               @default(now())
+  name        String
+  slug        String                 @unique
+  description String?
+  assets      MediaCollectionAsset[]
+}
+
+model MediaCollectionAsset {
+  collectionId String
+  collection   MediaCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  assetId      String
+  asset        MediaAsset      @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  sortOrder    Int             @default(0)
+
+  @@id([collectionId, assetId])
+}
+
+// ── Marketing Studio: shared taxonomy ──
+// Shared between NewsPost and MediaAsset deliberately — "Luxury
+// Residential" or "before-after" means the same thing on an article or an
+// image, and sharing the table is what makes a future "everything tagged
+// before-after" browse view possible without a UNION across two taxonomies.
+
+model Category {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  slug        String               @unique
+  newsPosts   NewsPostCategory[]
+  mediaAssets MediaAssetCategory[]
+}
+
+model Tag {
+  id          String          @id @default(cuid())
+  name        String          @unique
+  slug        String          @unique
+  newsPosts   NewsPostTag[]
+  mediaAssets MediaAssetTag[]
+}
+
+model NewsPostCategory {
+  newsPostId String
+  newsPost   NewsPost @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([newsPostId, categoryId])
+}
+
+model NewsPostTag {
+  newsPostId String
+  newsPost   NewsPost @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  tagId      String
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([newsPostId, tagId])
+}
+
+model MediaAssetCategory {
+  mediaAssetId String
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([mediaAssetId, categoryId])
+}
+
+model MediaAssetTag {
+  mediaAssetId String
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  tagId        String
+  tag          Tag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([mediaAssetId, tagId])
+}
+
+// ── Marketing Studio: Brand Kit ──
+// Deliberately a small number of structured JSON blobs rather than one
+// column/relation per brand property: colors, typography weights, and CTA
+// presets are naturally nested config, not relational data, and asset
+// references (logos/watermark) are stored as MediaAsset id strings inside
+// JSON rather than FK relations — trading DB-enforced referential
+// integrity for a schema that doesn't need a migration every time a new
+// brand property is added. Existence of a referenced asset id is validated
+// in the action that writes it, not by the database. In practice one
+// active row at a time (`isActive`), enforced by the admin UI, not a DB
+// constraint — a second row is how a future "seasonal palette" variant
+// could work without a schema change.
+model BrandKit {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @default("AHW Architects")
+  colors      Json // { ink, paper, stone, accentDark, accentLight } — seeded from packages/design-tokens
+  typography  Json // { primaryFont, secondaryFont, weights: { light, regular, medium } }
+  ctaStyles   Json // named presets: { default: { label, background, foreground }, ... }
+  logos       Json // { light: MediaAsset id, dark: MediaAsset id, icon: MediaAsset id }
+  watermark   Json? // { assetId, opacity, position }
+  qrCodeStyle Json? // { foreground, background, logoOverlay }
+  // The Public Website Domain (Multi-Office Audit's explicit distinction:
+  // this is only where the site is reachable, never the company's legal
+  // identity — see companyInfo.legalName below). Editable from
+  // Settings → Brand; every consumer (canonical URLs, OG, QR codes,
+  // sitemap, structured data, email templates/signatures, CTA links)
+  // reads it from here through lib/site-config.ts's getSiteUrl(), never
+  // a second hardcoded copy of the domain.
+  websiteUrl  String   @default("https://ahwspaces.com")
+  isActive    Boolean  @default(true)
+
+  // Global Company identity — distinct from any one Office (see the
+  // Office model). companyInfo.legalName is the one true legal name;
+  // changing websiteUrl above must never touch it.
+  companyInfo     Json? // { legalName, tagline, founded }
+  defaultCta      Json? // { label, url }
+  defaultHashtags String[]
+  brandVoice      String? @db.Text
+  emailSignature  String? @db.Text
+  footerSettings  Json? // { copyrightText, showLegalLinks }
+}
+
+// ── Marketing Studio: Social Template Engine ──
+// `definition` is the entire template — an ordered list of layers (image,
+// overlay, text, logo, qrcode, watermark) interpreted at render time by one
+// generic renderer (lib/content-studio/template-engine/render.ts). Adding a
+// template means inserting a new row with a new `definition`, never editing
+// the renderer — that's the actual mechanism behind "no hardcoded
+// templates."
+model SocialTemplate {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  key             String   @unique
+  name            String
+  category        String
+  description     String?
+  definition      Json
+  previewImageKey String?
+  isActive        Boolean  @default(true)
+  isOfficial      Boolean  @default(false)
+  createdById     String?
+  createdBy       User?    @relation(fields: [createdById], references: [id])
+
+  generatedGraphics GeneratedGraphic[]
+
+  @@index([category])
+}
+
+// One row per "generate graphics" action — links the template, the source
+// asset, and the resolved variable values used, so a generation can be
+// reproduced or audited later. `outputs` holds one row per platform size
+// produced in that single action.
+model GeneratedGraphic {
+  id            String                   @id @default(cuid())
+  createdAt     DateTime                 @default(now())
+  templateId    String
+  template      SocialTemplate           @relation(fields: [templateId], references: [id])
+  sourceAssetId String
+  sourceAsset   MediaAsset               @relation(fields: [sourceAssetId], references: [id])
+  newsPostId    String?
+  newsPost      NewsPost?                @relation(fields: [newsPostId], references: [id])
+  campaignId    String?
+  campaign      Campaign?                @relation(fields: [campaignId], references: [id])
+  variables     Json // resolved values used at generation time (projectName, headline, ctaText, ...)
+  createdById   String
+  createdBy     User                     @relation(fields: [createdById], references: [id])
+  outputs       GeneratedGraphicOutput[]
+
+  @@index([newsPostId])
+  @@index([campaignId])
+}
+
+model GeneratedGraphicOutput {
+  id                 String           @id @default(cuid())
+  generatedGraphicId String
+  generatedGraphic   GeneratedGraphic @relation(fields: [generatedGraphicId], references: [id], onDelete: Cascade)
+  purpose            String
+  storageKey         String
+  width              Int
+  height             Int
+
+  @@unique([generatedGraphicId, purpose])
+}
+
+// ── Settings Center: Integrations ──
+// One row per external service — Instagram/Facebook/LinkedIn/Google
+// Business/Google Analytics/Google Search Console/Google Maps/Email, plus
+// one per AI provider (AI_*). This is what makes every one of them
+// Connect/Disconnect/Reconnect/Test-able from Settings → Integrations
+// without ever touching .env after deployment: the resulting *access
+// token* lives here (encrypted), not in an env var.
+//
+// The one thing genuinely still in env is each platform's *app-level*
+// OAuth client id/secret (META_APP_ID/SECRET, GOOGLE_CLIENT_ID/SECRET,
+// LINKEDIN_CLIENT_ID/SECRET) — issued once when the owner registers a
+// developer app with that platform. That's a one-time infrastructure
+// step analogous to SESSION_SECRET, not day-to-day operation, and it's
+// a real business/account-ownership decision this codebase can't make
+// on the owner's behalf — see the go-live report's "Remaining Owner
+// Decisions."
+enum IntegrationType {
+  INSTAGRAM
+  FACEBOOK
+  LINKEDIN
+  GOOGLE_BUSINESS
+  GOOGLE_ANALYTICS
+  GOOGLE_SEARCH_CONSOLE
+  GOOGLE_MAPS
+  SMTP_EMAIL
+  AI_ANTHROPIC
+  AI_OPENAI
+  AI_GEMINI
+  AI_OPENROUTER
+}
+
+enum IntegrationStatus {
+  NOT_CONNECTED
+  PENDING
+  CONNECTED
+  ERROR
+}
+
+// officeId scopes the four social platform types (each office connects
+// its own Instagram/Facebook/LinkedIn/Google Business) — always null
+// for company-wide integrations (AI providers, GA4/GSC, Maps, Email),
+// which stay singletons via the same findFirst-then-upsert-by-id
+// pattern BrandKit/PortalSettings/AISettings already use (Postgres
+// treats every NULL in a unique index as distinct, so @@unique below
+// only actually constrains the office-scoped rows, by design — see
+// lib/portal/integrations/store.ts for where the global-singleton rule
+// is enforced at the application layer instead).
+model IntegrationConfig {
+  id                   String            @id @default(cuid())
+  type                 IntegrationType
+  officeId             String?
+  office               Office?           @relation(fields: [officeId], references: [id])
+  status               IntegrationStatus @default(NOT_CONNECTED)
+  // AES-256-GCM ciphertext of a JSON credential payload (shape varies by
+  // type: {accessToken} for social, {apiKey} for AI/Maps, {serviceAccountJson}
+  // for GA4/GSC, {apiKey} for email) — see lib/portal/integrations/encryption.ts.
+  // Never stored or logged in plaintext.
+  credentialCiphertext String?           @db.Text
+  // Non-secret display data only: connected account name/id, granted
+  // OAuth scopes, available model list — safe to render directly in the
+  // admin UI.
+  metadata             Json?
+  scopes               String[] // OAuth scopes actually granted at connect time
+  lastTestedAt         DateTime?
+  lastSuccessAt        DateTime?
+  lastError            String?
+  lastTokenRefreshAt   DateTime? // set at connect/reconnect time; no automatic background refresh exists (see System Health's honest "no background worker" note) — Reconnect is the manual equivalent
+  lastPublishAt        DateTime?
+  lastPublishError     String?
+  connectedAt          DateTime?
+  connectedById        String?
+  connectedBy          User?             @relation(fields: [connectedById], references: [id])
+  updatedAt            DateTime          @updatedAt
+
+  @@unique([type, officeId])
+  @@index([status])
+  @@index([officeId])
+}
+
+// Which connected AI provider/model the AI Marketing Assistant uses by
+// default — separate from IntegrationConfig (the credential itself)
+// since this is a small piece of selection state, not a secret.
+// Singleton row, same pattern as BrandKit/PortalSettings.
+model AISettings {
+  id              String            @id @default(cuid())
+  defaultProvider IntegrationType?
+  defaultModel    String?
+  updatedAt       DateTime          @updatedAt
+}
+
+// ── Settings Center: Client Portal ──
+// Replaces PORTAL_ENABLED as the runtime source of truth for whether
+// /client is live — the owner manages this from Settings → Client Portal
+// without touching .env after deployment. Singleton row, same pattern as
+// BrandKit. PORTAL_ENABLED remains only as the pre-seed default (see
+// proxy.ts) so a brand-new deployment with no row yet still boots closed,
+// and as a hard, infra-level kill switch a deployer can still reach even
+// if the database is unavailable.
+model PortalSettings {
+  id                String   @id @default(cuid())
+  enabled           Boolean  @default(false)
+  maintenanceMode   Boolean  @default(false)
+  allowInvitations  Boolean  @default(true)
+  welcomeMessage    String?  @db.Text
+  portalLogoAssetId String?
+  supportEmail      String?
+  supportPhone      String?
+  updatedAt         DateTime @updatedAt
+}
+
+// ── Settings Center: Email destinations ──
+// Singleton row, same pattern as BrandKit/PortalSettings/AISettings —
+// every destination inbox the app emails (Contact, Careers, and
+// whatever's added later) is admin-editable here. Nothing reads a
+// destination address from an env var anymore; the app-level defaults
+// baked into getEmailSettings() only seed this row's first creation.
+model EmailSettings {
+  id                  String   @id @default(cuid())
+  primaryContactEmail String
+  secondaryContactEmail String?
+  careersEmail        String?
+  hrEmail              String?
+  supportEmail         String?
+  salesEmail            String?
+
+  // Sender identity per email type — distinct from the recipient fields
+  // above. These control the "From"/"Reply-To" headers each outbound
+  // type sends with; unset means the hardcoded default sender
+  // ('AHW Architects <noreply@contact.ahwspaces.com>', no reply-to)
+  // still applies, so this is purely additive. Only Contact and Careers
+  // have a live sending code path today (see api/contact, api/careers) —
+  // Support/Sales/Marketing identities are stored the same way, ready
+  // for whenever a route sends under those types, same as their
+  // still-unwired supportEmail/salesEmail recipient fields above.
+  contactFromName    String?
+  contactFromEmail   String?
+  contactReplyTo     String?
+  careersFromName    String?
+  careersFromEmail   String?
+  careersReplyTo     String?
+  supportFromName    String?
+  supportFromEmail   String?
+  supportReplyTo     String?
+  salesFromName      String?
+  salesFromEmail     String?
+  salesReplyTo       String?
+  marketingFromName  String?
+  marketingFromEmail String?
+  marketingReplyTo   String?
+
+  updatedAt            DateTime @updatedAt
+}
+
+// ── Settings Center: Legal pages ──
+// Privacy Policy / Terms of Service / Cookie Policy / Data Deletion —
+// admin-editable content instead of hardcoded page copy, so the URLs
+// Meta/Google/LinkedIn app review asks for are both stable and honest
+// about what the site currently does. `slug` is the fixed, well-known
+// path each of those platforms expects (e.g. /privacy-policy).
+enum LegalPageType {
+  PRIVACY_POLICY
+  TERMS_OF_SERVICE
+  COOKIE_POLICY
+  DATA_DELETION
+}
+
+model LegalPage {
+  id        String        @id @default(cuid())
+  type      LegalPageType @unique
+  title     String
+  slug      String        @unique
+  body      String        @db.Text // Markdown-ish plain text, rendered as paragraphs — same authoring level as everything else editable from a textarea in this admin panel
+  updatedAt DateTime      @updatedAt
+}
+
+// One row per (office, platform) — participation is decided per office,
+// not once globally, since Egypt's Instagram being enabled says nothing
+// about whether Kuwait's should be. This is deliberately a Marketing
+// concern (which of an office's connected accounts actually participate
+// in dispatch), separate from Settings → Integrations (whether the
+// credential itself is connected) — see /admin/publishing.
+model PublishingDestination {
+  id        String         @id @default(cuid())
+  officeId  String
+  office    Office         @relation(fields: [officeId], references: [id])
+  platform  SocialPlatform
+  isEnabled Boolean        @default(false)
+  config    Json?
+  updatedAt DateTime       @updatedAt
+
+  @@unique([platform, officeId])
+  @@index([officeId])
+}
+
+// ── Marketing Studio: Analytics ──
+// Self-hosted, works with zero external dependency — "most viewed
+// projects/articles," "content performance." GA4-sourced metrics (organic
+// traffic, keywords) and true social engagement are a separate, external
+// data source (see AnalyticsPort in packages/application) — not stored
+// here, since this app cannot honestly produce numbers no API credential
+// exists to fetch.
+model PageView {
+  id          String   @id @default(cuid())
+  occurredAt  DateTime @default(now())
+  path        String
+  entityType  String? // "Project" | "NewsPost" | "LandingPage" | null for generic pages
+  entityId    String?
+  campaignId  String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
+  @@index([path])
+  @@index([entityType, entityId])
+  @@index([occurredAt])
+  @@index([campaignId])
+}
+
+// ── ERP integration boundary ──
+// Durable outbound event log a future ERP can poll or have replayed to it —
+// mirrors packages/application's existing (currently unimplemented)
+// EventBusPort/DomainEventEnvelope shape field-for-field, so that port's
+// eventual implementation can just read this table. See
+// /CONTENT-STUDIO-PLAN.md §11.
+model DomainEventOutbox {
+  id          String    @id @default(cuid())
+  occurredAt  DateTime  @default(now())
+  eventType   String // "enquiry.created" | "newspost.published" | "project.status_changed" | ...
+  payload     Json
+  deliveredAt DateTime?
+
+  @@index([eventType])
+  @@index([deliveredAt])
+}
+
+// ── Rate limiting ──
+
+// One row per attempt, not one row per key with a rolling array — plain
+// inserts/counts avoid read-modify-write contention under concurrent
+// requests hitting the same key (e.g. a login brute-force from one IP).
+// Postgres-backed rather than in-memory: a serverless deployment (Vercel)
+// can run each request in a different, memory-isolated container, so an
+// in-memory Map would silently stop limiting anything.
+model RateLimitAttempt {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}
+
+// ── Audit ──
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  actorEmail String?
+  action     String
+  entityType String?
+  entityId   String?
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id])
+  metadata   String?  @db.Text
+  ipAddress  String?
+
+  @@index([action])
+  @@index([actorId])
+}

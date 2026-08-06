@@ -1,0 +1,16 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/domain" },
+    { "path": "./packages/application" },
+    { "path": "./packages/adapters" },
+    { "path": "./packages/config" },
+    { "path": "./packages/design-tokens" },
+    { "path": "./packages/ui-components" },
+    { "path": "./packages/api-client" },
+    { "path": "./services/core-api" },
+    { "path": "./apps/worker" },
+    { "path": "./apps/web-app" },
+    { "path": "./apps/public-site" }
+  ]
+}

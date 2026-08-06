@@ -1,0 +1,177 @@
+.heroContainer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 800px;
+  overflow: hidden;
+  background-color: var(--color-brand-ink);
+  display: flex;
+  align-items: center; /* Center vertically for a more cinematic feel */
+  padding: 0 var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .heroContainer {
+    padding: 0 var(--space-12);
+  }
+}
+
+.videoBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  transform: scale(1.05); /* Slight zoom in for parallax effect */
+}
+
+.videoLoaded {
+  opacity: 0.7; /* Keep dark to make text pop */
+  transform: scale(1); /* Zoom out smoothly on load */
+}
+
+/* Multi-image rotation (opt-in via posterSrcs) — ImageRotator handles each
+   image's own opacity; this wrapper only handles the load-in zoom, so it
+   stays visible regardless of class application order. */
+.imageRotation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  transition: transform var(--transition-normal);
+  transform: scale(1.05);
+}
+
+.imageRotation.videoLoaded {
+  transform: scale(1);
+}
+
+/* Dynamic Lighting Scrims */
+.scrimBottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: linear-gradient(to top, rgba(10, 10, 10, 1) 0%, rgba(10, 10, 10, 0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scrimTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(10, 10, 10, 0.8) 0%, rgba(10, 10, 10, 0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 100%; /* Full-width column on mobile — 55vw was ~206px, forcing the subtitle to wrap into 10+ lines and pushing the CTA buttons out of the clipped viewport entirely. */
+  margin: 0; /* Removing auto centering to align left */
+  padding-top: var(--space-12); /* Reduced from 32 so it doesn't push buttons out of viewport */
+  transform: translateY(24px);
+  opacity: 0;
+  animation: revealContent var(--transition-normal) forwards;
+  animation-delay: 0.1s;
+}
+
+@media (min-width: 768px) {
+  .content {
+    max-width: 55vw; /* Left-aligned column at ~55% viewport */
+  }
+}
+
+@keyframes revealContent {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  color: #FFFFFF;
+  font-family: 'Neue Montreal', 'Geist Sans', 'Inter', sans-serif;
+  font-size: clamp(52px, 14vw, 150px);
+  font-weight: 300;
+  line-height: 0.88;
+  letter-spacing: -0.06em;
+  margin-bottom: var(--space-6);
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: clamp(72px, 8vw, 150px);
+  }
+}
+
+.supportingHeading {
+  color: #FFFFFF;
+  font-family: 'Neue Montreal', 'Geist Sans', 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1.2;
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .supportingHeading {
+    font-size: 34px;
+  }
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Neue Montreal', 'Geist Sans', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-bottom: var(--space-8);
+  max-width: 620px;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .subtitle {
+    font-size: 22px;
+    line-height: 1.75;
+    margin-bottom: var(--space-12);
+    text-align: justify; /* Fixes the ragged edges "سطر داخل و سطر خارج" */
+  }
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .videoBackground,
+  .imageRotation {
+    transition: none;
+  }
+
+  .rotationImage {
+    transition: opacity 0.3s ease;
+  }
+}

@@ -1,0 +1,198 @@
+.main {
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.introSection {
+  padding: var(--space-24) 0;
+  background-color: var(--color-brand-paper);
+}
+
+.textContent {
+  max-width: 800px;
+  margin-bottom: var(--space-24);
+}
+
+.heading {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: 300;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-8);
+  line-height: var(--line-height-tight);
+}
+
+.paragraph {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  /* Fixed (not theme-reactive): this section inverts to a light
+     background regardless of site theme, so it needs the light-theme
+     stone value directly — var(--color-brand-stone) only swaps via
+     [data-theme], not local background context, and the dark-theme
+     value fails contrast here (2.85:1 vs 4.5:1 required). */
+  color: #5A6066;
+  margin-bottom: var(--space-6);
+}
+
+.trustStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+  padding-top: var(--space-8);
+  border-top: 1px solid rgba(15, 17, 21, 0.12);
+}
+
+.trustStat {
+  display: flex;
+  flex-direction: column;
+}
+
+.trustNumber {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: 300;
+  color: #0F1115;
+}
+
+.trustLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: #5A6066;
+  margin-top: var(--space-1);
+}
+
+.navigationCards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .navigationCards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.navCard {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  text-decoration: none;
+  background-color: #0F1115;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-normal);
+}
+
+.navCard:hover {
+  transform: translateY(-4px);
+}
+
+.navCardContent {
+  padding: var(--space-8);
+  z-index: 2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.navCardContent h3 {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 400;
+  margin: 0 0 var(--space-4) 0;
+}
+
+.navCardContent p {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: inherit;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.arrow {
+  margin-top: auto;
+  font-size: var(--font-size-xl);
+  transition: transform var(--transition-fast);
+}
+
+.navCard:hover .arrow {
+  transform: translateX(8px);
+}
+
+.navCardImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.navCardImage img {
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.navCardOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1;
+  transition: background-color var(--transition-normal);
+}
+
+.navCard:hover .navCardImage img {
+  transform: scale(1.05);
+}
+
+.navCard:hover .navCardOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.downloadSection {
+  padding: var(--space-24) 0;
+  /* Fixed: var(--color-brand-stone) (#8B929A) is too light for white
+     text to reach 4.5:1 at any opacity (pure white on it caps at
+     ~3.2:1) — darker stone shade, same color family. */
+  background-color: #5A6066;
+  color: #FFFFFF;
+}
+
+.downloadHeading {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 300;
+  margin-bottom: var(--space-4);
+}
+
+.downloadText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  color: inherit;
+  opacity: 0.95;
+  margin-bottom: var(--space-12);
+  max-width: 600px;
+}
+
+.downloadCard {
+  max-width: 800px;
+}

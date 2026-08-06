@@ -1,0 +1,1383 @@
+openapi: 3.1.0
+info:
+  title: AHW Architects Global Platform API
+  version: 1.1.0
+  description: Initial OpenAPI contract generated from docs/06-API-Specification.md.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: /v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Projects
+  - name: BOQ
+  - name: Documents
+  - name: Users
+  - name: Roles
+  - name: Entities
+  - name: Dashboard
+  - name: Notifications
+  - name: Integrations
+  - name: Webhooks
+paths:
+  /projects:
+    post:
+      operationId: createProject
+      tags: [Projects]
+      summary: Create Project
+      description: "Domain Model CreateProject command. Roles: pm, platform_admin."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    get:
+      operationId: listProjects
+      tags: [Projects]
+      summary: List Projects
+      description: "Entity/role-scoped project listing. Roles: all authenticated realms."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          $ref: "#/components/responses/Collection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}:
+    get:
+      operationId: getProject
+      tags: [Projects]
+      summary: Get Project detail
+      description: "RLS-scoped project detail. Roles: all authenticated realms."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Project"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      operationId: updateProject
+      tags: [Projects]
+      summary: Update Project fields
+      description: "Update mutable Project fields. Roles: pm, platform_admin."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IfMatch"
+      responses:
+        "200":
+          $ref: "#/components/responses/Project"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}/phases:
+    post:
+      operationId: addProjectPhase
+      tags: [Projects]
+      summary: Add Phase
+      description: "Add a Phase to a Project. Roles: pm."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}/milestones:
+    post:
+      operationId: addProjectMilestone
+      tags: [Projects]
+      summary: Add Milestone
+      description: "Add a Milestone to a Project. Roles: pm."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}/milestones/{milestoneId}:mark-client-visible:
+    post:
+      operationId: markMilestoneClientVisible
+      tags: [Projects]
+      summary: Mark Milestone Client Visible
+      description: "Apply CanMarkMilestoneClientVisibleSpecification. Roles: pm."
+      x-source: docs/06-API-Specification.md#27-project-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/MilestoneId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}/boq:
+    get:
+      operationId: getProjectBoq
+      tags: [BOQ]
+      summary: Get active BOQ summary
+      description: "Get active BOQ summary. Roles: architect, pm, finance, executive."
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /boq/{boqId}/revisions:
+    post:
+      operationId: createBoqRevision
+      tags: [BOQ]
+      summary: Create new Draft revision
+      description: "Create new Draft revision. Roles: pm, finance."
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/BoqId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /boq/{boqId}/revisions/{revisionId}/line-items:
+    post:
+      operationId: addBoqLineItem
+      tags: [BOQ]
+      summary: Add line item
+      description: "Add line item. Roles: pm, finance."
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/BoqId"
+        - $ref: "#/components/parameters/RevisionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    get:
+      operationId: listBoqLineItems
+      tags: [BOQ]
+      summary: List line items
+      description: Paginated line item listing. RLS-scoped; vendor sees only assigned lines.
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/BoqId"
+        - $ref: "#/components/parameters/RevisionId"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          $ref: "#/components/responses/BoqLineItemCollection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /boq/{boqId}/revisions/{revisionId}:submit-for-approval:
+    post:
+      operationId: submitBoqRevisionForApproval
+      tags: [BOQ]
+      summary: Submit BOQ revision for approval
+      description: "Transition draft to pending_approval. Roles: pm."
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/BoqId"
+        - $ref: "#/components/parameters/RevisionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /boq/{boqId}/revisions/{revisionId}:approve:
+    post:
+      operationId: approveBoqRevision
+      tags: [BOQ]
+      summary: Approve BOQ revision
+      description: "Transition to approved and trigger BoqRevisionApproved event. Roles: finance, pm."
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/BoqId"
+        - $ref: "#/components/parameters/RevisionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "202":
+          $ref: "#/components/responses/Accepted"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /boq/{boqId}/revisions/{revisionId}:export-pdf:
+    post:
+      operationId: exportBoqRevisionPdf
+      tags: [BOQ]
+      summary: Export BOQ revision PDF
+      description: Generate bilingual Arabic-typography-correct PDF through Export Adapter.
+      x-source: docs/06-API-Specification.md#28-boq-apis
+      parameters:
+        - $ref: "#/components/parameters/BoqId"
+        - $ref: "#/components/parameters/RevisionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/SignedUrl"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}/documents:
+    post:
+      operationId: createDocumentPackage
+      tags: [Documents]
+      summary: Create DocumentPackage
+      description: "Create DocumentPackage. Roles: architect, pm."
+      x-source: docs/06-API-Specification.md#29-document-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions:
+    get:
+      operationId: listDocumentVersions
+      tags: [Documents]
+      summary: List versions
+      description: RLS-scoped version listing; client sees current approved and shared version only.
+      x-source: docs/06-API-Specification.md#29-document-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          $ref: "#/components/responses/DocumentVersionCollection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions:initiate-upload:
+    post:
+      operationId: initiateDocumentVersionUpload
+      tags: [Documents]
+      summary: Begin upload
+      description: "Start the two-step signed URL upload flow. Roles: architect, pm."
+      x-source: docs/06-API-Specification.md#25-file-upload-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/SignedUpload"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions/{versionId}:complete-upload:
+    post:
+      operationId: completeDocumentVersionUpload
+      tags: [Documents]
+      summary: Complete upload
+      description: Verify uploaded object exists and transition version to draft.
+      x-source: docs/06-API-Specification.md#25-file-upload-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/VersionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/DocumentVersion"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions/{versionId}:submit-for-review:
+    post:
+      operationId: submitDocumentVersionForReview
+      tags: [Documents]
+      summary: Submit DocumentVersion for review
+      description: "Transition draft to for_review. Roles: architect."
+      x-source: docs/06-API-Specification.md#29-document-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/VersionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/DocumentVersion"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions/{versionId}:approve:
+    post:
+      operationId: approveDocumentVersion
+      tags: [Documents]
+      summary: Approve DocumentVersion
+      description: "Transition for_review to approved and trigger supersession. Roles: pm."
+      x-source: docs/06-API-Specification.md#29-document-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/VersionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/DocumentVersion"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions/{versionId}:export-pdf:
+    post:
+      operationId: exportDocumentVersionPdf
+      tags: [Documents]
+      summary: Export DocumentVersion PDF
+      description: Generate print-ready Arabic-typography-correct PDF through Export Adapter.
+      x-source: docs/06-API-Specification.md#29-document-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/VersionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/SignedUrl"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /documents/{packageId}/versions/{versionId}:download-url:
+    get:
+      operationId: getDocumentVersionDownloadUrl
+      tags: [Documents]
+      summary: Get document version download URL
+      description: Return short-lived signed URL after authorization.
+      x-source: docs/06-API-Specification.md#26-download-apis
+      parameters:
+        - $ref: "#/components/parameters/PackageId"
+        - $ref: "#/components/parameters/VersionId"
+      responses:
+        "200":
+          $ref: "#/components/responses/SignedUrl"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /users:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      summary: List Users
+      description: "Entity-scoped user listing. Roles: platform_admin, pm project-scoped subset."
+      x-source: docs/06-API-Specification.md#30-user-apis
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          $ref: "#/components/responses/Collection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: provisionUser
+      tags: [Users]
+      summary: Provision a User
+      description: "Provision a User. Roles: platform_admin."
+      x-source: docs/06-API-Specification.md#30-user-apis
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /users/{userId}:
+    patch:
+      operationId: updateUser
+      tags: [Users]
+      summary: Update User
+      description: "Update User fields, including preferredLocale. Roles: self or platform_admin."
+      x-source: docs/06-API-Specification.md#30-user-apis
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/IfMatch"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /roles:
+    get:
+      operationId: listRoles
+      tags: [Roles]
+      summary: List available Roles
+      description: "List available Roles. Roles: platform_admin."
+      x-source: docs/06-API-Specification.md#31-role-apis
+      responses:
+        "200":
+          $ref: "#/components/responses/Collection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /users/{userId}/role-assignments:
+    post:
+      operationId: assignUserRole
+      tags: [Roles]
+      summary: Assign Role
+      description: "Assign Role. Roles: platform_admin."
+      x-source: docs/06-API-Specification.md#31-role-apis
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /users/{userId}/role-assignments/{assignmentId}:
+    delete:
+      operationId: revokeUserRoleAssignment
+      tags: [Roles]
+      summary: Revoke assignment
+      description: "Revoke assignment by setting revoked_at. Roles: platform_admin."
+      x-source: docs/06-API-Specification.md#31-role-apis
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/AssignmentId"
+      responses:
+        "204":
+          description: Successful deactivate/revoke response with no body.
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /entities:
+    get:
+      operationId: listEntities
+      tags: [Entities]
+      summary: List Entities
+      description: "List Entities. Roles: platform_admin, executive read."
+      x-source: docs/06-API-Specification.md#32-entity-apis
+      responses:
+        "200":
+          $ref: "#/components/responses/Collection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: provisionEntity
+      tags: [Entities]
+      summary: Provision new Entity
+      description: "Provision new Entity through EntityProvisioningService. Roles: platform_admin."
+      x-source: docs/06-API-Specification.md#32-entity-apis
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /entities/{entityId}:
+    patch:
+      operationId: updateEntity
+      tags: [Entities]
+      summary: Update Entity configuration
+      description: "Update Entity configuration, including optional boqVarianceThresholdPercent. Roles: platform_admin."
+      x-source: docs/06-API-Specification.md#32-entity-apis
+      parameters:
+        - $ref: "#/components/parameters/EntityId"
+        - $ref: "#/components/parameters/IfMatch"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /projects/{projectId}:reassign-entity:
+    post:
+      operationId: reassignProjectEntity
+      tags: [Entities]
+      summary: Reassign Project Entity
+      description: "ChangeProjectEntity command. Roles: platform_admin only."
+      x-source: docs/06-API-Specification.md#32-entity-apis
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/BusinessRuleViolation"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /dashboard/portfolio:
+    get:
+      operationId: getPortfolioDashboard
+      tags: [Dashboard]
+      summary: Portfolio rollup
+      description: "Portfolio rollup backed by reporting.mvw_portfolio_rollup. Roles: executive, pm own projects."
+      x-source: docs/06-API-Specification.md#33-dashboard-apis
+      parameters:
+        - name: blend
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: asOf
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [Notifications]
+      summary: List notifications
+      description: List in-app notifications for the authenticated user.
+      x-source: docs/06-API-Specification.md#34-notification-apis
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [unread, read]
+      responses:
+        "200":
+          $ref: "#/components/responses/Collection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /notifications/{id}:mark-read:
+    post:
+      operationId: markNotificationRead
+      tags: [Notifications]
+      summary: Mark notification as read
+      description: Mark as read. RLS-enforced ownership.
+      x-source: docs/06-API-Specification.md#34-notification-apis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /integration-jobs:
+    get:
+      operationId: listIntegrationJobs
+      tags: [Integrations]
+      summary: List integration job status
+      description: "List integration job status. Roles: finance, platform_admin."
+      x-source: docs/06-API-Specification.md#35-integration-apis
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          $ref: "#/components/responses/Collection"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /integration-jobs/{jobId}:
+    get:
+      operationId: getIntegrationJob
+      tags: [Integrations]
+      summary: Get integration job detail
+      description: "Get integration job detail. Roles: finance, platform_admin."
+      x-source: docs/06-API-Specification.md#35-integration-apis
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /webhooks/esign/callback:
+    post:
+      operationId: handleEsignCallback
+      tags: [Webhooks]
+      summary: E-Signature completion callback
+      description: Consumes inbound callback after HMAC signature and timestamp replay validation.
+      x-source: docs/06-API-Specification.md#36-webhooks
+      security: []
+      parameters:
+        - name: X-Signature
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-Timestamp
+          in: header
+          required: true
+          schema:
+            type: string
+            format: date-time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EsignCallback"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Unauthenticated"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    AssignmentId:
+      name: assignmentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BoqId:
+      name: boqId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+    EntityId:
+      name: entityId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    MilestoneId:
+      name: milestoneId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PackageId:
+      name: packageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RevisionId:
+      name: revisionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Sort:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    VersionId:
+      name: versionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    BoqLineItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        quantity:
+          type: string
+        total:
+          $ref: "#/components/schemas/Money"
+        unit:
+          type: string
+        unitRate:
+          $ref: "#/components/schemas/Money"
+    CollectionEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+    CreateProjectRequest:
+      type: object
+      required: [entityId, clientUserId, startDate, targetHandoverDate, name]
+      properties:
+        clientUserId:
+          type: string
+          format: uuid
+        entityId:
+          type: string
+          format: uuid
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        startDate:
+          type: string
+          format: date
+        targetHandoverDate:
+          type: string
+          format: date
+    DocumentVersion:
+      type: object
+      properties:
+        clientShared:
+          type: boolean
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [draft, for_review, approved, superseded]
+        versionNo:
+          type: integer
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - UNAUTHENTICATED
+                - FORBIDDEN
+                - NOT_FOUND
+                - CONFLICT
+                - BUSINESS_RULE_VIOLATION
+                - RATE_LIMITED
+                - INTERNAL_ERROR
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  issue:
+                    type: string
+            message:
+              type: string
+            requestId:
+              type: string
+    EsignCallback:
+      type: object
+      required: [envelopeId, status, signedDocumentUrl, signedAt]
+      properties:
+        envelopeId:
+          type: string
+        signedAt:
+          type: string
+          format: date-time
+        signedDocumentUrl:
+          type: string
+          format: uri
+        status:
+          type: string
+    LocalizedText:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        en: Marina Tower Fit-Out
+        ar: تجهيز برج المارينا
+    Money:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount:
+          type: string
+          description: Decimal string, never a float
+        currency:
+          type: string
+          pattern: "^[A-Z]{3}$"
+    Project:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        entityId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        name:
+          $ref: "#/components/schemas/LocalizedText"
+        startDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [proposed, active, on_hold, handover_in_progress, closed, cancelled]
+        targetHandoverDate:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date-time
+    ResponseMeta:
+      type: object
+      properties:
+        locale:
+          type: string
+        pagination:
+          type: object
+          properties:
+            hasMore:
+              type: boolean
+            limit:
+              type: integer
+            nextCursor:
+              type: string
+              nullable: true
+        requestId:
+          type: string
+    SignedUrl:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [downloadUrl, expiresAt]
+          properties:
+            downloadUrl:
+              type: string
+              format: uri
+            expiresAt:
+              type: string
+              format: date-time
+    SignedUpload:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [uploadUrl, versionId, expiresAt]
+          properties:
+            expiresAt:
+              type: string
+              format: date-time
+            uploadUrl:
+              type: string
+              format: uri
+            versionId:
+              type: string
+              format: uuid
+    SingleResourceEnvelope:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+        meta:
+          $ref: "#/components/schemas/ResponseMeta"
+  responses:
+    Accepted:
+      description: Accepted for asynchronous processing.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SingleResourceEnvelope"
+    BoqLineItemCollection:
+      description: Paginated BOQ line item collection.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CollectionEnvelope"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BoqLineItem"
+    BusinessRuleViolation:
+      description: Domain invariant or business rule failure.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Collection:
+      description: Paginated collection response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CollectionEnvelope"
+    Conflict:
+      description: State conflict or optimistic concurrency failure.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Created:
+      description: Resource created.
+      headers:
+        Location:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SingleResourceEnvelope"
+    DocumentVersion:
+      description: DocumentVersion response.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: "#/components/schemas/DocumentVersion"
+              meta:
+                $ref: "#/components/schemas/ResponseMeta"
+    DocumentVersionCollection:
+      description: Paginated DocumentVersion collection.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CollectionEnvelope"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DocumentVersion"
+    Forbidden:
+      description: Authenticated but categorically barred.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource does not exist or caller is not authorized to know it exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Project:
+      description: Project response.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data:
+                $ref: "#/components/schemas/Project"
+              meta:
+                $ref: "#/components/schemas/ResponseMeta"
+    RateLimited:
+      description: Rate limit exceeded.
+      headers:
+        Retry-After:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    SignedUpload:
+      description: Signed upload URL response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SignedUpload"
+    SignedUrl:
+      description: Signed download URL response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SignedUrl"
+    Success:
+      description: Successful response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SingleResourceEnvelope"
+    Unauthenticated:
+      description: Missing, invalid, or expired JWT.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationError:
+      description: Schema-level request validation failure.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

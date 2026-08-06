@@ -1,0 +1,4 @@
+Project ID,Title,Sector (Residential/Commercial/Hospitality/Workplace/Retail),Market (Egypt/Kuwait/UAE),Location (City),Year,Area (m²),Tier (Flagship/Standard),Services Provided (Comma separated),Client Name (Optional),Status (Completed/Under Construction),Short Description
+sultan-center-hawally,Sultan Center Hawally,Retail,Kuwait,Hawally,2022,4500,Flagship,"Architecture, Interior Design",Sultan Center,Completed,"Brief description of the project goes here..."
+khiran-chalet,Khiran Chalet,Residential,Kuwait,Khiran,2023,1500,Flagship,"Architecture, Landscape",Private Client,Completed,"Brief description of the project goes here..."
+project-3,Project Title Here,Commercial,Egypt,Cairo,2024,2000,Standard,"Interior Design, Fit-out",Client X,Under Construction,"..."

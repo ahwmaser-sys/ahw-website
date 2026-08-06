@@ -1,0 +1,370 @@
+.footer {
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  padding: var(--space-16) 0 var(--space-6);
+  border-top: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+@media (max-width: 640px) {
+  .footer {
+    /* The floating contact hub (FloatingContactHub.module.css) pins itself
+       bottom-right at this same breakpoint and can overlap the last row of
+       legal links at the very bottom of the page — extra bottom padding
+       here clears its footprint (48px button + 16px offset) with room to
+       spare. */
+    padding-bottom: var(--space-20);
+  }
+}
+
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--space-12);
+  }
+}
+
+/* ── The statement: oversized, the whole footer's visual anchor ── */
+.statement {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+  padding-bottom: var(--space-12);
+  margin-bottom: var(--space-12);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+@media (min-width: 1024px) {
+  .statement {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-12);
+  }
+}
+
+.statementLink {
+  display: block;
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2rem, 6vw, var(--font-size-display));
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-tight);
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  letter-spacing: var(--tracking-tight);
+  transition: opacity var(--transition-fast);
+}
+
+.statementLink:hover {
+  opacity: 0.7;
+}
+
+.statementLink:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 8px;
+}
+
+.statementEm {
+  font-style: normal;
+  color: var(--color-brand-stone);
+}
+
+/* CTA button — deliberately borrowed from the "Compact Index" concept's
+   sharp, bordered treatment (2px radius, not a pill) while the rest of
+   this footer keeps the "Statement Close" visual language. */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-brand-accent);
+  border-radius: 2px;
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cta:hover {
+  background-color: var(--color-brand-accent);
+  color: var(--color-brand-ink);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+}
+
+/* ── Subordinate content: offices at equal weight to each other, but
+   quiet/small relative to the statement above ── */
+.subordinateGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  margin-bottom: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .subordinateGrid {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-16);
+  }
+}
+
+.officesRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  /* Flex children default to min-width:auto (their content's intrinsic
+     minimum), which can silently block shrinking inside .subordinateGrid's
+     row layout — explicit 0 lets it actually shrink to fit. */
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .officesRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.officeBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 260px;
+}
+
+.officeName {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-paper);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.hqTag {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+}
+
+.officeAddress {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-brand-stone);
+  margin: 0;
+}
+
+.officeContacts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.officeContact {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.officeContact:hover {
+  color: var(--color-brand-paper);
+}
+
+.linksRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .linksRow {
+    /* minmax, not a hard 180px — a fixed width couldn't shrink below
+       540px+gaps, which overflowed at exactly 1024px viewport width
+       once .officesRow (flexible 1fr columns) needed its own share of
+       the row. Caps at 180px on wide screens, same as before; shrinks
+       gracefully on narrower ones instead of forcing overflow. */
+    grid-template-columns: repeat(3, minmax(0, 180px));
+  }
+}
+
+.linkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.groupTitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-brand-stone);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.link {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: color var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--color-brand-paper);
+}
+
+/* Distinct from the plain .link items above it in the same column —
+   a bordered pill at full-brightness text, deliberately reading as a
+   small CTA rather than another list entry, since a client scanning
+   the footer needs to spot their portal link, not hunt for it. */
+.clientPortalLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  width: fit-content;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.clientPortalLink:hover {
+  border-color: var(--color-brand-accent);
+  background-color: rgba(128, 128, 128, 0.08);
+}
+
+.clientPortalIcon {
+  font-size: 0.85em;
+  transition: transform var(--transition-fast);
+}
+
+.clientPortalLink:hover .clientPortalIcon {
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clientPortalLink,
+  .clientPortalIcon {
+    transition: none;
+  }
+}
+
+.linkFuture {
+  /* "unavailable" is already conveyed by cursor:default and the "(Coming
+     Soon)" label, so the text itself doesn't need to fail contrast too. */
+  cursor: default;
+}
+
+.linkFuture:hover {
+  color: var(--color-brand-stone);
+}
+
+.comingSoon {
+  font-size: 0.75em;
+  opacity: 0.7;
+  font-style: italic;
+  margin-left: var(--space-1);
+}
+
+/* ── Bottom bar: single compressed row on desktop ── */
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (min-width: 768px) {
+  .bottomSection {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-6);
+  }
+}
+
+.logo {
+  height: 18px;
+  opacity: 0.7;
+}
+
+.logoDark {
+  display: none;
+}
+
+:global([data-theme="light"]) .logoWhite {
+  display: none;
+}
+
+:global([data-theme="light"]) .logoDark {
+  display: block;
+}
+
+.copyright {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  margin: 0;
+  flex: 1;
+}
+
+.legalLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+.legalLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.legalLink:hover {
+  color: var(--color-brand-paper);
+}

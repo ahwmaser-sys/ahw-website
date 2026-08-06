@@ -1,0 +1,153 @@
+/* ─── Project Filter Bar ───
+   Sits directly below the fixed navigation header.
+   top = --header-height so it always anchors just below the header,
+   regardless of theme or viewport.
+   z-index: 50 = above page content, below nav header (100).
+ */
+.filterBar {
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Use color vars → works in both dark + light mode */
+  background-color: var(--color-glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  position: sticky;
+  top: var(--header-offset, var(--header-height));
+  /* No transition here on purpose — `top` is layout-triggering, and this
+     brief's performance section explicitly rules that out for any
+     animated property. The header's own condense/hide transition (which
+     drives --header-offset) is already smooth on its own transform/
+     opacity properties; the filter bar snapping to its new offset
+     immediately after reads as part of the same motion, not a jump. */
+  z-index: 50;
+}
+
+@media (min-width: 1024px) {
+  .filterBar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: calc(var(--space-24) + var(--space-12));
+    padding-right: var(--space-12);
+  }
+}
+
+/* Wraps the Sector row + the conditional "Within Commercial" child row so
+   the pair behaves as one flex item in .filterBar's row layout, matching
+   the .filterGroup + .filterGroup divider rule below (Market is the only
+   other top-level group, so the divider still lands in exactly one
+   place regardless of whether the child row is showing). */
+.sectorFilters {
+  display: flex;
+  flex-direction: column;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: var(--space-3) 0;
+}
+
+@media (min-width: 1024px) {
+  .filterGroup {
+    padding: var(--space-4) 0;
+    gap: var(--space-6);
+  }
+}
+
+.filterGroup::-webkit-scrollbar {
+  display: none;
+}
+
+/* Reads as a sub-row of the Sector row above it: no top padding of its
+   own, so it sits close beneath Sector rather than getting equal
+   breathing room, which is what actually signals "this is nested" —
+   font size stays the same as every other label (never shrink text
+   below the readable floor just to imply hierarchy). */
+.filterGroupChild {
+  padding-top: 0;
+}
+
+.filterLabel {
+  font-family: var(--font-family-primary);
+  /* Nearest token to the previous arbitrary 0.6rem (xs is 0.75rem/12px;
+     no smaller token exists on the scale). */
+  font-size: var(--font-size-xs);
+  /* Theme-aware opacity on top of the current text color */
+  color: var(--color-brand-stone);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-right: var(--space-2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filterButton {
+  background: none;
+  border: none;
+  /* Start at 50% opacity of the current brand text color */
+  color: color-mix(in srgb, var(--color-brand-paper) 50%, transparent);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: var(--space-1) 0;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  text-decoration: none;
+  position: relative;
+}
+
+.filterButton::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--color-brand-paper);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.filterButton:hover {
+  color: var(--color-brand-paper);
+}
+
+.filterButton:hover::after {
+  transform: scaleX(1);
+}
+
+.filterButton.active {
+  color: var(--color-brand-paper);
+  font-weight: 500;
+}
+
+.filterButton.active::after {
+  transform: scaleX(1);
+}
+
+.resultCount {
+  font-family: var(--font-family-primary);
+  /* Nearest token to the previous arbitrary 0.65rem. */
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.06em;
+  color: var(--color-brand-stone);
+  white-space: nowrap;
+  padding: var(--space-3) 0;
+}
+
+/* Visual separator between the Sector cluster and Market on desktop */
+@media (min-width: 1024px) {
+  .sectorFilters + .filterGroup {
+    border-left: 1px solid var(--color-border-strong);
+    padding-left: var(--space-6);
+    margin-left: var(--space-6);
+  }
+}

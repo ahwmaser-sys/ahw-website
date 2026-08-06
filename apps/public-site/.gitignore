@@ -1,0 +1,14 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/../../generated/prisma
+
+# Portal document/photo storage (local filesystem, see /PORTAL-PLAN.md §6).
+# Never committed — uploaded client files, not source.
+/storage/portal/*
+!/storage/portal/.gitkeep
+
+# Database backups (Settings → Backup & Restore) — real data, never committed.
+/storage/backups/*
+!/storage/backups/.gitkeep

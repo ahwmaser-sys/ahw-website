@@ -1,0 +1,16 @@
+.rotator {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.rotatorImage {
+  object-fit: cover;
+  transition: opacity 1s var(--ease-smooth);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotatorImage {
+    transition: opacity 0.3s ease;
+  }
+}

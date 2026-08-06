@@ -1,0 +1,31 @@
+.share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  margin-right: var(--space-2);
+}
+
+.link {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-brand-stone);
+  border-radius: 2px;
+  transition: opacity var(--transition-fast);
+}
+
+.link:hover {
+  opacity: 0.7;
+}

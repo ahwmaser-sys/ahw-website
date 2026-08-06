@@ -1,0 +1,38 @@
+.previewWrapper {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background-color: var(--color-brand-ink);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.placeholderCover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--color-brand-stone);
+}
+
+.documentIcon {
+  opacity: 0.5;
+}
+
+.fileType {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}

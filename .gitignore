@@ -1,0 +1,19 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.*.example
+node_modules/
+dist/
+coverage/
+.next/
+.turbo/
+.vercel/
+.railway/
+*.log
+*.tsbuildinfo
+# Local-filesystem media storage fallback (see apps/public-site/src/lib/portal/storage.ts)
+# — only used in local dev when BLOB_READ_WRITE_TOKEN is unset. Never
+# committed: production uses Vercel Blob, and these are real uploaded
+# files, not source.
+apps/public-site/storage/

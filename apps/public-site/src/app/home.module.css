@@ -1,0 +1,622 @@
+.main {
+  width: 100%;
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  /* #app-root applies a global padding-top: var(--header-height) (see
+     globals.css) so page content clears the fixed Header everywhere.
+     The homepage is the one exception: its Hero is a full-bleed 100vh
+     section designed to sit under a transparent header that only becomes
+     opaque on hover/scroll (see Header.module.css .fadeHidden, gated on
+     currentPath === '/'). This cancels exactly that global offset, scoped
+     to this page only — every other page keeps the clearance. */
+  margin-top: calc(-1 * var(--header-height));
+}
+
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  position: relative;
+  z-index: 2;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--space-12);
+  }
+}
+
+/* ARCHITECTURAL INTRO & TRUST SECTION */
+.introSection {
+  padding: var(--space-48) 0;
+  background-color: var(--color-brand-ink);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.introGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+  position: relative;
+  z-index: 2;
+}
+
+@media (min-width: 1024px) {
+  .introGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-24);
+    align-items: stretch; /* Align top and bottom perfectly with text */
+  }
+}
+
+.introTitle {
+  grid-column: 1 / -1;
+  font-family: var(--font-family-secondary);
+  font-size: clamp(3.5rem, 8vw, 8rem);
+  font-weight: var(--font-weight-light);
+  line-height: 0.95;
+  color: var(--color-brand-paper);
+  letter-spacing: var(--tracking-tighter);
+  margin: 0 0 var(--space-16) 0;
+}
+
+.introVisual {
+  position: relative;
+  width: 100%;
+  background-color: var(--color-brand-paper);
+  overflow: hidden;
+  height: 100%;
+}
+
+@media (max-width: 1023px) {
+  .introVisual {
+    aspect-ratio: 4/5;
+  }
+}
+
+.introVisualImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.introVisual:hover .introVisualImage {
+  transform: scale(1.03);
+}
+
+.introTitleWrapper {
+  display: none; /* Moved title to grid level */
+}
+
+.introContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-bottom: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .introContent {
+    padding-left: var(--space-8);
+    justify-content: space-between; /* Spreads text to top and numbers to bottom to match image precisely */
+  }
+}
+
+.introText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-loose);
+  color: var(--color-brand-stone);
+}
+
+.trustGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16) var(--space-12);
+  margin-top: var(--space-8);
+  padding-top: var(--space-12);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.statNumber {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+}
+
+.statLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+}
+
+/* FEATURED PROJECTS - SELECTED WORK */
+.featuredSection {
+  padding: var(--space-48) 0;
+  background-color: var(--color-brand-ink);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.featuredHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+  margin-bottom: var(--space-16);
+}
+
+.featuredMainTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+}
+
+.featuredViewAll {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  white-space: nowrap;
+  padding-bottom: var(--space-2);
+  transition: color var(--transition-fast);
+}
+
+.featuredViewAll:hover {
+  color: var(--color-brand-paper);
+}
+
+.featuredGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-16);
+}
+
+@media (min-width: 768px) {
+  .featuredGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-16) var(--space-12);
+  }
+}
+
+.featuredCard {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.featuredImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.featuredImage {
+  object-fit: cover;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.featuredCard:hover .featuredImage {
+  transform: scale(1.04);
+}
+
+.featuredStatusBadge {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: #FFFFFF;
+  background-color: rgba(15, 17, 21, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  padding: var(--space-1) var(--space-3);
+}
+
+.featuredCardMeta {
+  padding-top: var(--space-4);
+}
+
+.featuredCardTitle {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.featuredCardLocation {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+}
+
+/* CLOSING CTA */
+.homeCtaSection {
+  padding: var(--space-48) 0;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.homeCtaTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  line-height: 1.1;
+  max-width: 800px;
+  margin: 0 auto var(--space-6);
+}
+
+.homeCtaText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  color: var(--color-brand-stone);
+  max-width: 560px;
+  margin: 0 auto var(--space-10);
+  line-height: var(--line-height-relaxed);
+}
+
+.homeCtaButtons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.homeCtaPrimary,
+.homeCtaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4) var(--space-8);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  text-decoration: none;
+  border-radius: 2px;
+  transition: opacity var(--transition-fast);
+}
+
+.homeCtaPrimary {
+  background-color: var(--color-brand-paper);
+  color: var(--color-brand-ink);
+}
+
+.homeCtaPrimary:hover {
+  opacity: 0.85;
+}
+
+.homeCtaSecondary {
+  background: none;
+  color: var(--color-brand-paper);
+  border: 1px solid var(--color-border-strong);
+}
+
+.homeCtaSecondary:hover {
+  opacity: 0.7;
+}
+
+/* PRESS - AS FEATURED IN */
+.pressSection {
+  padding: var(--space-12) 0;
+  background-color: var(--color-brand-ink);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.pressBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6) var(--space-12);
+}
+
+.pressLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  flex: none;
+}
+
+.pressList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-10);
+  flex: 1;
+}
+
+.pressItem {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.pressItem:hover {
+  opacity: 0.65;
+}
+
+.pressViewAll {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.pressViewAll:hover {
+  color: var(--color-brand-paper);
+}
+
+/* CAPABILITIES - EDITORIAL GRID */
+.capabilitiesSection {
+  padding: var(--space-48) 0;
+}
+
+.capabilityRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  margin-bottom: var(--space-32);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .capabilityRow {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-24);
+  }
+  
+  .capabilityRow:nth-child(even) .capabilityText {
+    order: -1;
+  }
+}
+
+.capabilityImageWrapper {
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.capabilityImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.capabilityImageWrapper:hover .capabilityImage {
+  transform: scale(1.05);
+}
+
+.capabilityText {
+  padding: var(--space-8) 0;
+}
+
+.capabilityTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-4) 0;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.capabilityDesc {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-stone);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-8);
+}
+
+.exploreLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  padding-bottom: var(--space-2);
+  transition: opacity 0.3s ease;
+}
+
+.exploreLink:hover {
+  opacity: 0.7;
+}
+
+/* AWARD WINNING CAPABILITIES SECTION */
+.capabilitiesAwardSection {
+  padding: var(--space-48) 0;
+  background-color: var(--color-brand-ink);
+  position: relative;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.capAwardHeader {
+  margin-bottom: var(--space-32);
+}
+
+.capAwardMainTitle {
+  font-family: var(--font-family-secondary);
+  /* Was clamp(3rem, 6vw, 5rem) — the 3rem floor was wider than the
+     available container width (272px at a 320px viewport) for this
+     heading's actual text, causing page-wide horizontal overflow (D8).
+     Lowered floor only; 6vw/5rem mid/max unchanged so nothing above
+     ~410px viewport width is affected. */
+  font-size: clamp(2.25rem, 6vw, 5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-4) 0;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+}
+
+.capAwardSub {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-stone);
+}
+
+.capAwardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-16);
+}
+
+@media (min-width: 1024px) {
+  .capAwardGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-24);
+    align-items: start;
+  }
+}
+
+.capAwardList {
+  display: flex;
+  flex-direction: column;
+}
+
+.capAwardItem {
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transition: opacity 0.4s ease;
+  cursor: pointer;
+}
+
+.capAwardList:hover .capAwardItem:not(:hover) {
+  opacity: 0.3;
+}
+
+.capAwardItemHeader {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
+.capAwardNum {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-accent);
+}
+
+.capAwardTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2.5rem, 4vw, 4.5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.capAwardItem:hover .capAwardTitle {
+  transform: translateX(20px);
+}
+
+.capAwardItemContent {
+  padding-left: calc(var(--space-8) + 1.5rem);
+  max-width: 500px;
+}
+
+.capAwardDesc {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-stone);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-8);
+}
+
+.exploreLinkAward {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.exploreLinkAward:hover {
+  color: var(--color-brand-accent);
+}
+
+.capAwardVisual {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .capAwardVisual {
+    display: block;
+    height: 100%;
+    position: relative;
+  }
+  
+  .capAwardSticky {
+    position: sticky;
+    top: 20vh;
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .capAwardImageWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .capAwardImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease;
+    /* Subtle pan effect on hover */
+    animation: slowPan 20s infinite alternate linear;
+  }
+}
+
+@keyframes slowPan {
+  0% { transform: scale(1.05) translate(0, 0); }
+  100% { transform: scale(1.05) translate(2%, 2%); }
+}

@@ -1,0 +1,368 @@
+/* Shared primitives for admin/client CRUD screens — reuses the same
+   tokens and field styling as LoginForm.module.css rather than
+   inventing a second form language, extended with table/card/badge
+   patterns the auth forms didn't need. */
+
+.pageHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-8);
+}
+
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+}
+
+.section {
+  margin-bottom: var(--space-12);
+}
+
+.sectionTitle {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  margin: 0 0 var(--space-4);
+}
+
+.backLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-brand-paper);
+}
+
+.linkButton {
+  font-family: var(--font-family-primary);
+  font-size: inherit;
+  color: var(--color-brand-paper);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.linkButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Table */
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-strong);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+}
+
+.table th {
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-strong);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table a {
+  color: var(--color-brand-paper);
+}
+
+.emptyRow td {
+  color: var(--color-brand-stone);
+  font-style: italic;
+}
+
+/* Badge */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.badgeActive {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.badgeMuted {
+  color: var(--color-brand-stone);
+}
+
+.badgeWarn {
+  border-color: #eab308;
+  color: #eab308;
+}
+
+.badgeDanger {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Form */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 480px;
+}
+
+.formRow {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.formRow > .field {
+  flex: 1;
+  min-width: 180px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hint {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+}
+
+.label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.input,
+.select,
+.textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  padding: var(--space-3) 0;
+  outline: none;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+
+.select option {
+  background-color: var(--color-brand-ink);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-bottom-color: var(--color-brand-paper);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+}
+
+.errorMessage {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: #ef4444;
+}
+
+.successMessage {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: #22c55e;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-5);
+  border: 1px solid var(--color-brand-accent);
+  border-radius: 2px;
+  color: var(--color-brand-paper);
+  background: none;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  text-decoration: none;
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--color-brand-accent);
+  color: var(--color-brand-ink);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.buttonSecondary {
+  border-color: var(--color-border-strong);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-brand-paper);
+}
+
+.buttonDanger {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.buttonDanger:hover:not(:disabled) {
+  background-color: #ef4444;
+  color: var(--color-brand-ink);
+}
+
+.buttonRow {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.formSpacer {
+  margin-top: var(--space-4);
+}
+
+.captionText {
+  white-space: pre-wrap;
+}
+
+.mediaThumbnailImg {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  display: block;
+}
+
+.mediaThumbnailFallback {
+  height: 100px;
+  display: flex;
+}
+
+.mediaThumbnailFallback span {
+  flex: 1;
+}
+
+.qrPreview {
+  height: auto;
+  max-width: 240px;
+}
+
+.monospaceTextarea {
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: var(--font-size-xs);
+}
+
+/* Cards / lists used inside project detail */
+
+.card {
+  border: 1px solid var(--color-border-strong);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.cardMeta {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+}
+
+.progressTrack {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--color-brand-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}

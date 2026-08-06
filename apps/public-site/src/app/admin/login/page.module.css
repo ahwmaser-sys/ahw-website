@@ -1,0 +1,21 @@
+.main {
+  min-height: 90vh;
+  /* NavigationHeader renders nothing on /admin and /client (see
+     NavigationHeader.tsx) — cancel the global header-clearance padding
+     rather than leaving a blank gap at the top of the page. */
+  margin-top: calc(-1 * var(--header-height));
+}
+
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0;
+}
+
+.formWrap {
+  margin-top: var(--space-10);
+  display: flex;
+  justify-content: center;
+}

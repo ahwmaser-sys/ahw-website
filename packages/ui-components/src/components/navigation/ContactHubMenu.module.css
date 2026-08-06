@@ -1,0 +1,208 @@
+.menu {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  pointer-events: none;
+}
+
+.menu[data-open='true'] {
+  pointer-events: auto;
+}
+
+.itemGroup {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.menu[data-open='true'] .item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.itemButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 48px;
+  padding: 0 var(--space-4) 0 var(--space-2);
+  border-radius: 999px;
+  background-color: var(--color-glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--shadow-glass);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.itemButton:hover {
+  transform: translateX(-4px);
+  box-shadow: var(--shadow-glass), 0 0 0 1px var(--color-border-strong);
+}
+
+.itemButton:focus-visible {
+  outline: 2px solid var(--color-brand-paper);
+  outline-offset: 3px;
+}
+
+.itemButton:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.itemButton:disabled:hover {
+  transform: none;
+}
+
+.itemIconCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.itemIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.itemLabel {
+  white-space: nowrap;
+}
+
+.tooltip {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+  white-space: nowrap;
+  background-color: var(--color-glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 24px;
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--shadow-glass);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+}
+
+.tooltipVisible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+.subMenu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.subItem {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: 999px;
+  background-color: var(--color-glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.subItem:hover {
+  transform: translateX(-4px);
+}
+
+.subItem:focus-visible {
+  outline: 2px solid var(--color-brand-paper);
+  outline-offset: 2px;
+}
+
+/* .subItem doubles as a <button> for office choices that reveal a further
+   target picker (Call Us's multiple phone numbers) — reset native button
+   chrome so it matches the <a> variant exactly. */
+button.subItem {
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.officeGroup {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.targetMenu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding-right: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .itemButton {
+    height: 44px;
+  }
+
+  /* Row labels remain the primary affordance on touch; tooltips have no
+     reliable dismiss gesture there (same reasoning as ContactHubButton). */
+  .tooltip {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: opacity var(--transition-fast);
+    transform: none;
+  }
+
+  .itemButton:hover,
+  .subItem:hover {
+    transform: none;
+  }
+
+  .tooltip {
+    transition: opacity var(--transition-fast), visibility var(--transition-fast);
+    transform: translateY(-50%);
+  }
+}

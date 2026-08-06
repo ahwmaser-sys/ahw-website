@@ -1,0 +1,148 @@
+:root {
+  /*
+    ==================================================
+    1. BRAND COLORS (Deep, Luxurious, Monochromatic)
+    ==================================================
+  */
+  --color-brand-ink: #0F1115;          /* Default Dark: Onyx */
+  --color-brand-paper: #F2F4F7;        /* Default Dark: Paper */
+  --color-brand-stone: #8B929A;        
+  --color-brand-accent: #FFFFFF;       
+  
+  --color-border: rgba(255, 255, 255, 0.05);
+  --color-border-strong: rgba(255, 255, 255, 0.1);
+  --color-glass-bg: rgba(15, 17, 21, 0.6);
+
+  --shadow-premium: 0 40px 100px rgba(0,0,0,0.8);
+  /* Elevation for small floating surfaces (vs. --shadow-premium, which is
+     tuned for large hero-scale panels). Dark mode reads as a soft glow —
+     a black shadow would be invisible against a dark page. */
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 20px rgba(242, 244, 247, 0.08);
+}
+
+/* LIGHT THEME TOKENS */
+[data-theme="light"] {
+  --color-brand-ink: #F2F4F7;          /* Swapped: Background becomes Paper */
+  --color-brand-paper: #0F1115;        /* Swapped: Text becomes Onyx */
+  --color-brand-stone: #5A6066;        /* Darker stone for legibility on light */
+  --color-brand-accent: #000000;       
+  
+  --color-border: rgba(0, 0, 0, 0.05);
+  --color-border-strong: rgba(0, 0, 0, 0.1);
+  --color-glass-bg: rgba(242, 244, 247, 0.8);
+
+  --shadow-premium: 0 40px 100px rgba(0,0,0,0.1);
+  --shadow-elevated: 0 8px 24px rgba(15, 17, 21, 0.12);
+}
+
+:root {
+  
+  /*
+    ==================================================
+    2. TYPOGRAPHY (Oversized, Architectural, Precise)
+    ==================================================
+  */
+  /* Font Families mapped from next/font */
+  --font-family-primary: var(--font-primary), 'Inter', sans-serif;
+  --font-family-secondary: var(--font-secondary), 'Outfit', sans-serif;
+
+  /* Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  
+  /* Modular Scale (Extremely large for display, precise for body) */
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.75rem;     /* 28px - Subheadings */
+  --font-size-2xl: 2.25rem;    /* 36px */
+  --font-size-3xl: 3rem;       /* 48px */
+  --font-size-4xl: 4.5rem;     /* 72px */
+  --font-size-display: 6rem;   /* 96px - Editorial */
+  --font-size-hero: 8rem;      /* 128px - Massive impact on desktop */
+
+  /* Line Heights */
+  --line-height-tight: 1.05;
+  --line-height-snug: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.8;
+  
+  /* Tracking (Letter Spacing) */
+  --tracking-tight: -0.05em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /*
+    ==================================================
+    3. SPACING (Vast, Breathable)
+    ==================================================
+  */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --space-48: 12rem;
+
+  --container-max-width: 1440px;
+
+  /* Tracking extras */
+  --tracking-wider: 0.08em;
+
+  /*
+    ==================================================
+    4. MOTION (Cinematic, Expensive)
+    ==================================================
+  */
+  /* Custom cubic-bezier for a "slow-out" luxurious reveal */
+  --ease-cinematic: cubic-bezier(0.8, 0, 0.1, 1);
+  --ease-smooth: cubic-bezier(0.5, 0, 0, 1);
+  --ease-out: cubic-bezier(0.1, 1, 0.2, 1);
+  
+  --transition-fast: 0.3s var(--ease-smooth);
+  --transition-normal: 0.6s var(--ease-smooth);
+  --transition-slow: 1.2s var(--ease-cinematic);
+  --transition-epic: 2.4s var(--ease-cinematic);
+
+  /*
+    ==================================================
+    5. SHADOWS & DEPTH (Subtle, Ambient)
+    ==================================================
+  */
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --glass-blur: blur(32px);
+
+  /*
+    ==================================================
+    6. ICONOGRAPHY & LAYERING
+    ==================================================
+  */
+  --icon-size-md: 1.5rem; /* 24px — native Lucide grid size */
+
+  /* Fixed floating UI (chat, WhatsApp, future actions). Matches the value
+     WhatsAppFloatingButton already shipped with. */
+  --z-floating-actions: 60;
+}
+
+@media (max-width: 768px) {
+  :root {
+    /* Scale down oversized typography for mobile */
+    --font-size-display: 3.5rem;
+    --font-size-hero: 4rem;
+    
+    --space-24: 4rem;
+    --space-32: 5rem;
+    --space-48: 8rem;
+  }
+}

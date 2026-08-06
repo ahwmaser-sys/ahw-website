@@ -1,0 +1,92 @@
+/* Native Animations Core */
+
+/* Reduced motion preference respected at root */
+@media (prefers-reduced-motion: reduce) {
+  .motion-wipe,
+  .motion-aperture,
+  .motion-drift,
+  .motion-draw,
+  .motion-register,
+  .motion-fade {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
+/* Base fade (fallback) */
+.motion-fade {
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+}
+.motion-fade.is-revealed {
+  opacity: 1;
+}
+
+/* 1. Wipe from baseline (Type revealed upward) */
+.motion-wipe {
+  overflow: hidden;
+  display: inline-flex; /* Ensures it works on inline text */
+  vertical-align: bottom;
+}
+
+.motion-wipe > * {
+  transform: translateY(110%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.motion-wipe.is-revealed > * {
+  transform: translateY(0);
+}
+
+/* 2. Aperture (Images open from centre line to full frame) */
+.motion-aperture {
+  clip-path: inset(50% 0 50% 0);
+  transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: clip-path;
+}
+
+.motion-aperture.is-revealed {
+  clip-path: inset(0 0 0 0);
+}
+
+/* 3. Drift (Imperceptible one-direction image movement) */
+.motion-drift > img,
+.motion-drift {
+  transform: scale(1.05) translateY(0);
+  transition: transform 20s linear;
+  will-change: transform;
+}
+
+.motion-drift.is-revealed > img,
+.motion-drift.is-revealed {
+  transform: scale(1.05) translateY(-5%); /* Drift slightly upwards */
+}
+
+/* 4. Draw (Lines extend along their own axis) */
+.motion-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.motion-draw.is-revealed {
+  transform: scaleX(1);
+}
+
+/* 5. Register (Rules extend outward from the datum point) */
+/* The datum is conceptually the center point, so we scale from center */
+.motion-register {
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.motion-register.is-revealed {
+  transform: scaleX(1);
+}

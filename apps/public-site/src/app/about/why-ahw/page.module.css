@@ -1,0 +1,426 @@
+.main {
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  padding-bottom: var(--space-4xl);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-max-width, 1440px);
+  margin: 0 auto;
+  padding: 0 var(--space-xl);
+}
+
+/* Base Typography specifically for this page to avoid breaking globals */
+.heroTitle, .heroSubtitle, .sectionHeading, .confidenceTitle, .ctaTitle {
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+.introParagraph, .pillarDescription, .strengthDescription, .confidenceText, .ctaText {
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+/* SECTION 1: HERO */
+.heroSection {
+  padding-top: 180px; /* Clear the header */
+  padding-bottom: var(--space-2xl);
+}
+
+.heroTitle, .heroSubtitle {
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.1;
+  margin: 0;
+  color: var(--color-brand-paper);
+}
+
+.heroSubtitle {
+  color: var(--color-brand-stone);
+}
+
+/* SECTION 2: INTRO */
+.introSection {
+  padding-bottom: var(--space-4xl);
+}
+
+.introParagraph {
+  max-width: 620px;
+  color: var(--color-brand-paper);
+  font-size: 1.5rem;
+  line-height: 1.6;
+}
+
+/* SECTION 3: PILLARS */
+.pillarsSection {
+  padding: 120px 0;
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+}
+
+.pillarsSection .sectionHeading {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: 80px;
+  color: var(--color-brand-paper);
+}
+
+.pillarsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 64px 40px;
+}
+
+.pillarCard {
+  border-top: 1px solid var(--color-border-strong);
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pillarTitle {
+  font-size: 1.75rem;
+  font-weight: 400;
+  margin-bottom: 16px;
+  color: var(--color-brand-paper);
+}
+
+.pillarDescription {
+  font-size: 1.125rem;
+  color: inherit;
+  opacity: 0.7;
+  max-width: 100%;
+}
+
+/* SECTION 4: STRENGTHS */
+.strengthsSection {
+  padding: 120px 0;
+  background-color: var(--color-brand-paper);
+  color: var(--color-brand-ink);
+}
+
+.strengthsSection .sectionHeading {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: 80px;
+}
+
+.strengthsGroupLabel {
+  display: block;
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-brand-ink);
+  opacity: 0.5;
+  margin-bottom: 32px;
+}
+
+.strengthsGroupLabelSecond {
+  margin-top: 64px;
+}
+
+.strengthsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.strengthCard {
+  padding: 40px;
+  background-color: var(--color-border);
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.strengthIcon {
+  margin-bottom: 24px;
+  color: var(--color-brand-stone);
+}
+
+.strengthTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.strengthDescription {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--color-brand-stone);
+}
+
+/* SECTION 5: CONFIDENCE */
+.confidenceSection {
+  padding: 120px 0;
+  background-color: var(--color-brand-stone);
+  color: var(--color-brand-paper);
+}
+
+.confidenceContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .confidenceContent {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.confidenceTitle {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 1.1;
+}
+
+.confidenceText {
+  max-width: 620px;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+/* SECTION 6: CTA */
+.ctaSection {
+  padding: 120px 0;
+  text-align: center;
+}
+
+.ctaContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: 32px;
+  line-height: 1.1;
+}
+
+.ctaText {
+  margin: 0 auto 48px auto;
+  max-width: 620px;
+  color: var(--color-brand-stone);
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.ctaButtons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.primaryButton, .secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md) var(--space-xl);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.primaryButton {
+  /* Fixed (not theme-reactive): .ctaSection has no background override,
+     so it inherits .main's dark ink background — var(--color-brand-ink)
+     here made the button render invisible (ink-on-ink), leaving only the
+     text visible with no button affordance at all. */
+  background-color: #FFFFFF;
+  color: #0F1115;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-brand-stone);
+  color: #FFFFFF;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: var(--color-brand-paper);
+  border: 1px solid var(--color-brand-paper);
+}
+
+.secondaryButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+
+
+/* Additions for Layout and Equal Height */
+.revealWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.introGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2xl);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .introGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.introTextWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.introImageWrapper {
+  width: 100%;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.introImage {
+  object-fit: cover;
+}
+
+/* SECTION 2.5: PROCESS / METHODOLOGY */
+.processSection {
+  padding-bottom: var(--space-4xl);
+}
+
+.processIntro {
+  max-width: 620px;
+  color: var(--color-brand-stone);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin-top: 24px;
+  margin-bottom: 64px;
+}
+
+.processList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  border-top: 1px solid var(--color-border-strong);
+}
+
+@media (min-width: 768px) {
+  .processList {
+    grid-template-columns: 1fr 1fr;
+    gap: 48px 64px;
+  }
+}
+
+.processStep {
+  display: flex;
+  gap: 24px;
+  padding-top: 40px;
+}
+
+.processNumeral {
+  flex-shrink: 0;
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 2rem;
+  color: var(--color-brand-stone);
+  opacity: 0.6;
+  line-height: 1;
+}
+
+.processTitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-brand-paper);
+  margin-bottom: 12px;
+}
+
+.processDescription {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-brand-stone);
+}
+
+/* SECTION 4.5: PRESS & RECOGNITION */
+.pressSection {
+  padding: 80px 0;
+  background-color: var(--color-brand-paper);
+  color: var(--color-brand-ink);
+}
+
+.pressLabel {
+  display: block;
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-brand-ink);
+  opacity: 0.5;
+  margin-bottom: 32px;
+}
+
+.pressGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .pressGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.pressCard {
+  display: block;
+  padding: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.pressCard:hover {
+  border-color: var(--color-brand-ink);
+}
+
+.pressOutlet {
+  display: block;
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-brand-stone);
+  margin-bottom: 12px;
+}
+
+.pressTitle {
+  font-family: 'Neue Montreal', 'Geist', 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+
+.pressBadge {
+  display: inline-block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border: 1px solid var(--color-brand-ink);
+  border-radius: 2px;
+  opacity: 0.7;
+}

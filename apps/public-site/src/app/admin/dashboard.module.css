@@ -1,0 +1,35 @@
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-light);
+  margin: 0 0 var(--space-8);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-strong);
+}
+
+.statValue {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-light);
+}
+
+.statLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-brand-stone);
+}

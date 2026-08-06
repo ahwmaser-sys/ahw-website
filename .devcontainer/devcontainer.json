@@ -1,0 +1,14 @@
+{
+  "name": "AGP Phase 0 Workspace",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "redhat.vscode-yaml"]
+    }
+  },
+  "postCreateCommand": "corepack enable && pnpm install",
+  "remoteUser": "node"
+}

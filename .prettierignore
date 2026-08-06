@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+.next
+openapi.yaml
+pnpm-lock.yaml
+README.md
+CONTRIBUTING.md
+IMPLEMENTATION_GUIDE.md
+AI_IMPLEMENTATION_GUIDE.md
+AI_ENGINEERING_CONSTITUTION.md
+MASTER_CODEX_EXECUTION_PROMPT.md
+docs/**/*.md
+untitled folder/**
+*.rtf

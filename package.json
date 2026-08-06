@@ -1,0 +1,42 @@
+{
+  "name": "ahw-agp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AHW Architects Global Platform monorepo bootstrap.",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:integration && pnpm openapi:validate",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "openapi:validate": "node tools/scripts/validate-openapi.mjs",
+    "test": "vitest run --passWithNoTests",
+    "test:integration": "vitest run -c vitest.integration.config.ts --passWithNoTests",
+    "typecheck": "tsc -b tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "sharp": "^0.35.3",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "^2.1.8",
+    "yaml": "^2.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "sharp": "^0.35.3",
+      "postcss": "^8.5.10",
+      "brace-expansion": "^1.1.17",
+      "js-yaml": "^4.3.0"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+.trigger {
+  background: none;
+  border: none;
+  /* 4px padding + 40px svg = 48px hit area — the tallest element in the
+     header row, so it (not the logo) determines the header's rendered
+     height. Kept just above the 44px touch-target floor. */
+  padding: var(--space-1);
+  cursor: pointer;
+  color: var(--color-brand-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+  z-index: 1000;
+  position: relative;
+  border-radius: 50%;
+  /* Minimal glassmorphism for hover hit area */
+  background-color: transparent;
+}
+
+.trigger:hover {
+  transform: scale(1.05);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--color-brand-paper);
+  outline-offset: 4px;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.line {
+  transform-origin: center;
+  transition: transform 0.4s var(--ease-cinematic), opacity 0.4s var(--ease-cinematic);
+}
+
+/* 
+  Morphing Sequence 
+  Left pillar shifts center and rotates 45deg
+  Middle beam collapses
+  Right pillar shifts center and rotates -45deg
+*/
+.open .lineLeft {
+  transform: translateX(7px) rotate(45deg);
+}
+
+.open .lineMiddle {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.open .lineRight {
+  transform: translateX(-7px) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .line {
+    transition: none;
+  }
+}

@@ -1,0 +1,112 @@
+.shell {
+  min-height: 100vh;
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  /* #app-root has a global padding-top reserving space for the public
+     site's fixed Header (globals.css) — irrelevant here since
+     NavigationHeader renders nothing on /admin and /client (see
+     NavigationHeader.tsx), so cancel it out rather than leaving a blank
+     gap above the portal's own header. */
+  margin-top: calc(-1 * var(--header-height));
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.brand {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.navLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.navLink:hover {
+  color: var(--color-brand-paper);
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.userLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+}
+
+.logoutButton {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-paper);
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.logoutButton:hover {
+  opacity: 0.7;
+}
+
+.content {
+  padding: var(--space-8) var(--space-6);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+/* Below this width the single-row flex layout wraps mid-row in a
+   confusing order (nav's own links wrapping between brand and the user
+   area) — stack brand / nav / user-area as three full-width rows
+   instead of relying on flex-wrap to sort it out. */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .nav {
+    flex: initial;
+  }
+
+  .userArea {
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logoutButton {
+    transition: none;
+  }
+}

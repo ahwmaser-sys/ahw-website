@@ -1,0 +1,276 @@
+.section {
+  padding: var(--space-24) var(--space-8);
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  border-top: 1px solid var(--color-border-strong);
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: var(--space-32) var(--space-12) var(--space-32) calc(var(--space-24) + var(--space-12));
+  }
+}
+
+.header {
+  margin-bottom: var(--space-16);
+  max-width: 800px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-brand-stone);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  padding: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300;
+  margin-bottom: var(--space-6);
+}
+
+.subtitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-paper);
+  opacity: 0.7;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.projectCard {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .projectCard {
+    /* Info on left, Images on right. Give more space to images (1fr 2fr) to make them significantly larger */
+    grid-template-columns: 1fr 2fr;
+    gap: var(--space-24);
+    align-items: start;
+  }
+}
+
+/* --- THE STICKY INFO SECTION --- */
+.projectInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-top: var(--space-4);
+  
+  /* Sticky behavior for desktop */
+  position: sticky;
+  top: 15vh; 
+}
+
+/* --- THE EDITORIAL IMAGE GALLERY --- */
+.imageGallery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  width: 100%;
+}
+
+.featureImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.detailGallery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  width: 100%;
+  margin-top: var(--space-12);
+}
+
+.detailImageWrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+/* Base image styles */
+.image {
+  object-fit: cover;
+  will-change: transform, filter;
+}
+
+/* --- UNIQUE AWWWARDS-STYLE HOVER EFFECTS & STAGGERED SIZING --- */
+
+/* 1. Feature Image: Slow, elegant zoom in */
+.featureImageWrapper .image {
+  transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.featureImageWrapper:hover .image {
+  transform: scale(1.08);
+}
+
+/* 2. Detail 1: Offset left, subtle horizontal pan */
+.detailImageWrapper:nth-child(1) {
+  width: 100%;
+  align-self: flex-start;
+  aspect-ratio: 16/9;
+}
+.detailImageWrapper:nth-child(1) .image {
+  transform: scale(1.1) translateX(-3%);
+  transition: transform 1.5s ease-out;
+}
+.detailImageWrapper:nth-child(1):hover .image {
+  transform: scale(1.1) translateX(3%);
+}
+
+/* 3. Detail 2: Offset right, negative margin overlap, zoom OUT and untwist */
+.detailImageWrapper:nth-child(2) {
+  width: 90%;
+  align-self: flex-end;
+  margin-top: -10%; /* overlap the previous image */
+  aspect-ratio: 4/3;
+  z-index: 2;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.2); /* Lifted effect */
+}
+.detailImageWrapper:nth-child(2) .image {
+  transform: scale(1.15) rotate(2deg);
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.detailImageWrapper:nth-child(2):hover .image {
+  transform: scale(1) rotate(0deg);
+}
+
+/* 4. Detail 3: Centered wide, cinematic B&W to Color reveal */
+.detailImageWrapper:nth-child(3) {
+  width: 100%;
+  align-self: center;
+  aspect-ratio: 16/9; /* Massive impact */
+}
+.detailImageWrapper:nth-child(3) .image {
+  filter: grayscale(100%) contrast(1.1);
+  transition: filter 1s ease, transform 1s ease;
+}
+.detailImageWrapper:nth-child(3):hover .image {
+  filter: grayscale(0%) contrast(1);
+  transform: scale(1.03);
+}
+
+/* 5. Detail 4: Offset left, clip-path expansion */
+.detailImageWrapper:nth-child(4) {
+  width: 85%;
+  align-self: flex-start;
+  margin-top: -5%;
+  aspect-ratio: 1/1;
+  clip-path: inset(4% 4% 4% 4%);
+  transition: clip-path 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+
+}
+.detailImageWrapper:nth-child(4):hover {
+  clip-path: inset(0% 0% 0% 0%);
+}
+.detailImageWrapper:nth-child(4) .image {
+  transition: transform 1s ease;
+}
+.detailImageWrapper:nth-child(4):hover .image {
+  transform: scale(1.05);
+}
+
+/* If there's only 1 detail image, make it look good */
+.detailImageWrapper:only-child {
+  width: 100%;
+  align-self: center;
+  margin-top: 0;
+  aspect-ratio: 16/9;
+  clip-path: none;
+}
+.detailImageWrapper:only-child .image {
+  transform: none;
+  filter: none;
+  transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.detailImageWrapper:only-child:hover .image {
+  transform: scale(1.05);
+}
+
+.preAhwBadge {
+  display: inline-flex;
+  align-self: flex-start;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-brand-stone);
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
+  padding: var(--space-1) var(--space-3);
+}
+
+.projectTitle {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: 400;
+}
+
+.projectMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-paper);
+  opacity: 0.6;
+}
+
+.projectMeta span {
+  display: flex;
+  align-items: center;
+}
+
+.projectMeta span:not(:last-child)::after {
+  content: '·';
+  margin-left: var(--space-4);
+  opacity: 0.5;
+}
+
+.projectDescription {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-paper);
+  opacity: 0.8;
+  margin-top: var(--space-6);
+  white-space: pre-wrap;
+}
+
+.testimonial {
+  margin: var(--space-8) 0 0 0;
+  padding-left: var(--space-6);
+  border-left: 2px solid var(--color-brand-paper);
+}
+
+.testimonial p {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-style: italic;
+  font-weight: 300;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-paper);
+  opacity: 0.8;}

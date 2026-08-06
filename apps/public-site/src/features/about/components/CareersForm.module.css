@@ -1,0 +1,175 @@
+.formWrapper {
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+  padding: var(--space-8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+@media (min-width: 768px) {
+  .formWrapper {
+    padding: var(--space-12);
+  }
+}
+
+.successMessage {
+  text-align: center;
+  padding: var(--space-12) 0;
+}
+
+.successMessage h3 {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 300;
+  margin-bottom: var(--space-4);
+}
+
+.successMessage p {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  color: var(--color-brand-stone);
+  margin-bottom: var(--space-8);
+  line-height: var(--line-height-relaxed);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.formGroupFull {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.formGroup label, .formGroupFull label {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="email"],
+.formGroup input[type="tel"],
+.formGroup input[type="url"],
+.formGroup select,
+.formGroupFull textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  border-radius: 2px;
+  transition: border-color var(--transition-fast);
+}
+
+.formGroup select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23C1B5A5' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+}
+
+.formGroup select option {
+  background-color: var(--color-brand-ink);
+  color: var(--color-brand-paper);
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroupFull textarea:focus {
+  outline: none;
+  border-color: var(--color-brand-stone);
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+}
+
+.errorMessage {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: #ef4444;
+  margin-top: var(--space-1);
+}
+
+.fileInput {
+  color: var(--color-brand-stone);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+}
+
+.fileInput::file-selector-button {
+  padding: var(--space-2) var(--space-4);
+  background-color: transparent;
+  border: 1px solid var(--color-brand-stone);
+  color: var(--color-brand-paper);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  cursor: pointer;
+  margin-right: var(--space-4);
+  border-radius: 2px;
+  transition: background-color var(--transition-fast);
+}
+
+.fileInput::file-selector-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.formError {
+  padding: var(--space-4);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-6);
+  border-radius: 2px;
+}
+
+.submitButton {
+  width: 100%;
+  padding: var(--space-4);
+  background-color: var(--color-brand-paper);
+  color: var(--color-brand-ink);
+  border: none;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.submitButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

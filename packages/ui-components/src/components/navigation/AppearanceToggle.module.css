@@ -1,0 +1,54 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggleButton {
+  width: 48px;
+  height: 24px;
+  border-radius: 24px;
+  background-color: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: opacity var(--transition-fast);
+  position: relative;
+}
+
+/* The visible track stays 24px tall (unchanged design), but the tappable
+   area is expanded to the 44px touch-target floor via an invisible
+   absolutely-positioned layer that doesn't affect flex layout sizing. */
+.toggleButton::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+.toggleButton:hover {
+  opacity: 0.8;
+}
+
+.indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-brand-paper);
+  transition: transform var(--transition-normal);
+}
+
+/* When light theme is active, slide the indicator right */
+.indicator.isLight {
+  transform: translateX(24px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggleButton,
+  .indicator {
+    transition: none;
+  }
+}
+
+

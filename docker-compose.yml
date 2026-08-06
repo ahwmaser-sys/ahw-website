@@ -1,0 +1,41 @@
+services:
+  workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: pnpm check
+    env_file:
+      - .env.example
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: agp_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  node_modules:
+  postgres_data:
+  rabbitmq_data:

@@ -1,0 +1,239 @@
+.navContainer {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 320px; /* Increased from 240px for breathing room */
+  pointer-events: none;
+  /* NO background, NO border, NO box-shadow on the container */
+  /* The Projects item's expanded sublist (Featured + Sector + Market) can
+     run long, and body scroll is locked while this panel is open — without
+     its own scroll, content taller than the viewport would be unreachable. */
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 480px) {
+  .navContainer {
+    width: min(320px, calc(100vw - var(--space-8)));
+  }
+}
+
+/* Mobile: the panel has no hover-preview image behind it and stacks
+   directly over page content, so it needs its own solid backdrop —
+   the shared page-dimming overlay alone isn't enough contrast against
+   a busy photo. Matches the existing .megaMenu panel convention
+   (Header.module.css) rather than inventing a new color. Desktop is
+   untouched — the "no background, airy" design stays for hover/mouse use. */
+@media (max-width: 768px) {
+  /* Scoped to .open: the container is always in the DOM (isOpen only
+     toggles pointer-events/aria-hidden/inert), so an unscoped rule here
+     paints a solid panel-shaped box on every page at mobile width even
+     when the menu is closed. */
+  .navContainer.open {
+    background-color: rgba(5, 5, 5, 0.98);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: var(--space-6) var(--space-5);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.navContainer.open {
+  pointer-events: auto;
+}
+
+.linkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Removed vertical gap to tighten the layout */
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual Stacked Blocks */
+.linkItem {
+  opacity: 0;
+  transform: translateY(-15px); /* Drop down from above */
+  transition: opacity 0.4s var(--ease-out) 0s, transform 0.5s cubic-bezier(0.2, 1, 0.3, 1) 0s;
+  will-change: transform, opacity;
+}
+
+.navContainer.open .linkItem {
+  opacity: 1;
+  transform: translateY(0);
+  /* The items cascade down with heavy gravity and distinct stagger */
+  transition: opacity 0.5s var(--ease-out) calc(0.1s + (var(--stagger-idx) * 0.12s)), 
+              transform 0.7s cubic-bezier(0.2, 1, 0.3, 1) calc(0.1s + (var(--stagger-idx) * 0.12s));
+}
+
+.primaryBlock {
+  border-radius: 4px; /* subtle softness */
+  transition: opacity 0.3s ease;
+  padding: var(--space-2) var(--space-4); /* Very tight minimalist spacing */
+  /* The overlay backdrop is always dark, so text must always be white */
+  color: #FFFFFF; 
+}
+
+/* We removed .activeBlock and .primaryBlock:hover backgrounds to maintain the elegant airy feel */
+
+.primaryLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3); /* Reduced gap to bring dot closer to text */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  color: inherit; /* Inherits from .primaryBlock */
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.primaryLink:hover {
+  opacity: 0.6; /* Restored simple hover fade */
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+  transform: translateY(1px); /* Optical alignment with text baseline */
+}
+
+.linkLabel {
+  font-family: var(--font-family-primary); /* B&F uses clean sans-serif */
+  font-size: var(--font-size-lg); /* Increased for confidence */
+  font-weight: var(--font-weight-bold); /* Made thicker as requested */
+  letter-spacing: -0.01em;
+}
+
+/* Hover Accordion - Sublist expands beautifully on hover */
+.sublistWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  /* Cinematic slow expansion */
+  transition: grid-template-rows 0.8s cubic-bezier(0.5, 0, 0, 1);
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* :focus-within alongside :hover: keyboard users tabbing into a subitem
+   must open its accordion too, otherwise Tab lands on a link sitting in a
+   zero-height, overflow:hidden wrapper — focusable but invisible. */
+.primaryBlock:hover .sublistWrapper,
+.primaryBlock:focus-within .sublistWrapper {
+  grid-template-rows: 1fr;
+}
+
+/* Fade out subitems quickly when closing to avoid the text getting 'cut off' by the grid collapse */
+.primaryBlock:hover .sublist,
+.primaryBlock:focus-within .sublist {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sublist {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  padding-left: calc(6px + var(--space-3)); /* Align with the text: 6px (dot) + gap */
+  margin: 0;
+  min-height: 0;
+  
+  /* Initial hidden state */
+  opacity: 0;
+  transform: translateY(-5px);
+  /* Fast fade out when closing */
+  transition: opacity 0.3s ease, transform 0.4s ease;
+}
+
+.subItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: inherit;
+}
+
+/* Retail/Workplace/Hospitality nested under the Commercial parent —
+   indented one step further than a normal sub-item. */
+.subItemChild {
+  margin-left: var(--space-4);
+  opacity: 0.85;
+}
+
+/* Touch devices have no :hover — expand submenus by default instead of gating on hover. */
+@media (hover: none) {
+  .sublistWrapper {
+    grid-template-rows: 1fr;
+  }
+
+  .sublist {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lArrow {
+  font-size: 0.9rem;
+  line-height: 1;
+  color: inherit;
+  opacity: 1; /* Removed 0.7 to ensure it is highly visible */
+  font-family: monospace; /* Sharp, structural arrow */
+}
+
+.subLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.subLink:hover {
+  opacity: 0.6;
+}
+
+.navGroup {
+  margin-bottom: var(--space-4);
+}
+
+.navGroup:last-child {
+  margin-bottom: 0;
+}
+
+.groupLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: inherit;
+  opacity: 0.5;
+  margin-bottom: var(--space-2);
+}
+
+.groupItems {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linkItem,
+  .navContainer.open .linkItem,
+  .primaryBlock,
+  .primaryLink,
+  .sublistWrapper,
+  .sublist,
+  .subLink {
+    transition: none;
+  }
+}
