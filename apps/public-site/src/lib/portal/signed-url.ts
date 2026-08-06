@@ -8,18 +8,28 @@ import { createHmac, timingSafeEqual } from 'crypto';
 // route doesn't need a live session to honor it (same model as an S3
 // presigned URL). Scoped by kind ('doc' | 'photo') so a token minted for
 // one asset table can never be replayed against the other.
-const SESSION_SECRET = process.env.SESSION_SECRET;
-if (!SESSION_SECRET) {
-  throw new Error('SESSION_SECRET must be set to sign asset URLs.');
+//
+// The secret is read lazily inside each function, not at module scope —
+// Next.js imports route modules during `next build`'s page-data-
+// collection pass, and a module-level throw over a missing env var fails
+// the whole build the instant this file is imported, over a secret only
+// actually needed once a token is really being signed or verified. Same
+// reasoning already applied to Resend (Contact/Careers routes) and
+// INTEGRATION_ENCRYPTION_KEY (integrations/encryption.ts).
+function getSecret(): string {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    throw new Error('SESSION_SECRET must be set to sign asset URLs.');
+  }
+  return secret;
 }
-const SECRET: string = SESSION_SECRET;
 
 type AssetKind = 'doc' | 'photo' | 'media' | 'variant' | 'graphic';
 
 function signAssetToken(kind: AssetKind, assetId: string, expiresInSeconds: number): string {
   const expiresAt = Date.now() + expiresInSeconds * 1000;
   const payload = `${kind}:${assetId}.${expiresAt}`;
-  const signature = createHmac('sha256', SECRET).update(payload).digest('hex');
+  const signature = createHmac('sha256', getSecret()).update(payload).digest('hex');
   return `${payload}.${signature}`;
 }
 
@@ -33,7 +43,7 @@ function verifyAssetToken(kind: AssetKind, token: string): string | null {
   const signature = token.slice(lastDot + 1);
   if (!scopedId.startsWith(`${kind}:`) || !expiresAtRaw || !signature) return null;
 
-  const expectedSignature = createHmac('sha256', SECRET).update(`${scopedId}.${expiresAtRaw}`).digest('hex');
+  const expectedSignature = createHmac('sha256', getSecret()).update(`${scopedId}.${expiresAtRaw}`).digest('hex');
   const provided = Buffer.from(signature, 'hex');
   const expected = Buffer.from(expectedSignature, 'hex');
   if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) {
