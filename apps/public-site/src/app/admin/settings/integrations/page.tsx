@@ -123,7 +123,11 @@ export default async function AdminIntegrationsPage({ searchParams }: { searchPa
           {offices.flatMap((office: Office) =>
             SOCIAL_TYPES.map((type) => {
               const config = socialByOfficeAndType.get(`${office.id}:${type}`);
-              const needsFollowUp = config?.status === 'PENDING' && (config.metadata as { needsFollowUp?: boolean } | null)?.needsFollowUp;
+              // connectIntegration() always sets status to CONNECTED or
+              // ERROR on OAuth callback — it never uses PENDING — so
+              // gating this on status === 'PENDING' meant this form could
+              // never render, no matter what metadata.needsFollowUp said.
+              const needsFollowUp = Boolean((config?.metadata as { needsFollowUp?: boolean } | null)?.needsFollowUp);
               const entityId = `${type}:${office.id}`;
               return (
                 <div key={entityId} className={styles.card}>
