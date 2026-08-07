@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Outfit } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 
 const inter = Inter({
@@ -169,6 +170,7 @@ export default async function RootLayout({
           <div id="main-content">{children}</div>
         </div>
         <PublicChrome offices={offices} copyrightText={footerSettings?.copyrightText} />
+        <SpeedInsights />
       </body>
     </html>
   );
