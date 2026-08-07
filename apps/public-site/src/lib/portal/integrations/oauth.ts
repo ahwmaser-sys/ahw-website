@@ -188,7 +188,13 @@ async function discoverGoogleBusinessLocationId(accessToken: string): Promise<st
       if (!locationsRes.ok) continue;
       const locationsBody = (await locationsRes.json()) as { locations?: { name: string }[] };
       for (const location of locationsBody.locations ?? []) {
-        locationNames.push(location.name); // "accounts/{account}/locations/{location}"
+        // Business Information API returns each Location's own resource
+        // name as "locations/{location}" (no account segment — it's a
+        // top-level resource there). Rebuild the compound
+        // "accounts/{account}/locations/{location}" form here since
+        // that's the shape stored in the DB and expected by the v4
+        // publish endpoint (google-business.ts).
+        locationNames.push(`${account.name}/${location.name}`);
       }
     }
 

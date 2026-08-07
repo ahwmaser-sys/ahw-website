@@ -49,7 +49,17 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       // API v4 — Google has been sunsetting v4 read endpoints in favor of
       // this one, so this is the check least likely to break out from
       // under a stored, working credential.
-      const res = await fetch(`https://mybusinessbusinessinformation.googleapis.com/v1/${cred.locationId}?readMask=name,title`, {
+      //
+      // cred.locationId is stored (and entered via the follow-up form) as
+      // the full v4-style resource path "accounts/{account}/locations/{location}"
+      // — that's what the publish adapter (google-business.ts, still on
+      // v4) needs. This v1 API addresses a Location as a top-level
+      // resource, "locations/{location}" with no account segment, so the
+      // account prefix has to be stripped here or Google 404s the request
+      // (confirmed: passing the full v4 path returns Google's generic
+      // frontend 404 page, not a JSON API error).
+      const locationOnly = cred.locationId.replace(/^accounts\/[^/]+\//, '');
+      const res = await fetch(`https://mybusinessbusinessinformation.googleapis.com/v1/${locationOnly}?readMask=name,title`, {
         headers: { Authorization: `Bearer ${cred.accessToken}` },
       });
       if (!res.ok) return { ok: false, error: await res.text() };
