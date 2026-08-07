@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getIntegrationCredential } from '../../../lib/portal/integrations/store';
 import { prisma } from '../../../lib/portal/db';
 
 export async function GET() {
@@ -9,8 +10,8 @@ export async function GET() {
     
     if (!config) return NextResponse.json({ error: 'No GOOGLE_BUSINESS config found' });
     
-    const cred = config.metadata as { accessToken?: string };
-    if (!cred?.accessToken) return NextResponse.json({ error: 'No access token found' });
+    const cred = await getIntegrationCredential<{ accessToken: string }>('GOOGLE_BUSINESS', config.officeId);
+    if (!cred?.accessToken) return NextResponse.json({ error: 'No access token found in decrypted credentials' });
 
     // Fetch accounts
     const accountsRes = await fetch('https://mybusinessaccountmanagement.googleapis.com/v1/accounts', {
