@@ -156,10 +156,50 @@ export async function exchangeCode(type: OAuthIntegration, code: string): Promis
   });
   if (!tokenRes.ok) throw new Error(`Google token exchange failed: ${await tokenRes.text()}`);
   const tokenBody = (await tokenRes.json()) as { access_token: string; refresh_token?: string };
-  // locationId isn't derivable without an extra account/location listing
-  // call this session can't exercise against a real account — collected
-  // from the admin via the Integrations UI's "Location ID" field.
-  return { accessToken: tokenBody.access_token, refreshToken: tokenBody.refresh_token };
+  // Best-effort auto-discovery of the connected account's Location ID —
+  // only fills it in when exactly one location is unambiguous. Requires
+  // the Business Profile APIs to be enabled AND quota-approved on the
+  // Google Cloud project (Settings → Integrations docs); until then this
+  // 403s/429s and silently returns null, which is fine — the caller
+  // falls back to the manual "Location ID" follow-up form exactly like
+  // it does today.
+  const locationId = await discoverGoogleBusinessLocationId(tokenBody.access_token);
+  return {
+    accessToken: tokenBody.access_token,
+    refreshToken: tokenBody.refresh_token,
+    ...(locationId ? { locationId } : {}),
+  };
+}
+
+async function discoverGoogleBusinessLocationId(accessToken: string): Promise<string | null> {
+  try {
+    const accountsRes = await fetch('https://mybusinessaccountmanagement.googleapis.com/v1/accounts', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!accountsRes.ok) return null;
+    const accountsBody = (await accountsRes.json()) as { accounts?: { name: string }[] };
+
+    const locationNames: string[] = [];
+    for (const account of accountsBody.accounts ?? []) {
+      const locationsRes = await fetch(
+        `https://mybusinessbusinessinformation.googleapis.com/v1/${account.name}/locations?readMask=name,title`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      if (!locationsRes.ok) continue;
+      const locationsBody = (await locationsRes.json()) as { locations?: { name: string }[] };
+      for (const location of locationsBody.locations ?? []) {
+        locationNames.push(location.name); // "accounts/{account}/locations/{location}"
+      }
+    }
+
+    // Multiple locations on one Google login (e.g. one person managing
+    // both the Egypt and Kuwait profiles) is ambiguous — don't guess
+    // which office this connection belongs to, leave it to the manual
+    // form instead.
+    return locationNames.length === 1 ? (locationNames[0] ?? null) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function integrationTypeToOAuth(type: IntegrationType): OAuthIntegration | null {

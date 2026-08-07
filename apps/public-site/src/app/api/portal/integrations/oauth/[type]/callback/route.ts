@@ -7,13 +7,17 @@ import { recordActivity } from '../../../../../../../lib/portal/audit';
 import { getSiteUrl } from '../../../../../../../lib/site-config';
 
 const VALID_TYPES: readonly OAuthIntegration[] = ['INSTAGRAM', 'FACEBOOK', 'LINKEDIN', 'GOOGLE_BUSINESS'];
-// These two platforms' access tokens alone aren't enough to publish —
-// LinkedIn needs an Organization URN, Google Business Profile needs a
-// Location ID, and neither is safely auto-discoverable from the token
-// scopes this app requests. The Integrations page prompts for the
-// missing field once OAuth lands here, rather than pretending one
-// redirect is the whole story.
-const NEEDS_FOLLOW_UP: ReadonlySet<OAuthIntegration> = new Set(['LINKEDIN', 'GOOGLE_BUSINESS']);
+// LinkedIn's Organization URN is never derivable from the token scopes
+// this app requests, so it always needs the manual follow-up form.
+// Google Business Profile's Location ID IS sometimes auto-discoverable
+// (see oauth.ts's discoverGoogleBusinessLocationId) — only prompt for it
+// manually when that lookup came back empty (ambiguous account, or the
+// Business Profile APIs aren't quota-approved yet on the Cloud project).
+function needsFollowUp(type: OAuthIntegration, result: Record<string, unknown>): boolean {
+  if (type === 'LINKEDIN') return true;
+  if (type === 'GOOGLE_BUSINESS') return !result.locationId;
+  return false;
+}
 
 async function redirectToSettings(query: string): Promise<Response> {
   const base = await getSiteUrl();
@@ -55,9 +59,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
     }
 
     const result = await exchangeCode(oauthType, code);
+    const stillNeedsFollowUp = needsFollowUp(oauthType, result);
 
     await connectIntegration(oauthType, result, {
-      metadata: { pageName: result.pageName, needsFollowUp: NEEDS_FOLLOW_UP.has(oauthType) },
+      metadata: { pageName: result.pageName, needsFollowUp: stillNeedsFollowUp },
       connectedById: principal.userId,
       officeId,
     });
@@ -65,7 +70,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
     await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: `${oauthType}:${officeId}` });
 
     return await redirectToSettings(
-      NEEDS_FOLLOW_UP.has(oauthType)
+      stillNeedsFollowUp
         ? `connected=${oauthType}&followUp=1&officeId=${officeId}`
         : `connected=${oauthType}&officeId=${officeId}`
     );

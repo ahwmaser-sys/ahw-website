@@ -45,7 +45,11 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       const cred = await getIntegrationCredential<{ accessToken: string; locationId?: string }>(type, officeId);
       if (!cred) return { ok: false, error: 'Not connected.' };
       if (!cred.locationId) return { ok: false, error: 'Missing Location ID — finish setup below.' };
-      const res = await fetch(`https://mybusiness.googleapis.com/v4/${cred.locationId}`, {
+      // Business Information API (current), not the legacy My Business
+      // API v4 — Google has been sunsetting v4 read endpoints in favor of
+      // this one, so this is the check least likely to break out from
+      // under a stored, working credential.
+      const res = await fetch(`https://mybusinessbusinessinformation.googleapis.com/v1/${cred.locationId}?readMask=name,title`, {
         headers: { Authorization: `Bearer ${cred.accessToken}` },
       });
       if (!res.ok) return { ok: false, error: await res.text() };
