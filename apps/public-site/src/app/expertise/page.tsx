@@ -35,6 +35,7 @@ export default async function ExpertisePage() {
       '@type': 'ProfessionalService',
       name: 'AHW Architects',
       url: siteUrl,
+      image: `${siteUrl}/og-image.jpg`,
     },
     areaServed: [
       { '@type': 'Country', name: 'Egypt' },

@@ -61,9 +61,14 @@ export default async function ContactPage(props: ContactPageProps) {
     name: 'AHW Architects',
     url: siteUrl,
     logo: `${siteUrl}/images/logo-white.webp`,
+    // Same reasoning as layout.tsx's Organization schema — Google's Rich
+    // Results Test flags a missing `image` on Organization/LocalBusiness
+    // as a non-critical issue; reusing the existing social-share photo.
+    image: `${siteUrl}/og-image.jpg`,
     department: offices.map((office) => ({
       '@type': 'LocalBusiness',
       name: office.displayName,
+      image: `${siteUrl}/og-image.jpg`,
       address: {
         '@type': 'PostalAddress',
         streetAddress: office.address.street,

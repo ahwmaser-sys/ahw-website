@@ -339,6 +339,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
       '@type': 'ProfessionalService',
       name: 'AHW Architects',
       url: siteUrl,
+      image: `${siteUrl}/og-image.jpg`,
       areaServed: [
         { '@type': 'Country', name: 'Egypt' },
         { '@type': 'Country', name: 'Kuwait' },

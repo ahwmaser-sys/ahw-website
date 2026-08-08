@@ -107,8 +107,16 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '/' }) => {
     >
       <div className={styles.container}>
         <a href="/" className={styles.logo} aria-label="AHW Architects Home">
-          <Image src="/images/logo-white.webp" alt="AHW Architects" width={1571} height={592} priority className={styles.logoWhite} />
-          <Image src="/images/logo-dark.webp" alt="AHW Architects" width={1571} height={592} priority className={styles.logoDark} />
+          {/* In this Next.js version, `priority` alone skips lazy-loading
+              and emits a <link rel="preload">, but does NOT set the
+              fetchpriority="high" HTML attribute on the <img> itself —
+              confirmed by reading next/image's own get-img-props.js,
+              where `fetchPriority` is a separate pass-through prop, not
+              derived from `priority`. PageSpeed Insights flagged this
+              exact gap live (this logo is the page's actual LCP
+              element). ImageRotator already does this correctly. */}
+          <Image src="/images/logo-white.webp" alt="AHW Architects" width={1571} height={592} priority fetchPriority="high" className={styles.logoWhite} />
+          <Image src="/images/logo-dark.webp" alt="AHW Architects" width={1571} height={592} priority fetchPriority="high" className={styles.logoDark} />
         </a>
         
         <nav className={styles.nav}>

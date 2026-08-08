@@ -42,6 +42,9 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
     "name": "AHW Architects",
     "description": "AHW Architects is a multidisciplinary Architecture, Interior Design & Design-Build practice serving Egypt, Kuwait, and the wider GCC.",
     "url": siteUrl,
+    // Same reasoning as layout.tsx's Organization schema: Google's Rich
+    // Results Test flags a missing `image` as a non-critical issue.
+    "image": `${siteUrl}/og-image.jpg`,
     // Corrected from the literal string "Global" — the practice delivers in
     // Egypt, Kuwait, and the UAE (per projects.ts), not literally worldwide.
     // Matches the areaServed used in layout.tsx's Organization schema and

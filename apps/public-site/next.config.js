@@ -161,6 +161,14 @@ const nextConfig = {
     qualities: [100, 90, 75],
     // Disable image optimization for local assets served from public/
     unoptimized: false,
+    // Next's default deviceSizes jumps 1200 -> 1920 with no step between —
+    // any hero/rotator image actually rendered in that very common laptop
+    // range (confirmed live via PageSpeed Insights: a 1335px-wide and a
+    // 1410px-wide slot both got served the 1920px variant, ~45KB and
+    // ~17KB heavier than needed) has no closer-fitting size to pick from.
+    // Adding 1366/1536 (real, common laptop viewport widths) closes that
+    // gap without touching any component's own sizes/quality props.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1366, 1536, 1920, 2048, 3840],
     // AVIF first, WebP fallback — Next negotiates via the request's
     // Accept header automatically; this only adds format options; it
     // never lowers the quality values set above.

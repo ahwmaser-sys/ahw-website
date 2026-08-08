@@ -131,6 +131,12 @@ export default async function RootLayout({
     legalName,
     url: siteUrl,
     logo: `${siteUrl}/images/logo-white.webp`,
+    // Distinct from `logo` (the brand mark) — Google's Rich Results Test
+    // flags a plain Organization/ProfessionalService with no `image` as a
+    // non-critical issue. Reusing the same photo already used for social
+    // share previews (og-image.jpg) rather than introducing a second,
+    // separate "representative image" concept.
+    image: `${siteUrl}/og-image.jpg`,
     foundingDate: '2012',
     description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
     sameAs,

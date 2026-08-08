@@ -38,6 +38,7 @@ export default async function FitOutPage() {
       '@type': 'ProfessionalService',
       name: 'AHW Architects',
       url: siteUrl,
+      image: `${siteUrl}/og-image.jpg`,
     },
     areaServed: [
       { '@type': 'Country', name: 'Egypt' },

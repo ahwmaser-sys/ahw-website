@@ -45,5 +45,12 @@
     "@types/react-dom": "^19.2.4",
     "eslint-config-next": "^16.2.12",
     "prisma": "^7.9.1"
-  }
+  },
+  "browserslist": [
+    "chrome >= 96",
+    "edge >= 96",
+    "firefox >= 96",
+    "safari >= 15.4",
+    "not dead"
+  ]
 }
