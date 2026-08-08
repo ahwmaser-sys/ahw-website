@@ -62,6 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: seo?.ogTitle || rawTitle,
       description: seo?.ogDescription || description,
+      url: `/projects/${project.slug}`,
       images: [project.ogImage],
     },
     twitter: {
