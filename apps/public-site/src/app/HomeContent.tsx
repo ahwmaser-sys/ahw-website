@@ -222,6 +222,9 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                     <span className={styles.capAwardNum}>01</span>
                     <h3 className={styles.capAwardTitle}>Architecture</h3>
                   </div>
+                  <div className={styles.capAwardItemImageMobile}>
+                    <Image src="/images/placeholders/ahw_service_architecture.jpg" alt="AHW Architects — Architecture discipline" fill sizes="100vw" className={styles.capAwardImage} />
+                  </div>
                   <div className={styles.capAwardItemContent}>
                     <p className={styles.capAwardDesc}>
                       Designing comprehensive urban frameworks and iconic structures across Mixed-Use, Residential, and Commercial sectors. Form is the consequence of rigorous engineering and spatial logic.
@@ -237,6 +240,9 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                   <div className={styles.capAwardItemHeader}>
                     <span className={styles.capAwardNum}>02</span>
                     <h3 className={styles.capAwardTitle}>Interior Design</h3>
+                  </div>
+                  <div className={styles.capAwardItemImageMobile}>
+                    <Image src="/images/placeholders/ahw_service_interior.jpg" alt="AHW Architects — Interior Design discipline" fill sizes="100vw" className={styles.capAwardImage} />
                   </div>
                   <div className={styles.capAwardItemContent}>
                     <p className={styles.capAwardDesc}>
@@ -254,6 +260,9 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                     <span className={styles.capAwardNum}>03</span>
                     <h3 className={styles.capAwardTitle}>Design & Build</h3>
                   </div>
+                  <div className={styles.capAwardItemImageMobile}>
+                    <Image src="/images/expertise/ahw_act3_built.jpg" alt="AHW Architects — Design & Build discipline" fill sizes="100vw" className={styles.capAwardImage} />
+                  </div>
                   <div className={styles.capAwardItemContent}>
                     <p className={styles.capAwardDesc}>
                       A singular point of responsibility from concept to completion. We manage the grit of the construction site to protect the purity of the design, overseeing timeline, budget, and complex logistics.
@@ -269,6 +278,9 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                   <div className={styles.capAwardItemHeader}>
                     <span className={styles.capAwardNum}>04</span>
                     <h3 className={styles.capAwardTitle}>Fit-Out</h3>
+                  </div>
+                  <div className={styles.capAwardItemImageMobile}>
+                    <Image src="/images/placeholders/ahw_retail.jpg" alt="AHW Architects — Fit-Out discipline" fill sizes="100vw" className={styles.capAwardImage} />
                   </div>
                   <div className={styles.capAwardItemContent}>
                     <p className={styles.capAwardDesc}>

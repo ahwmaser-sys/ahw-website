@@ -29,9 +29,15 @@
   transform: translateY(-100%);
 }
 
-.fadeHidden {
-  opacity: 0;
-  /* We don't use pointer-events: none here because we still want to detect mouse hover to reveal it */
+/* Scoped to hover-capable pointers only (desktop mouse) — touch devices
+   have no mouseenter equivalent, so applying this on mobile made the
+   entire header, including the menu trigger, invisible until the user
+   scrolled 50px+. Touch devices now just keep the header visible. */
+@media (hover: hover) and (pointer: fine) {
+  .fadeHidden {
+    opacity: 0;
+    /* We don't use pointer-events: none here because we still want to detect mouse hover to reveal it */
+  }
 }
 
 .container {

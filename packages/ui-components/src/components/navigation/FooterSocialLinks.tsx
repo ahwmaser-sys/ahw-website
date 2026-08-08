@@ -69,7 +69,16 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
 
   return (
     <>
-      {whatsappOffices.length > 0 && (
+      {whatsappOffices.length === 1 ? (
+        <a
+          href={buildWhatsAppLink(whatsappOffices[0]!.contact.whatsapp!, "Hi AHW Architects, I'd like to enquire about a project.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          WhatsApp
+        </a>
+      ) : whatsappOffices.length > 1 && (
         <div className={styles.socialWrapper} ref={whatsappRef}>
           <button
             ref={whatsappButtonRef}
@@ -103,7 +112,15 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
         </div>
       )}
 
-      {instagramOffices.length > 0 && (
+      {/* A single office is the common case (one Instagram/Facebook/
+          LinkedIn per office) — linking straight out avoids a button that
+          visibly does nothing on first click. The dropdown only earns its
+          keep once 2+ offices actually have this platform set. */}
+      {instagramOffices.length === 1 ? (
+        <a href={normalizeExternalUrl(instagramOffices[0]!.contact.instagram!)} target="_blank" rel="noopener noreferrer" className={linkClass}>
+          Instagram
+        </a>
+      ) : instagramOffices.length > 1 && (
         <div className={styles.socialWrapper} ref={instagramRef}>
           <button
             ref={instagramButtonRef}
@@ -123,7 +140,7 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
               {instagramOffices.map((office) => (
                 <a
                   key={office.id}
-                  href={office.contact.instagram}
+                  href={normalizeExternalUrl(office.contact.instagram!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.socialOption}
@@ -136,7 +153,11 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
         </div>
       )}
 
-      {facebookOffices.length > 0 && (
+      {facebookOffices.length === 1 ? (
+        <a href={normalizeExternalUrl(facebookOffices[0]!.contact.facebook!)} target="_blank" rel="noopener noreferrer" className={linkClass}>
+          Facebook
+        </a>
+      ) : facebookOffices.length > 1 && (
         <div className={styles.socialWrapper} ref={facebookRef}>
           <button
             ref={facebookButtonRef}
@@ -156,7 +177,7 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
               {facebookOffices.map((office) => (
                 <a
                   key={office.id}
-                  href={office.contact.facebook}
+                  href={normalizeExternalUrl(office.contact.facebook!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.socialOption}
@@ -169,7 +190,11 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
         </div>
       )}
 
-      {linkedinOffices.length > 0 && (
+      {linkedinOffices.length === 1 ? (
+        <a href={normalizeExternalUrl(linkedinOffices[0]!.contact.linkedin!)} target="_blank" rel="noopener noreferrer" className={linkClass}>
+          LinkedIn
+        </a>
+      ) : linkedinOffices.length > 1 && (
         <div className={styles.socialWrapper} ref={linkedinRef}>
           <button
             ref={linkedinButtonRef}
@@ -189,7 +214,7 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
               {linkedinOffices.map((office) => (
                 <a
                   key={office.id}
-                  href={office.contact.linkedin}
+                  href={normalizeExternalUrl(office.contact.linkedin!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.socialOption}
@@ -203,4 +228,13 @@ export function FooterSocialLinks({ offices, linkClassName }: { offices: readonl
       )}
     </>
   );
+}
+
+// Admin-entered social URLs are plain text inputs (Settings → Offices) —
+// an admin can save "instagram.com/ahw" without a protocol, which browsers
+// resolve as a broken relative link instead of navigating out. Treat a
+// missing protocol as the one thing worth defending against here.
+function normalizeExternalUrl(url: string): string {
+  const trimmed = url.trim();
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
