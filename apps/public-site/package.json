@@ -25,6 +25,7 @@
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.1.0",
     "@vercel/blob": "^2.6.1",
+    "@vercel/speed-insights": "^2.0.0",
     "argon2": "^0.45.1",
     "file-type": "^22.0.1",
     "framer-motion": "^12.43.0",

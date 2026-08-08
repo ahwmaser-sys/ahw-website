@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../validation/contactSchema';
+import { trackEvent } from '../../../lib/analytics';
 import styles from './ContactForm.module.css';
 
 interface ContactFormProps {
@@ -56,6 +57,15 @@ export function ContactForm({ officeId }: ContactFormProps) {
       if (!response.ok) {
         throw new Error('Failed to submit');
       }
+
+      // GA4's own documented recommended event for a completed lead form —
+      // no PII (name/email/phone/message), only the categorical fields a
+      // business would actually segment leads by.
+      trackEvent('generate_lead', {
+        office_id: data.officeId,
+        project_type: data.projectType,
+        ...(data.timeline ? { timeline: data.timeline } : {}),
+      });
 
       setSubmitStatus('success');
       reset();

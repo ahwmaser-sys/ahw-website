@@ -38,7 +38,7 @@ export function WebsiteDomainForm({ websiteUrl }: { websiteUrl: string }) {
     <ActionForm action={updateWebsiteDomain} submitLabel="Save">
       <div className={styles.field}>
         <label className={styles.label} htmlFor="websiteUrl">Website domain</label>
-        <input className={styles.input} id="websiteUrl" name="websiteUrl" type="url" defaultValue={websiteUrl} placeholder="https://ahwspaces.com" required />
+        <input className={styles.input} id="websiteUrl" name="websiteUrl" type="url" defaultValue={websiteUrl} placeholder="https://www.ahwspaces.com" required />
       </div>
     </ActionForm>
   );

@@ -116,7 +116,10 @@ const nextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+            // interest-cohort blocked the now-retired FLoC; browsing-topics
+            // opts out of Chrome's Topics API (FLoC's replacement) the same
+            // way — sites are enrolled by default unless they opt out.
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=()',
           },
           {
             key: 'Content-Security-Policy',

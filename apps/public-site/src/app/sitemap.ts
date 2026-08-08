@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { projects, publications } from '@agp/ui-components';
 import { getPublicNewsItems } from '../lib/portal/public-news';
-import { getActiveOfficesForDisplay } from '../lib/portal/offices';
+import { getActiveOffices } from '../lib/portal/offices';
 import { getSiteUrl } from '../lib/site-config';
 import { prisma } from '../lib/portal/db';
 
@@ -11,43 +11,55 @@ import { prisma } from '../lib/portal/db';
 export const revalidate = 30;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [newsItems, offices, baseUrl] = await Promise.all([getPublicNewsItems(), getActiveOfficesForDisplay(), getSiteUrl()]);
-  const now = new Date();
+  const [newsItems, offices, baseUrl] = await Promise.all([getPublicNewsItems(), getActiveOffices(), getSiteUrl()]);
 
+  // Static marketing pages have no tracked modification date anywhere in
+  // the codebase (they're hardcoded components, not DB rows) — omitting
+  // `lastModified` rather than stamping every one with the current
+  // request time. Re-render time isn't a real edit date, and claiming one
+  // every 30s (this route's own revalidate window) trains crawlers to
+  // distrust the freshness signal instead of using it to prioritize
+  // re-crawls of pages that actually changed.
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}`, lastModified: now, changeFrequency: 'weekly', priority: 1 },
-    { url: `${baseUrl}/expertise`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${baseUrl}/expertise/architecture`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/expertise/interior-design`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/expertise/design-build`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/expertise/fit-out`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/expertise/engineering-project-management`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/projects`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/insights`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/insights/publications`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/insights/news`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
-    { url: `${baseUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/about/about-us`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/about/why-ahw`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/about/careers`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/faq`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/privacy-policy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/terms-of-service`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/cookie-policy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/data-deletion`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}`, changeFrequency: 'weekly', priority: 1 },
+    { url: `${baseUrl}/expertise`, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${baseUrl}/expertise/architecture`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/expertise/interior-design`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/expertise/design-build`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/expertise/fit-out`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/expertise/engineering-project-management`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/projects`, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/insights`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/insights/publications`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/insights/news`, changeFrequency: 'weekly', priority: 0.5 },
+    { url: `${baseUrl}/about`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/about/about-us`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/about/why-ahw`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/about/careers`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/faq`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/privacy-policy`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/terms-of-service`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/cookie-policy`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/data-deletion`, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
+  // Offices ARE real DB rows with a genuine Prisma-managed `updatedAt` —
+  // using getActiveOffices() (not the display-mapped LegacyOfficeShape,
+  // which drops timestamps) specifically to get it. Slug still matches
+  // what /contact/[officeId] actually resolves.
   const officeRoutes: MetadataRoute.Sitemap = offices.map((office) => ({
-    url: `${baseUrl}/contact/${office.id}`,
-    lastModified: now,
+    url: `${baseUrl}/contact/${office.slug}`,
+    lastModified: office.updatedAt,
     changeFrequency: 'monthly',
     priority: 0.7,
   }));
 
+  // Static project data (packages/ui-components/data/projects.ts) has no
+  // tracked per-project modification date either — same reasoning as
+  // staticRoutes above.
   const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
     url: `${baseUrl}/projects/${project.slug}`,
-    lastModified: now,
     changeFrequency: 'monthly',
     priority: 0.6,
     // ogImage is the one guaranteed-populated image field on every project

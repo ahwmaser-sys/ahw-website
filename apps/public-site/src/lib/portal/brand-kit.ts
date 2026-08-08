@@ -129,7 +129,26 @@ const DEFAULT_FOOTER_SETTINGS: BrandFooterSettings = {
 // connection pool (see lib/portal/db.ts's own history of connection-
 // exhaustion bugs).
 export const getActiveBrandKit = cache(async () => {
-  const existing = await prisma.brandKit.findFirst({ where: { isActive: true } });
+  // Deterministic orderBy is load-bearing, not cosmetic: every Brand Kit
+  // write action (colors, website domain, company info, etc.) reads its
+  // target row via this exact call, then updates that row by id. Without
+  // an explicit order, if more than one isActive:true row ever exists,
+  // Postgres does not guarantee findFirst returns the same row on every
+  // call — a write can land on one row while a later read (e.g. the
+  // admin page after reload) resolves to a different, untouched one,
+  // making a successful save appear to silently revert. `id` is the
+  // tiebreaker (not just createdAt) because two rows can share the same
+  // millisecond timestamp — e.g. a cold-start race where two concurrent
+  // requests both see no row yet and both call create() below — and
+  // createdAt alone wouldn't be a total order in that case.
+  //
+  // This intentionally is NOT a DB-level uniqueness constraint: the
+  // model comment above documents multiple rows as by-design future
+  // capability (e.g. a seasonal palette variant, only one isActive at a
+  // time). A schema constraint forcing exactly one row would contradict
+  // that documented direction, so the invariant stays enforced here, at
+  // the one shared read path, not in the schema.
+  const existing = await prisma.brandKit.findFirst({ where: { isActive: true }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] });
   if (existing) {
     // Backfill for a BrandKit row created before this go-live pass added
     // these columns — without this, a row from an earlier session (this
@@ -158,10 +177,15 @@ export const getActiveBrandKit = cache(async () => {
       typography: toJsonValue(DEFAULT_TYPOGRAPHY),
       ctaStyles: toJsonValue(DEFAULT_CTA_STYLES),
       logos: { light: null, dark: null, icon: null },
-      websiteUrl: 'https://ahwspaces.com',
+      // www is the canonical origin in production — the apex domain
+      // 308-redirects here. This default only fires once, on the very
+      // first BrandKit row creation (a real row already exists in
+      // production); kept in sync so a from-scratch reseed doesn't
+      // resurrect the apex-vs-www canonical mismatch.
+      websiteUrl: 'https://www.ahwspaces.com',
       isActive: true,
       companyInfo: toJsonValue(DEFAULT_COMPANY_INFO),
-      defaultCta: toJsonValue({ label: 'Start Your Project', url: 'https://ahwspaces.com/contact' }),
+      defaultCta: toJsonValue({ label: 'Start Your Project', url: 'https://www.ahwspaces.com/contact' }),
       defaultHashtags: ['AHWArchitects', 'Architecture', 'InteriorDesign'],
       footerSettings: toJsonValue(DEFAULT_FOOTER_SETTINGS),
     },

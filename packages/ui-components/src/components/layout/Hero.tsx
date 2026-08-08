@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import styles from './Hero.module.css';
 import { Button } from '../atoms/Button';
 import { Breadcrumbs, type BreadcrumbItem } from '../navigation/Breadcrumbs';
@@ -95,17 +96,24 @@ export const Hero: React.FC<HeroProps> = ({
         >
           <ImageRotator images={rotationImages} alt={posterAlt} activeOpacity={0.7} />
         </div>
-      ) : (
-        <div
+      ) : posterSrc ? (
+        // A single-image hero is very likely the page's LCP element — a
+        // CSS background-image on a plain div isn't discovered by the
+        // browser's preload scanner until stylesheets are parsed, unlike
+        // next/image with priority, which the scanner finds directly in
+        // the initial HTML.
+        <Image
+          src={posterSrc}
+          alt={posterAlt}
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          quality={90}
           className={`${styles.videoBackground} ${loaded ? styles.videoLoaded : ''}`}
-          style={{
-            backgroundImage: `url(${posterSrc})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            transform: `translateY(${offsetY * 0.3}px) scale(${loaded ? 1 : 1.05})`
-          }}
+          style={{ transform: `translateY(${offsetY * 0.3}px) scale(${loaded ? 1 : 1.05})` }}
         />
-      )}
+      ) : null}
 
       {/* Scrims for lighting depth */}
       <div className={styles.scrimTop}></div>

@@ -78,6 +78,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { NavigationHeader } from '../components/NavigationHeader';
 import { PublicChrome } from '../components/PublicChrome';
 import { GoogleAnalytics } from '../components/GoogleAnalytics';
@@ -114,9 +115,18 @@ export default async function RootLayout({
     return [social.instagram, social.facebook, social.linkedin].filter((url): url is string => Boolean(url));
   });
 
+  // Stable @id anchors so Organization and WebSite are the same entity on
+  // every page (not a fresh anonymous node each render) — WebSite.publisher
+  // references Organization by @id rather than repeating it, which is the
+  // baseline for search engines/LLMs to resolve one coherent AHW entity
+  // graph instead of many disconnected JSON-LD blobs across the site.
+  const organizationId = `${siteUrl}/#organization`;
+  const websiteId = `${siteUrl}/#website`;
+
   const organizationJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': organizationId,
     name: 'AHW Architects',
     legalName,
     url: siteUrl,
@@ -153,8 +163,10 @@ export default async function RootLayout({
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': websiteId,
     name: 'AHW Architects',
     url: siteUrl,
+    publisher: { '@id': organizationId },
   };
 
   return (
@@ -169,6 +181,7 @@ export default async function RootLayout({
           <div id="main-content">{children}</div>
         </div>
         <PublicChrome offices={offices} copyrightText={footerSettings?.copyrightText} />
+        <SpeedInsights />
       </body>
     </html>
   );
