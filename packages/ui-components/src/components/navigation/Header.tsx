@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import styles from './Header.module.css';
 
 import { MenuTrigger } from './MenuTrigger';
@@ -106,8 +107,8 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '/' }) => {
     >
       <div className={styles.container}>
         <a href="/" className={styles.logo} aria-label="AHW Architects Home">
-          <img src="/images/logo-white.webp" alt="AHW Architects" className={styles.logoWhite} />
-          <img src="/images/logo-dark.webp" alt="AHW Architects" className={styles.logoDark} />
+          <Image src="/images/logo-white.webp" alt="AHW Architects" width={1571} height={592} priority className={styles.logoWhite} />
+          <Image src="/images/logo-dark.webp" alt="AHW Architects" width={1571} height={592} priority className={styles.logoDark} />
         </a>
         
         <nav className={styles.nav}>

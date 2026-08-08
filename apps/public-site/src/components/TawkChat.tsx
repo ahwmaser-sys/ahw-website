@@ -12,6 +12,15 @@ import Script from 'next/script';
  *   launcher bubble. The widget itself keeps running — ChatFloatingButton
  *   (packages/ui-components) opens it via the equally-official
  *   `Tawk_API.maximize()`, so chat still works exactly as before.
+ *
+ * No `crossorigin` attribute on the injected <script> — setting one (this
+ * file previously set `crossorigin="*"`) forces the browser to fetch the
+ * script in CORS mode, which embed.tawk.to's CDN doesn't answer with an
+ * Access-Control-Allow-Origin header. Confirmed live via PageSpeed
+ * Insights: the request failed outright (net::ERR_FAILED), meaning the
+ * whole chat widget silently never loaded. A plain cross-origin <script
+ * src> load doesn't need CORS at all — Tawk's own embed snippet never
+ * sets this attribute either.
  */
 export function TawkChat() {
   return (
@@ -32,7 +41,6 @@ export function TawkChat() {
           s1.async = true;
           s1.src = 'https://embed.tawk.to/6a6f0595055f021d4ace1bdb/1jv0qrk1v';
           s1.charset = 'UTF-8';
-          s1.setAttribute('crossorigin', '*');
           s0.parentNode.insertBefore(s1, s0);
         })();
       `}

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Office } from '../../data/offices';
 import { getAllDocuments } from '../../data/documents';
 import { buildTelLink } from '../../lib/tel';
@@ -93,8 +94,8 @@ export function Footer({ offices, copyrightText }: FooterProps) {
         </div>
 
         <div className={styles.bottomSection}>
-          <img src="/images/logo-white.webp" alt="AHW Architects" className={`${styles.logo} ${styles.logoWhite}`} />
-          <img src="/images/logo-dark.webp" alt="AHW Architects" className={`${styles.logo} ${styles.logoDark}`} />
+          <Image src="/images/logo-white.webp" alt="AHW Architects" width={1571} height={592} className={`${styles.logo} ${styles.logoWhite}`} />
+          <Image src="/images/logo-dark.webp" alt="AHW Architects" width={1571} height={592} className={`${styles.logo} ${styles.logoDark}`} />
           <p className={styles.copyright}>{copyrightText ?? `© ${currentYear} AHW Architects. All rights reserved.`}</p>
           <div className={styles.legalLinks}>
             <a href="/privacy-policy" className={styles.legalLink}>Privacy Policy</a>
