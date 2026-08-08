@@ -50,7 +50,7 @@ export default async function CareersPage() {
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <section className={styles.heroSection}>
         <div className={styles.container}>
           <Breadcrumbs items={breadcrumbs} />

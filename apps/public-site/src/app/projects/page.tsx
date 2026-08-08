@@ -144,7 +144,7 @@ export default async function ProjectsPage({
   return (
     <main className={styles.main}>
       <StructuredData data={collectionJsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <div className={styles.datum} />
 
       {/* Zone B — Editorial Opening */}

@@ -353,7 +353,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
     return (
       <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <ProjectFilterBar resultCount={projects.length} />
         <div className={styles.datum} />
 
@@ -414,7 +414,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <ProjectFilterBar resultCount={projects.length} />
       <div className={styles.datum} />
 

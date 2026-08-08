@@ -66,7 +66,7 @@ export function CapabilityStatementContent({ offices, siteUrl, websiteQr, office
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
 
       {/* ── HERO ── */}
       <section className={styles.hero}>

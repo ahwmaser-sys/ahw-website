@@ -6,6 +6,7 @@ import { Hero } from '@agp/ui-components';
 import { aboutData, getDocumentById } from '@agp/ui-components';
 import { DownloadCard } from '@agp/ui-components';
 import { StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
+import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
 
 const breadcrumbs = [
@@ -33,12 +34,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
   const companyProfile = getDocumentById('companyProfile');
+  const siteUrl = await getSiteUrl();
 
   return (
     <main className={styles.main}>
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <Hero
         title="We build legacies."
         subtitle={aboutData.visionStatement}

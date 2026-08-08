@@ -41,13 +41,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InsightsPage() {
-  const newsItems = await getPublicNewsItems();
+  const [newsItems, siteUrl] = await Promise.all([getPublicNewsItems(), getSiteUrl()]);
   const featuredPublication = publications.find(p => p.isFeatured) || publications[0];
   const featuredNews = newsItems.find(n => n.isFeatured) || newsItems[0];
 
   return (
     <main className={styles.main}>
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <section className={styles.heroSection}>
         <div className={styles.container}>
           <Breadcrumbs items={breadcrumbs} />

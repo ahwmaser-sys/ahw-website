@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LegalPage, StructuredData, faqItems, buildBreadcrumbJsonLd } from '@agp/ui-components';
+import { getSiteUrl } from '../../lib/site-config';
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -24,7 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const siteUrl = await getSiteUrl();
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -41,7 +43,7 @@ export default function FaqPage() {
   return (
     <>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <LegalPage
         title="Frequently Asked Questions"
         lastUpdated="1 August 2026"

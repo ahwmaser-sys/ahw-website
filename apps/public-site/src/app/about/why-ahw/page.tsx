@@ -51,7 +51,7 @@ export default async function WhyAhwPage() {
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
 
       {/* SECTION 1: Large Hero Statement */}
       <section className={styles.heroSection}>

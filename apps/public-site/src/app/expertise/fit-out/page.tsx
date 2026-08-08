@@ -58,7 +58,7 @@ export default async function FitOutPage() {
   return (
     <>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <DisciplinePage
         breadcrumbs={breadcrumbs}
         numeral="IV"

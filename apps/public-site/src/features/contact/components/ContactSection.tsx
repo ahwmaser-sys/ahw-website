@@ -18,6 +18,10 @@ interface ContactSectionProps {
   // one tab per office, however many exist, never a fixed Egypt/Kuwait
   // pair.
   offices: readonly Office[];
+  // This is a Client Component, so it can't call getSiteUrl() itself
+  // (a server-only DB read) — the page passes down the same value it
+  // already fetched for its own JSON-LD.
+  siteUrl: string;
 }
 
 function resolveOfficeId(offices: readonly Office[], candidate: string | undefined): string {
@@ -27,7 +31,7 @@ function resolveOfficeId(offices: readonly Office[], candidate: string | undefin
   return match?.id || fallback;
 }
 
-export function ContactSection({ initialOfficeId, offices: orderedOffices }: ContactSectionProps) {
+export function ContactSection({ initialOfficeId, offices: orderedOffices, siteUrl }: ContactSectionProps) {
   const router = useRouter();
   const [activeOfficeId, setActiveOfficeId] = useState(() => resolveOfficeId(orderedOffices, initialOfficeId));
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -63,7 +67,7 @@ export function ContactSection({ initialOfficeId, offices: orderedOffices }: Con
 
   return (
     <section className={styles.section}>
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <div className={styles.container}>
         <div className={styles.header}>
           <Breadcrumbs items={breadcrumbs} />

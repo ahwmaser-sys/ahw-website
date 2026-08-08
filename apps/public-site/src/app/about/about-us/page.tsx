@@ -65,7 +65,7 @@ export default async function AboutUsPage() {
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       {leadershipJsonLd.map((person) => (
         <StructuredData key={person.name} data={person} />
       ))}

@@ -14,7 +14,12 @@ export interface BreadcrumbsProps {
   variant?: 'auto' | 'onDark';
 }
 
-export function buildBreadcrumbJsonLd(items: BreadcrumbItem[], baseUrl = 'https://ahwspaces.com') {
+// No default: this package can't reach the database-backed Website
+// Domain setting (getSiteUrl(), in the consuming app) itself — a
+// hardcoded fallback here would silently drift from it exactly like the
+// literal 'https://ahwspaces.com' default this replaced did once the
+// canonical domain changed. Every caller must pass the real siteUrl.
+export function buildBreadcrumbJsonLd(items: BreadcrumbItem[], baseUrl: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',

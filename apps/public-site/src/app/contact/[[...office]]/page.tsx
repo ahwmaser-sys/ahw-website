@@ -84,7 +84,7 @@ export default async function ContactPage(props: ContactPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ContactSection initialOfficeId={officeParam} offices={offices} />
+      <ContactSection initialOfficeId={officeParam} offices={offices} siteUrl={siteUrl} />
     </main>
   );
 }

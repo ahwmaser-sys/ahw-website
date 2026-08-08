@@ -78,7 +78,7 @@ export default async function ExpertisePage() {
   return (
     <main>
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs)} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <TheDatum />
     </main>
   );
