@@ -303,7 +303,10 @@
 
 .comingSoon {
   font-size: 0.75em;
-  opacity: 0.7;
+  /* Was 0.7 — Lighthouse flagged the resulting text/background contrast
+     as failing WCAG AA. Still visually de-emphasized via italic + smaller
+     size without relying on opacity to do it. */
+  opacity: 0.85;
   font-style: italic;
   margin-left: var(--space-1);
 }
@@ -329,6 +332,12 @@
 .logo {
   height: 18px;
   width: auto;
+  /* Same defensive pairing as Header.module.css's logo — this sits in a
+     flex row (.bottomSection) alongside copyright text and legal links,
+     which can squeeze it narrower than its natural ratio on small
+     viewports. */
+  aspect-ratio: 1571 / 592;
+  flex-shrink: 0;
   opacity: 0.7;
 }
 

@@ -58,6 +58,14 @@
 .logoWhite, .logoDark {
   height: 48px; /* Increased by 20% from 40px */
   width: auto;
+  /* height + width:auto alone lets a flex ancestor's own width
+     constraints (.logo, .container) squeeze this narrower than its
+     natural ratio on small viewports — confirmed live via PageSpeed
+     Insights (88x36 displayed vs the real 1571x592 ratio). aspect-ratio
+     pins the ratio directly so the browser adjusts within that
+     constraint instead of silently distorting it. */
+  aspect-ratio: 1571 / 592;
+  flex-shrink: 0;
   transition: opacity var(--transition-fast);
 }
 
