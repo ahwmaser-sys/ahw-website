@@ -16,10 +16,10 @@ export interface ProjectMetadata {
   client?: string;
   status?: string;
   resultStatement?: string;
-  heroImage?: string;
   hubFlagshipImage?: string;
   hubPairImage?: string;
   ogImage: string;
+  imageOrientation?: 'landscape' | 'portrait';
 }
 
 export interface CaseStudyData {
@@ -978,6 +978,7 @@ export const projects: Project[] = [
     heroImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/ff3d1bec-bff7-4d13-ab4e-e70ffaefee44.webp',
     hubFlagshipImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.webp',
     ogImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/ff3d1bec-bff7-4d13-ab4e-e70ffaefee44.webp',
+    imageOrientation: 'portrait',
     caseStudy: {
       brief: {
         clientProblem: 'The client needed a compact yet visually striking retail space that elegantly displays their premium confectionery products within a high-traffic mall.',

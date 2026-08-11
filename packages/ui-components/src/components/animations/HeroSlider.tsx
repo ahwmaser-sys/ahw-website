@@ -20,9 +20,11 @@ interface HeroSliderProps {
    * optimizer doesn't generate a full-viewport-width image for a
    * half-width card. */
   sizes?: string;
+  /** Image orientation. Defaults to landscape. */
+  orientation?: 'landscape' | 'portrait';
 }
 
-export function HeroSlider({ images, alt, interval = 5000, lightbox = false, sizes = '100vw' }: HeroSliderProps) {
+export function HeroSlider({ images, alt, interval = 5000, lightbox = false, sizes = '100vw', orientation = 'landscape' }: HeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -53,7 +55,7 @@ export function HeroSlider({ images, alt, interval = 5000, lightbox = false, siz
   if (!images || images.length === 0) return null;
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${orientation === 'portrait' ? styles.containerPortrait : ''}`}>
       {images.map((img, index) => {
         const isActive = index === currentIndex;
         const isVisited = visitedIndices.has(index);
@@ -64,7 +66,7 @@ export function HeroSlider({ images, alt, interval = 5000, lightbox = false, siz
             fill
             sizes={sizes}
             quality={100}
-            className={styles.image}
+            className={`${styles.image} ${orientation === 'portrait' ? styles.imagePortrait : ''}`}
             priority={index === 0}
             fetchPriority={index === 0 ? 'high' : undefined}
             draggable={false}

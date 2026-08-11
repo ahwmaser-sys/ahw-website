@@ -83,10 +83,12 @@ function ImageMoments({
   images,
   projectTitle,
   label,
+  orientation = 'landscape',
 }: {
   images: string[];
   projectTitle: string;
   label: string;
+  orientation?: 'landscape' | 'portrait';
 }) {
   const count = images.length;
 
@@ -94,7 +96,7 @@ function ImageMoments({
   if (count === 1) {
     return (
       <div className={styles.imageMoments}>
-        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
+        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
           <Image
             src={images[0]!}
             alt={`${projectTitle} — ${label}`}
@@ -137,7 +139,7 @@ function ImageMoments({
     return (
       <div className={styles.imageMoments}>
         {/* First image: wide banner */}
-        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
+        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
           <Image
             src={images[0]!}
             alt={`${projectTitle} — ${label} 1`}
@@ -174,7 +176,7 @@ function ImageMoments({
     return (
       <div className={styles.imageMoments}>
         {/* First: wide banner */}
-        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
+        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
           <Image
             src={images[0]!}
             alt={`${projectTitle} — ${label} 1`}
@@ -188,7 +190,7 @@ function ImageMoments({
         <div className={styles.momentSpacer} />
         {/* Feature + aside for remaining 3 */}
         <div className={styles.momentFeature}>
-          <NativeReveal behavior="aperture" delay={0.1} className={`${styles.momentItem} ${styles.momentItemPrimary}`}>
+          <NativeReveal behavior="aperture" delay={0.1} className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentItemPrimaryPortrait : styles.momentItemPrimary}`}>
             <Image
               src={images[1]!}
               alt={`${projectTitle} — ${label} 2`}
@@ -223,7 +225,7 @@ function ImageMoments({
   return (
     <div className={styles.imageMoments}>
       {/* Wide opener */}
-      <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
+      <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
         <Image
           src={first}
           alt={`${projectTitle} — ${label} 1`}
@@ -236,7 +238,7 @@ function ImageMoments({
       </NativeReveal>
       <div className={styles.momentSpacer} />
       {/* Trio composition */}
-      <div className={styles.momentTrio}>
+      <div className={`${styles.momentTrio} ${orientation === 'portrait' ? styles.momentTrioPortrait : ''}`}>
         {trioImages.map((img, i) => (
           <NativeReveal key={i} behavior="aperture" delay={i * 0.1} className={styles.momentItem}>
             <Image
@@ -432,6 +434,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
               ])).filter(Boolean)}
               alt={`${project.title}, ${project.sector}, ${project.city} — designed and built by AHW Architects`}
               lightbox
+              orientation={project.imageOrientation}
             />
           </NativeReveal>
         )}
@@ -516,6 +519,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
           images={cs.design.images}
           projectTitle={project.title}
           label="Design"
+          orientation={project.imageOrientation}
         />
       )}
       {cs.narrative?.imageStory?.design && (
@@ -560,6 +564,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
           images={cs.build.images}
           projectTitle={project.title}
           label="Build"
+          orientation={project.imageOrientation}
         />
       )}
       {cs.narrative?.imageStory?.build && (
@@ -599,6 +604,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
           images={cs.result.images}
           projectTitle={project.title}
           label="Result"
+          orientation={project.imageOrientation}
         />
       )}
       {cs.narrative?.imageStory?.result && (

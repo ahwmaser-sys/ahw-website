@@ -7,6 +7,10 @@
   z-index: 0;
 }
 
+.containerPortrait {
+  background-color: var(--color-brand-ink, #0a0a0a);
+}
+
 .slide {
   position: absolute;
   inset: 0;
@@ -29,6 +33,11 @@
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
   transform: scale(1.06);
+}
+
+.imagePortrait {
+  object-fit: contain;
+  transform: none;
 }
 
 .lightboxTrigger {

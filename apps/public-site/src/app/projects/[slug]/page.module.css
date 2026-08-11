@@ -340,6 +340,21 @@
   }
 }
 
+/* Portrait overrides for Wide */
+.momentWidePortrait.momentItem {
+  display: block;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .momentWidePortrait.momentItem {
+    aspect-ratio: 3 / 4;
+  }
+}
+
 /* 2. Two portraits side by side */
 .momentDuo {
   display: grid;
@@ -374,6 +389,10 @@
 
 .momentItemPrimary {
   aspect-ratio: 4 / 3;
+}
+
+.momentItemPrimaryPortrait {
+  aspect-ratio: 3 / 4;
 }
 
 .momentItemSecondary {
@@ -413,6 +432,10 @@
 
 .momentTrio .momentItem:nth-child(2) {
   aspect-ratio: 4 / 3;
+}
+
+.momentTrioPortrait .momentItem:nth-child(2) {
+  aspect-ratio: 4 / 5;
 }
 
 @media (min-width: 768px) {
