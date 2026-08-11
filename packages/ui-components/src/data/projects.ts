@@ -975,9 +975,9 @@ export const projects: Project[] = [
     client: 'Tmreya',
     status: 'Completed',
     resultStatement: 'A 60 sqm retail fit-out for a premium confectionery brand in Kout Mall, executed to precision by AHW Architects.',
-    heroImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.jpg',
-    hubFlagshipImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-83-8wzu.jpg',
-    ogImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.jpg',
+    heroImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/ff3d1bec-bff7-4d13-ab4e-e70ffaefee44.webp',
+    hubFlagshipImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.webp',
+    ogImage: '/ahw-projects-assets/10-tmreya-kout-mall/build/ff3d1bec-bff7-4d13-ab4e-e70ffaefee44.webp',
     caseStudy: {
       brief: {
         clientProblem: 'The client needed a compact yet visually striking retail space that elegantly displays their premium confectionery products within a high-traffic mall.',
@@ -985,13 +985,13 @@ export const projects: Project[] = [
       },
       design: {
         images: [
-          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.jpg'
+          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-83-8wzu.webp'
         ],
         keyDecision: 'Using rich, warm materials and focused lighting to highlight the products and create an inviting atmosphere within a limited footprint.'
       },
       build: {
         images: [
-          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-83-8wzu.jpg'
+          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-84.webp'
         ],
         duration: '2 Months',
         challengeResolution: 'Optimizing custom display units to fit seamlessly into the 60 sqm space while adhering to the strict mall fit-out regulations.',
@@ -999,8 +999,8 @@ export const projects: Project[] = [
       },
       result: {
         images: [
-          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.jpg',
-          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-83-8wzu.jpg'
+          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-85.webp',
+          '/ahw-projects-assets/10-tmreya-kout-mall/build/tmreya-kout-mall-interior-detail-82-cdpc.webp'
         ],
         outcomes: ['Maximized product visibility', 'Delivered within a tight commercial timeline']
       },
