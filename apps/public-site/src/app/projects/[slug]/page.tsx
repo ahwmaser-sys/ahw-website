@@ -88,7 +88,7 @@ function ImageMoments({
   images: string[];
   projectTitle: string;
   label: string;
-  orientation?: 'landscape' | 'portrait';
+  orientation?: 'landscape' | 'portrait' | undefined;
 }) {
   const count = images.length;
 

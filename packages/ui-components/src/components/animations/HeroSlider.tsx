@@ -21,7 +21,7 @@ interface HeroSliderProps {
    * half-width card. */
   sizes?: string;
   /** Image orientation. Defaults to landscape. */
-  orientation?: 'landscape' | 'portrait';
+  orientation?: 'landscape' | 'portrait' | undefined;
 }
 
 export function HeroSlider({ images, alt, interval = 5000, lightbox = false, sizes = '100vw', orientation = 'landscape' }: HeroSliderProps) {
