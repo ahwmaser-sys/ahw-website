@@ -16,6 +16,7 @@ export interface ProjectMetadata {
   client?: string;
   status?: string;
   resultStatement?: string;
+  heroImage?: string;
   hubFlagshipImage?: string;
   hubPairImage?: string;
   ogImage: string;
