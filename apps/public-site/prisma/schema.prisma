@@ -210,6 +210,7 @@ model Office {
   integrationConfigs     IntegrationConfig[]
   socialPosts            SocialPost[]
   publishingDestinations PublishingDestination[]
+  reviews                Review[]
 
   @@index([status])
 }
@@ -996,6 +997,67 @@ model IntegrationConfig {
   @@unique([type, officeId])
   @@index([status])
   @@index([officeId])
+}
+
+// ── Client Reviews (Google Business Profile sync + manual editorial control) ──
+//
+// A synced review is never auto-published — Featured/Published are an
+// explicit editorial decision made in the Admin, by design (see
+// lib/portal/actions/reviews.ts). Reused rather than duplicated:
+// - officeId/office: same real, admin-manageable Office row every other
+//   office-scoped model (IntegrationConfig, Client, Project, ...) uses —
+//   no separate "Egypt"/"Kuwait" string enum.
+// - The credential used to fetch these (accessToken + locationId) is the
+//   existing IntegrationConfig row of type GOOGLE_BUSINESS for the same
+//   office — this model stores no Google credentials of its own.
+// - The "View on Google" link falls back to Office.googleBusinessProfileUrl
+//   (already a field) when Google's API doesn't return a per-review URL —
+//   never a constructed/guessed URL.
+enum ReviewSource {
+  GOOGLE
+  MANUAL
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  source ReviewSource @default(GOOGLE)
+  // Google's review resource name (e.g. "accounts/.../locations/.../reviews/...")
+  // — null for MANUAL rows. The sync upserts on [source, externalId], so a
+  // second sync updates the same row instead of creating a duplicate.
+  externalId String?
+
+  reviewerName     String
+  reviewerPhotoUrl String?
+  rating           Int // 1-5, as returned by Google (STAR_RATING_UNSPECIFIED never stored)
+  reviewText       String    @db.Text
+  reviewDate       DateTime // the review's own original date (Google's createTime), not when we synced it
+  // Per-review URL when Google's API provides one; otherwise left null and
+  // the UI falls back to office.googleBusinessProfileUrl at render time —
+  // never fabricated here.
+  sourceUrl        String?
+
+  officeId String
+  office   Office @relation(fields: [officeId], references: [id])
+
+  // Editorial control (see file-level comment above) — a synced row
+  // starts as false/false until an admin explicitly turns it on.
+  featured     Boolean @default(false)
+  published    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  // True only for rows inserted by the local sample-data seed (Mode B
+  // testing per this feature's build brief) — lets Admin/homepage mark
+  // them distinctly and never confuses them with real Google data.
+  isSampleData Boolean @default(false)
+
+  lastSyncedAt DateTime? // set on every successful sync pass that touched this row; null for MANUAL rows never synced
+
+  @@unique([source, externalId])
+  @@index([officeId])
+  @@index([published, featured])
 }
 
 // Which connected AI provider/model the AI Marketing Assistant uses by

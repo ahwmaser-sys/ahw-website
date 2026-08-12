@@ -1,0 +1,200 @@
+/* Editorial, restrained — matches the site's existing "quiet" sections
+   (Press, closing CTA): thin hairline borders, no rounded cards, no
+   shadows, typography carrying the hierarchy instead of boxes. */
+
+.section {
+  padding: var(--space-48) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Same max-width/padding as HomeContent's own .container (home.module.css)
+   — kept as a local duplicate rather than a cross-module CSS import so
+   this component has no compile-time dependency on home.module.css. */
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  position: relative;
+  z-index: 2;
+}
+
+.header {
+  margin-bottom: var(--space-16);
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-4);
+  text-wrap: balance;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.ratingStars {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  color: var(--color-brand-accent);
+  letter-spacing: 0.1em;
+}
+
+.ratingText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-brand-stone);
+}
+
+.ratingLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border-strong);
+  transition: opacity var(--transition-fast);
+}
+
+.ratingLink:hover {
+  opacity: 0.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-12);
+}
+
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+.card {
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cardStars {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-accent);
+  letter-spacing: 0.1em;
+}
+
+.cardText {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  flex: 1;
+}
+
+.readMore {
+  align-self: flex-start;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.readMore:hover {
+  color: var(--color-brand-paper);
+}
+
+.reviewerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.reviewerPhoto {
+  border-radius: 50%;
+  flex: none;
+  object-fit: cover;
+}
+
+.reviewerInitial {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-brand-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-sm);
+  flex: none;
+}
+
+.reviewerMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.reviewerName {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-paper);
+}
+
+.reviewerDate {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+}
+
+.googleLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  margin-left: auto;
+}
+
+.googleLink:hover {
+  color: var(--color-brand-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readMore,
+  .ratingLink,
+  .googleLink {
+    transition: none;
+  }
+}

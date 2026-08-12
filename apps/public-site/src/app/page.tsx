@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { HomeContent } from './HomeContent';
 import { getRotationImages, getSelectedWork } from '../lib/homepageAssets';
-import { getActiveOfficesForDisplay } from '../lib/portal/offices';
+import { getActiveOfficesForDisplay, getOfficeBySlug } from '../lib/portal/offices';
 import { getSiteUrl } from '../lib/site-config';
+import { getPublishedFeaturedReviews, getGoogleReviewsAggregate } from '../lib/portal/reviews/queries';
 
 export const metadata: Metadata = {
   // Unlike every other route, the homepage's own page.tsx lives in the
@@ -29,7 +30,17 @@ export default async function HomePage() {
   const heroImages = getRotationImages('hero');
   const precisionImages = getRotationImages('precision');
   const selectedWork = getSelectedWork();
-  const [offices, siteUrl] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl()]);
+  const [offices, siteUrl, egyptOffice] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl(), getOfficeBySlug('egypt')]);
+
+  // Client Reviews is Egypt-scoped (see build brief) — reads only from
+  // our own database (editorially featured+published rows, plus the
+  // last-synced Google aggregate), never a live Google API call during
+  // page render. Both come back empty/null if there's no Egypt office in
+  // this environment or nothing has been featured/synced yet — the
+  // section below handles that as a real empty state, not an error.
+  const [reviews, reviewsAggregate] = egyptOffice
+    ? await Promise.all([getPublishedFeaturedReviews(egyptOffice.id), getGoogleReviewsAggregate(egyptOffice.id)])
+    : [[], null];
 
   return (
     <HomeContent
@@ -38,6 +49,9 @@ export default async function HomePage() {
       selectedWork={selectedWork}
       offices={offices}
       siteUrl={siteUrl}
+      reviews={reviews}
+      reviewsAggregate={reviewsAggregate}
+      reviewsGoogleUrl={egyptOffice?.googleBusinessProfileUrl ?? null}
     />
   );
 }

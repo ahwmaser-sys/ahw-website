@@ -160,6 +160,42 @@ export async function recordIntegrationTest(
   );
 }
 
+// A lazy, on-demand token refresh (e.g. before a Reviews API call) is not
+// the same event as a user reconnecting via OAuth — it must NOT reset
+// connectedAt/connectedById/metadata/scopes the way connectIntegration()
+// does. This only ever touches the ciphertext and lastTokenRefreshAt,
+// preserving the Settings → Integrations audit trail (who connected it,
+// when) across any number of silent refreshes. Throws if the row doesn't
+// exist yet — refreshing a credential that was never connected is a
+// caller bug, not a normal "not connected" state.
+export async function refreshIntegrationCredential(type: IntegrationType, officeId: string | null, credential: unknown): Promise<void> {
+  const office = officeKey(officeId);
+  const existing = await prisma.integrationConfig.findFirst({ where: { type, officeId: office } });
+  if (!existing) throw new Error(`Cannot refresh credential for ${type}: no existing IntegrationConfig row (never connected).`);
+  await prisma.integrationConfig.update({
+    where: { id: existing.id },
+    data: { credentialCiphertext: encryptJson(credential), lastTokenRefreshAt: new Date() },
+  });
+}
+
+// Shallow-merges into the existing non-secret metadata field rather than
+// replacing it — used by callers that only own one slice of metadata
+// (e.g. Reviews sync owns reviewsAverageRating/reviewsTotalCount, Reviews
+// test-connection owns reviewsApiVerified) and must not clobber whatever
+// the OAuth connect flow or another feature already stored there.
+// No-ops (rather than creating a row) when the integration was never
+// connected — there's nothing meaningful to attach reviews metadata to.
+export async function mergeIntegrationMetadata(type: IntegrationType, officeId: string | null, patch: Record<string, unknown>): Promise<void> {
+  const office = officeKey(officeId);
+  const existing = await prisma.integrationConfig.findFirst({ where: { type, officeId: office } });
+  if (!existing) return;
+  const currentMetadata = (existing.metadata as Record<string, unknown> | null) ?? {};
+  await prisma.integrationConfig.update({
+    where: { id: existing.id },
+    data: { metadata: toJsonValue({ ...currentMetadata, ...patch }) },
+  });
+}
+
 // Called by social dispatch after every publish attempt — the "Last
 // publish" / "Last error" fields Settings → Integrations shows are real,
 // updated at the moment a post actually goes out, not just at connect

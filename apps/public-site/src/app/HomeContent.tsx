@@ -4,8 +4,10 @@ import { Hero, ImageRotator, aboutData, StructuredData, publications, type Offic
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import type { Review } from '@prisma/client';
 import styles from './home.module.css';
 import type { SelectedWorkItem } from '../lib/homepageAssets';
+import { ClientReviewsSection } from './ClientReviewsSection';
 
 const capabilityImageAlt: Record<string, string> = {
   '/images/placeholders/ahw_service_architecture.jpg': 'AHW Architects — Architecture discipline, master planning and iconic structures',
@@ -29,9 +31,15 @@ export interface HomeContentProps {
    *  structured data below. */
   offices: readonly Office[];
   siteUrl: string;
+  /** Egypt-office featured+published reviews, already filtered/ordered by
+   *  app/page.tsx — this component never queries the database or Google
+   *  itself. */
+  reviews: Review[];
+  reviewsAggregate: { averageRating: number; totalCount: number } | null;
+  reviewsGoogleUrl: string | null;
 }
 
-export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl }: HomeContentProps) {
+export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl }: HomeContentProps) {
   const [activeCapabilityImage, setActiveCapabilityImage] = useState('/images/placeholders/ahw_service_architecture.jpg');
 
   const headquarters = offices.find((office) => office.isHeadquarters) || offices[0];
@@ -313,7 +321,12 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
           </div>
         </section>
 
-        {/* 5. CLOSING CTA */}
+        {/* 5. CLIENT REVIEWS — server-rendered from our own database only
+            (see app/page.tsx), never a live Google API call. Renders
+            nothing if there's no featured+published review yet. */}
+        <ClientReviewsSection reviews={reviews} aggregate={reviewsAggregate} googleUrl={reviewsGoogleUrl} />
+
+        {/* 6. CLOSING CTA */}
         <section className={styles.homeCtaSection}>
           <div className={styles.container}>
             <h2 className={styles.homeCtaTitle}>Your Project Belongs Here Next.</h2>

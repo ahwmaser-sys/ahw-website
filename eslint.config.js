@@ -42,7 +42,8 @@ export default tseslint.config(
             "tools/scripts/setup-integration-tests.ts",
             "apps/public-site/prisma/seed.ts",
             "apps/public-site/scripts/seed-c3-fixtures.ts",
-            "apps/public-site/scripts/seed-official-templates.ts"
+            "apps/public-site/scripts/seed-official-templates.ts",
+            "apps/public-site/scripts/seed-sample-reviews.ts"
           ]
         },
         tsconfigRootDir: import.meta.dirname

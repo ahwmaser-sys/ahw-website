@@ -155,7 +155,7 @@ export async function exchangeCode(type: OAuthIntegration, code: string): Promis
     }),
   });
   if (!tokenRes.ok) throw new Error(`Google token exchange failed: ${await tokenRes.text()}`);
-  const tokenBody = (await tokenRes.json()) as { access_token: string; refresh_token?: string };
+  const tokenBody = (await tokenRes.json()) as { access_token: string; refresh_token?: string; expires_in?: number };
   // Best-effort auto-discovery of the connected account's Location ID —
   // only fills it in when exactly one location is unambiguous. Requires
   // the Business Profile APIs to be enabled AND quota-approved on the
@@ -167,6 +167,11 @@ export async function exchangeCode(type: OAuthIntegration, code: string): Promis
   return {
     accessToken: tokenBody.access_token,
     refreshToken: tokenBody.refresh_token,
+    // Recorded so a later reader (lib/portal/integrations/google-business-token.ts)
+    // knows to refresh proactively instead of waiting for a 401 — Google
+    // access tokens are typically ~1 hour, and `access_type=offline` above
+    // means a refresh_token is normally present to do that with.
+    ...(tokenBody.expires_in ? { accessTokenExpiresAt: new Date(Date.now() + tokenBody.expires_in * 1000).toISOString() } : {}),
     ...(locationId ? { locationId } : {}),
   };
 }

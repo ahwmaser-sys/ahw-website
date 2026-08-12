@@ -11,6 +11,7 @@ export const ADMIN_NAV_LINKS = [
   { href: '/admin/clients', label: 'Clients' },
   { href: '/admin/projects', label: 'Projects' },
   { href: '/admin/news', label: 'Articles' },
+  { href: '/admin/reviews', label: 'Reviews' },
   { href: '/admin/campaigns', label: 'Campaigns' },
   { href: '/admin/landing-pages', label: 'Landing Pages' },
   { href: '/admin/media', label: 'Media' },
