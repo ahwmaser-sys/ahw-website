@@ -52,7 +52,12 @@ export default async function AdminReviewsPage({ searchParams }: { searchParams:
   const selectedOffice = offices.find((o) => o.id === selectedOfficeId);
 
   const integrationStatus = selectedOfficeId ? await getIntegrationStatus('GOOGLE_BUSINESS', selectedOfficeId) : null;
-  const googleConnected = integrationStatus?.status === 'CONNECTED';
+  // ERROR still means a credential is stored (just that the last test
+  // failed, e.g. the Business Profile quota-pending 429) — same
+  // CONNECTED-or-ERROR gate Settings → Integrations itself already uses
+  // to decide whether to show Test/Disconnect vs the initial Connect
+  // button. Only NOT_CONNECTED means there's truly nothing to test.
+  const googleConnected = integrationStatus?.status === 'CONNECTED' || integrationStatus?.status === 'ERROR';
   const reviewsMetadata = (integrationStatus?.metadata as Record<string, unknown> | null) ?? {};
   // reviewsApiVerified is written only by testGoogleReviewsConnection
   // (google-test.ts) — deliberately separate from integrationStatus.status,
