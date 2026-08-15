@@ -9,6 +9,7 @@ import { getClientIp } from '../../../lib/portal/audit';
 import { isRateLimited } from '../../../lib/portal/rate-limit';
 import { getOfficeBySlug } from '../../../lib/portal/offices';
 import { getEmailSettings, resolveSenderIdentity } from '../../../lib/portal/email-settings';
+import { stripControlChars } from '../../../lib/portal/sanitize-header';
 import { getSiteUrl } from '../../../lib/site-config';
 
 export async function POST(request: Request) {
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
       to: destinationEmail,
       ...(emailSettings.secondaryContactEmail ? { cc: emailSettings.secondaryContactEmail } : {}),
       ...(sender.replyTo ? { replyTo: sender.replyTo } : {}),
-      subject: `New Enquiry from ${data.fullName} - ${data.projectType}`,
+      subject: `New Enquiry from ${stripControlChars(data.fullName)} - ${stripControlChars(data.projectType)}`,
       html: internalHtml,
     });
 

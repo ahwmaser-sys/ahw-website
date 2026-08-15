@@ -7,6 +7,7 @@ import { CareersConfirmationEmail } from '../../../features/careers/emails/Caree
 import { isRateLimited } from '../../../lib/portal/rate-limit';
 import { getClientIp } from '../../../lib/portal/audit';
 import { getEmailSettings, resolveSenderIdentity } from '../../../lib/portal/email-settings';
+import { stripControlChars } from '../../../lib/portal/sanitize-header';
 import { getSiteUrl } from '../../../lib/site-config';
 
 // Real backend for the Careers application form — previously this route
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
       to: careersEmail,
       ...(emailSettings.secondaryContactEmail ? { cc: emailSettings.secondaryContactEmail } : {}),
       ...(sender.replyTo ? { replyTo: sender.replyTo } : {}),
-      subject: `New Application: ${data.position} — ${data.fullName}`,
+      subject: `New Application: ${stripControlChars(data.position)} — ${stripControlChars(data.fullName)}`,
       html: notificationHtml,
       attachments: [{ filename: cvFile.name, content: cvBuffer }],
     });
