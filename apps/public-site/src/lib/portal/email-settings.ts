@@ -12,7 +12,18 @@ const DEFAULT_PRIMARY_CONTACT_EMAIL = 'mwardany@ahwarchitects.com';
 const DEFAULT_SECONDARY_CONTACT_EMAIL = 'm.elwardany@gmail.com';
 
 export const getEmailSettings = cache(async () => {
-  const existing = await prisma.emailSettings.findFirst();
+  // `orderBy: { id: 'asc' }` is load-bearing, not cosmetic: this table has
+  // no database-level singleton constraint, and more than one row can
+  // exist (e.g. a stray row from an earlier race before this comment was
+  // added). Without an explicit order, Postgres/Prisma may return a
+  // *different* row across separate findFirst() calls within the same
+  // request — observed in production as a save that reports success but
+  // then appears to silently revert, because the page's own read-back
+  // picked a different, stale row than the one the action just updated.
+  // Ordering by id gives every read the same row, deterministically,
+  // regardless of how many rows exist. See updateEmailSettings's
+  // updateMany() for the write-side half of this fix.
+  const existing = await prisma.emailSettings.findFirst({ orderBy: { id: 'asc' } });
   if (existing) return existing;
 
   return prisma.emailSettings.create({

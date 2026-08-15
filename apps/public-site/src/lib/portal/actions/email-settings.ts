@@ -71,8 +71,17 @@ export async function updateEmailSettings(_prevState: ActionState, formData: For
 
   const existing = await getEmailSettings();
 
-  await prisma.emailSettings.update({
-    where: { id: existing.id },
+  // updateMany (matching every row, not just `existing.id`) rather than
+  // update() — this table has no database-level singleton constraint,
+  // and a stray duplicate row can exist (see the orderBy comment in
+  // getEmailSettings). Targeting only existing.id left any other row
+  // untouched, so a later read that happened to pick a different row
+  // (findFirst() has no guaranteed order) would show stale data even
+  // though this save had just reported success. Updating every row
+  // makes the save correct regardless of how many rows exist, without
+  // needing to delete or migrate anything.
+  await prisma.emailSettings.updateMany({
+    where: {},
     data: {
       primaryContactEmail: data.primaryContactEmail,
       secondaryContactEmail: data.secondaryContactEmail || null,
