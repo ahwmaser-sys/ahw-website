@@ -75,10 +75,15 @@
   transition: opacity 0.3s ease;
   padding: var(--space-2) var(--space-4); /* Very tight minimalist spacing */
   /* The overlay backdrop is always dark, so text must always be white */
-  color: #FFFFFF; 
+  color: #FFFFFF;
 }
 
 /* We removed .activeBlock and .primaryBlock:hover backgrounds to maintain the elegant airy feel */
+
+.primaryRow {
+  display: flex;
+  align-items: center;
+}
 
 .primaryLink {
   display: flex;
@@ -88,7 +93,8 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   text-align: left;
   color: inherit; /* Inherits from .primaryBlock */
   text-decoration: none;
@@ -97,6 +103,48 @@
 
 .primaryLink:hover {
   opacity: 0.6; /* Restored simple hover fade */
+}
+
+/* Disclosure trigger — the actual accordion toggle. Separate from the
+   label link on purpose: the label always navigates to the section's own
+   page, this button only ever expands/collapses its submenu. Same
+   element, same behavior, on every breakpoint — the only thing that
+   differs by input type is that hover-capable pointers get an *additional*,
+   JS-driven way to open it (see the primaryBlock onMouseEnter in
+   FloatingNavigationPanel.tsx, which sets the same state a click would),
+   not a different mechanism. */
+.disclosureTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.disclosureTrigger:hover,
+.disclosureTrigger:focus-visible {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.disclosureTrigger[aria-expanded="true"] .chevron {
+  transform: rotate(225deg);
 }
 
 .dot {
@@ -115,7 +163,10 @@
   letter-spacing: -0.01em;
 }
 
-/* Hover Accordion - Sublist expands beautifully on hover */
+/* Accordion, driven by the single `openSection` state — same on every
+   breakpoint. Expansion is keyed off data-open (set from React state via
+   a click on .disclosureTrigger, or a hover/focus-within convenience on
+   pointer devices that just sets the same state), not a media query. */
 .sublistWrapper {
   display: grid;
   grid-template-rows: 0fr;
@@ -125,17 +176,12 @@
   min-height: 0;
 }
 
-/* :focus-within alongside :hover: keyboard users tabbing into a subitem
-   must open its accordion too, otherwise Tab lands on a link sitting in a
-   zero-height, overflow:hidden wrapper — focusable but invisible. */
-.primaryBlock:hover .sublistWrapper,
-.primaryBlock:focus-within .sublistWrapper {
+.sublistWrapper[data-open="true"] {
   grid-template-rows: 1fr;
 }
 
 /* Fade out subitems quickly when closing to avoid the text getting 'cut off' by the grid collapse */
-.primaryBlock:hover .sublist,
-.primaryBlock:focus-within .sublist {
+.sublistWrapper[data-open="true"] .sublist {
   opacity: 1;
   transform: translateY(0);
 }
@@ -166,18 +212,6 @@
 .subItemChild {
   margin-left: var(--space-4);
   opacity: 0.85;
-}
-
-/* Touch devices have no :hover — expand submenus by default instead of gating on hover. */
-@media (hover: none) {
-  .sublistWrapper {
-    grid-template-rows: 1fr;
-  }
-
-  .sublist {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .lArrow {
@@ -233,7 +267,9 @@
   .primaryLink,
   .sublistWrapper,
   .sublist,
-  .subLink {
+  .subLink,
+  .disclosureTrigger,
+  .chevron {
     transition: none;
   }
 }

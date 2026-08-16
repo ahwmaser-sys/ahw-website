@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './FloatingNavigationPanel.module.css';
 import { projects } from '../../data/projects';
 import { isCommercialSector } from '../../data/sectorTaxonomy';
@@ -96,11 +96,32 @@ const navData = [
   },
 ];
 
+const slugify = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
 export const FloatingNavigationPanel: React.FC<FloatingNavigationPanelProps> = ({
   id,
   isOpen,
   onHoverSection
 }) => {
+  // The one accordion state for the whole panel — identical on every
+  // breakpoint. At most one top-level section is expanded at a time;
+  // opening a sibling closes whichever was open. Desktop mouse users get
+  // an extra `onMouseEnter` trigger that sets this same state (see
+  // .primaryBlock below) so hovering still reveals a submenu without a
+  // click, but it's the same state machine touch users drive by tapping
+  // the disclosure button — not a separate desktop-only mechanism.
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
+  // Always start collapsed the next time the panel opens, rather than
+  // re-showing whatever was expanded when it was last closed.
+  useEffect(() => {
+    if (!isOpen) setOpenSection(null);
+  }, [isOpen]);
+
+  const toggleSection = (label: string) => {
+    setOpenSection((prev) => (prev === label ? null : label));
+  };
+
   return (
     <div
       id={id}
@@ -114,43 +135,71 @@ export const FloatingNavigationPanel: React.FC<FloatingNavigationPanelProps> = (
       <ul className={styles.linkList}>
         {navData.map((item, index) => {
           const hasSub = !!item.subitems || !!item.groups;
+          const sectionOpen = openSection === item.label;
+          const sublistId = `${id || 'nav'}-sublist-${slugify(item.label)}`;
 
           return (
-            <li 
-              key={item.label} 
+            <li
+              key={item.label}
               className={styles.linkItem}
               style={{ '--stagger-idx': index } as React.CSSProperties}
               onMouseEnter={() => onHoverSection?.(item.label)}
               onMouseLeave={() => onHoverSection?.(null)}
             >
-              <div className={styles.primaryBlock}>
-                <a 
-                  href={item.path} 
-                  className={styles.primaryLink} 
-                >
-                  <span className={styles.dot} />
-                  <span className={styles.linkLabel}>{item.label}</span>
-                </a>
-                
+              <div
+                className={styles.primaryBlock}
+                onMouseEnter={hasSub ? () => setOpenSection(item.label) : undefined}
+              >
+                <div className={styles.primaryRow}>
+                  <a
+                    href={item.path}
+                    className={styles.primaryLink}
+                  >
+                    <span className={styles.dot} />
+                    <span className={styles.linkLabel}>{item.label}</span>
+                  </a>
+
+                  {hasSub && (
+                    <button
+                      type="button"
+                      className={styles.disclosureTrigger}
+                      aria-expanded={sectionOpen}
+                      aria-controls={sublistId}
+                      aria-label={`${sectionOpen ? 'Collapse' : 'Expand'} ${item.label} submenu`}
+                      onClick={() => toggleSection(item.label)}
+                    >
+                      <span className={styles.chevron} aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+
                 {hasSub && (
-                  <div className={styles.sublistWrapper}>
+                  <div
+                    id={sublistId}
+                    className={styles.sublistWrapper}
+                    data-open={sectionOpen}
+                    inert={!sectionOpen}
+                  >
                     <div className={styles.sublist}>
                       {item.groups ? (
-                        item.groups.map(group => (
-                          <div key={group.groupLabel} className={styles.navGroup}>
-                            <div className={styles.groupLabel}>{group.groupLabel}</div>
-                            <ul className={styles.groupItems}>
-                              {group.items.map(sub => (
-                                <li key={sub.label} className={`${styles.subItem} ${'child' in sub && sub.child ? styles.subItemChild : ''}`}>
-                                  <span className={styles.lArrow}>↳</span>
-                                  <a href={sub.path} className={styles.subLink}>
-                                    {sub.label}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))
+                        item.groups.map(group => {
+                          const groupHeadingId = `${sublistId}-${slugify(group.groupLabel)}-heading`;
+                          return (
+                            <div key={group.groupLabel} className={styles.navGroup}>
+                              <div id={groupHeadingId} className={styles.groupLabel} role="heading" aria-level={3}>{group.groupLabel}</div>
+                              <ul className={styles.groupItems} aria-labelledby={groupHeadingId}>
+                                {group.items.map(sub => (
+                                  <li key={sub.label} className={`${styles.subItem} ${'child' in sub && sub.child ? styles.subItemChild : ''}`}>
+                                    <span className={styles.lArrow}>↳</span>
+                                    <a href={sub.path} className={styles.subLink}>
+                                      {sub.label}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          );
+                        })
                       ) : (
                         <ul className={styles.groupItems}>
                           {item.subitems?.map(sub => (
