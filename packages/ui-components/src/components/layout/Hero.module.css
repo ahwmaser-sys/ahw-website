@@ -84,8 +84,8 @@
   padding-top: var(--space-12); /* Reduced from 32 so it doesn't push buttons out of viewport */
   transform: translateY(24px);
   opacity: 0;
-  animation: revealContent var(--transition-normal) forwards;
-  animation-delay: 0.1s;
+  animation: revealContent 0.2s forwards;
+  animation-delay: 0s;
 }
 
 @media (min-width: 768px) {
