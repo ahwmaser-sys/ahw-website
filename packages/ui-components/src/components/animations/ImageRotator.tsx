@@ -42,6 +42,31 @@ export function ImageRotator({
   priority = true,
 }: ImageRotatorProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  // All rotation images share the same fill-positioned, viewport-covering
+  // box, so the browser's native loading="lazy" intersection heuristic
+  // treats every one of them as immediately in-view (opacity doesn't
+  // factor into that check) and fetches all of them at once on mount —
+  // confirmed live via a network trace showing every rotation image
+  // requested within the same ~2ms window as the page's critical
+  // resources. Only the first image is ever needed immediately, so the
+  // rest are mounted once the browser is idle (i.e. after the critical
+  // rendering work is done) rather than upfront. The interval below is
+  // 6.5s+, so there's ample lead time before rotation ever reaches them.
+  const [mountedCount, setMountedCount] = useState(1);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const w = window as typeof window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const handle = w.requestIdleCallback(() => setMountedCount(images.length), { timeout: 2500 });
+      return () => w.cancelIdleCallback?.(handle);
+    }
+    const timer = setTimeout(() => setMountedCount(images.length), 1500);
+    return () => clearTimeout(timer);
+  }, [images.length]);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -55,7 +80,7 @@ export function ImageRotator({
 
   return (
     <div className={`${styles.rotator} ${className}`}>
-      {images.map((src, index) => (
+      {images.slice(0, mountedCount).map((src, index) => (
         <Image
           key={src}
           src={src}
