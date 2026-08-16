@@ -114,9 +114,44 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '/' }) => {
               where `fetchPriority` is a separate pass-through prop, not
               derived from `priority`. PageSpeed Insights flagged this
               exact gap live (this logo is the page's actual LCP
-              element). ImageRotator already does this correctly. */}
-          <Image src="/images/logo-white.webp" alt="AHW Architects" width={1571} height={592} priority fetchPriority="high" className={styles.logoWhite} />
-          <Image src="/images/logo-dark.webp" alt="AHW Architects" width={1571} height={592} priority fetchPriority="high" className={styles.logoDark} />
+              element). ImageRotator already does this correctly.
+
+              `sizes` is load-bearing, not decorative: width/height above
+              are the *source asset's* native pixels (1571x592), used only
+              to derive the correct aspect ratio — the logo's actual
+              rendered size is 48px tall (36px under the 768px breakpoint,
+              see Header.module.css), roughly 127px/96px wide. Without an
+              explicit `sizes`, next/image assumed this could render at
+              its full intrinsic width and generated a 1920w/3840w
+              srcset (confirmed live: both logo preloads requested
+              w=1920 1x, w=3840 2x — 15-30x larger than ever displayed).
+              These values match the CSS breakpoint exactly. */}
+          <Image
+            src="/images/logo-white.webp"
+            alt="AHW Architects"
+            width={1571}
+            height={592}
+            priority
+            fetchPriority="high"
+            sizes="(max-width: 768px) 100px, 130px"
+            className={styles.logoWhite}
+          />
+          {/* logoDark is `display: none` by default and only becomes
+              visible after AppearanceToggle's client-side useEffect sets
+              data-theme="light" from a previously-saved preference — it
+              is never part of the initial paint, so it's never actually
+              the LCP element and doesn't need preload/fetchPriority. It
+              still gets the same `sizes` fix so that on the rare
+              occasion it IS shown, it isn't requesting an oversized
+              variant either. */}
+          <Image
+            src="/images/logo-dark.webp"
+            alt="AHW Architects"
+            width={1571}
+            height={592}
+            sizes="(max-width: 768px) 100px, 130px"
+            className={styles.logoDark}
+          />
         </a>
         
         <nav className={styles.nav}>

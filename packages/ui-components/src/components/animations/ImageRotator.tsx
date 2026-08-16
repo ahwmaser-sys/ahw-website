@@ -16,12 +16,20 @@ export interface ImageRotatorProps {
   sizes?: string;
   quality?: number;
   className?: string;
+  /** Whether the first image is the page's actual LCP candidate — true by
+   *  default (Hero's usage, where that's always correct). A rotator used
+   *  further down the page (not Hero) is never the LCP element even
+   *  though it's still the first image *within this rotator*; pass
+   *  `false` there so it doesn't compete with the real LCP image for
+   *  bandwidth on the critical rendering path. */
+  priority?: boolean;
 }
 
 /**
  * Rotates through a small, curated set of images with a slow crossfade.
- * Only the first image carries LCP priority. Used by Hero's background and
- * any other homepage section that shows a curated rotation behind fixed text.
+ * Only the first image carries LCP priority (when `priority` is true).
+ * Used by Hero's background and any other homepage section that shows a
+ * curated rotation behind fixed text.
  */
 export function ImageRotator({
   images,
@@ -31,6 +39,7 @@ export function ImageRotator({
   sizes = '100vw',
   quality = 90,
   className = '',
+  priority = true,
 }: ImageRotatorProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -54,8 +63,8 @@ export function ImageRotator({
           fill
           sizes={sizes}
           quality={quality}
-          priority={index === 0}
-          fetchPriority={index === 0 ? 'high' : undefined}
+          priority={priority && index === 0}
+          fetchPriority={priority && index === 0 ? 'high' : undefined}
           className={styles.rotatorImage}
           style={{ opacity: index === activeIndex ? activeOpacity : 0 }}
         />

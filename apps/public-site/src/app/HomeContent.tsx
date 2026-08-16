@@ -116,6 +116,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                     images={precisionImages}
                     alt="AHW Architects — design and construction precision"
                     sizes="(max-width: 1023px) 100vw, 50vw"
+                    priority={false}
                   />
                 ) : (
                   <Image
