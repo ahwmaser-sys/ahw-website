@@ -19,25 +19,31 @@
   }
 }
 
-/* Mobile: the panel has no hover-preview image behind it and stacks
-   directly over page content, so it needs its own solid backdrop —
-   the shared page-dimming overlay alone isn't enough contrast against
-   a busy photo. Matches the existing .megaMenu panel convention
-   (Header.module.css) rather than inventing a new color. Desktop is
-   untouched — the "no background, airy" design stays for hover/mouse use. */
+/* Mobile: the panel still wants some of its own contrast against a busy
+   photo (the shared full-viewport .pageBackdrop dim already runs behind
+   it — see Header.module.css), but it doesn't need a second heavy,
+   near-opaque blur stacked on top of that one. That combination (a
+   24px backdrop-filter blur + a 50px box-shadow blur + 0.98 opacity,
+   applied instantly with no transition) is real, avoidable compositing
+   cost on top of the page-level blur that's already running, and reads
+   as a flat black rectangle rather than glass. A lighter blur, a more
+   translucent fill (the hero image should still read through), and a
+   tighter shadow keep the same "same visual language as desktop"
+   premium-glass intent — desktop itself stays untouched (this block is
+   still fully scoped to mobile-only). */
 @media (max-width: 768px) {
   /* Scoped to .open: the container is always in the DOM (isOpen only
      toggles pointer-events/aria-hidden/inert), so an unscoped rule here
      paints a solid panel-shaped box on every page at mobile width even
      when the menu is closed. */
   .navContainer.open {
-    background-color: rgba(5, 5, 5, 0.98);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background-color: rgba(5, 5, 5, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 4px;
     padding: var(--space-6) var(--space-5);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
   }
 }
 
