@@ -1,6 +1,7 @@
 import type { IntegrationType } from '@prisma/client';
 import { getIntegrationCredential } from './store';
 import { getGoogleAccessToken, type GoogleServiceAccountKey } from './google-service-account';
+import { FROM as EMAIL_FROM } from '../email';
 
 export interface TestResult {
   ok: boolean;
@@ -96,8 +97,24 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
     case 'SMTP_EMAIL': {
       const cred = await getIntegrationCredential<{ apiKey: string }>(type);
       if (!cred) return { ok: false, error: 'Not connected.' };
-      const res = await fetch('https://api.resend.com/domains', {
-        headers: { Authorization: `Bearer ${cred.apiKey}` },
+      // The one deliberate exception to this file's "read-only call" rule
+      // above: a Resend key scoped to Sending access (the least-privilege
+      // choice, and all this integration ever needs — see email.ts) is
+      // rejected by every other Resend endpoint, including GET /domains.
+      // Sending a real, minimal email to our own verified sender address
+      // is the only way to confirm a sending-only key actually works.
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${cred.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: EMAIL_FROM,
+          to: EMAIL_FROM.match(/<(.+)>/)?.[1] ?? EMAIL_FROM,
+          subject: 'AHW Architects Portal — connection test',
+          text: 'This is an automated connection test triggered from Settings → Integrations. No action needed.',
+        }),
       });
       if (!res.ok) return { ok: false, error: await res.text() };
       return { ok: true };

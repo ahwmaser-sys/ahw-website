@@ -9,7 +9,7 @@ import { getActiveBrandKit } from './brand-kit';
 // A sender domain requires real DNS verification in Resend, so — like
 // those two routes — this stays a hardcoded infra constant rather than
 // an admin-editable setting.
-const FROM = 'AHW Architects Portal <noreply@contact.ahwspaces.com>';
+export const FROM = 'AHW Architects Portal <noreply@contact.ahwspaces.com>';
 
 // Shaped like packages/application's EmailPort — see /PORTAL-PLAN.md §1.
 // Reuses the same `resend` package already a dependency for the contact
