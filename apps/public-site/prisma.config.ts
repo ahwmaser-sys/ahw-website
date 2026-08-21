@@ -19,7 +19,12 @@ export default defineConfig({
     // breaking migration replay ("type already exists"). Fixed by pointing
     // shadowDatabaseUrl at a database explicitly created with `TEMPLATE
     // template0` (Postgres's pristine, never-modified template) — dev-only,
-    // irrelevant to `migrate deploy` in production.
-    shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"] || "",
+    // irrelevant to `migrate deploy` in production. Omitted entirely (not
+    // set to "") when SHADOW_DATABASE_URL is absent — `migrate deploy`
+    // doesn't use a shadow database at all, but Prisma 7's config loader
+    // still validates shadowDatabaseUrl if the key is present, and rejects
+    // an empty string ("must not be an empty string"), which broke the
+    // production build the moment `prisma migrate deploy` was added there.
+    ...(process.env["SHADOW_DATABASE_URL"] ? { shadowDatabaseUrl: process.env["SHADOW_DATABASE_URL"] } : {}),
   },
 });
