@@ -129,7 +129,18 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data: https://fonts.gstatic.com https://*.tawk.to",
-              "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com https://*.tawk.to wss://*.tawk.to",
+              // googleadservices.com/google.com/googleads.g.doubleclick.net
+              // added for the Google Ads conversion beacon (gtag
+              // 'event','conversion' → pagead/conversion, pagead/1p-conversion,
+              // pagead/viewthroughconversion) — confirmed via a real live click
+              // that, without these, the browser silently blocked the requests
+              // even though gtag() itself fired correctly with no JS error. A
+              // country-specific Google domain variant (e.g. google.com.eg) can
+              // still get blocked as a redundant secondary ping — not fixed,
+              // since the primary www.google.com / googleadservices.com pings
+              // above already carry the actual conversion and there's no finite
+              // way to allowlist every ccTLD Google might use.
+              "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com https://www.googleadservices.com https://www.google.com https://googleads.g.doubleclick.net https://*.tawk.to wss://*.tawk.to",
               "frame-src 'self' https://www.google.com https://*.tawk.to",
               "object-src 'none'",
               "base-uri 'self'",
