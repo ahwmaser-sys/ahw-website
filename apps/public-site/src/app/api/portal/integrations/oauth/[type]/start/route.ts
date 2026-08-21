@@ -51,9 +51,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
       return Response.redirect(buildAuthUrl(oauthType, state));
     }
 
-    // Ad platforms (GOOGLE_ADS/META_ADS/LINKEDIN_ADS/TIKTOK_ADS) are
-    // company-wide — no officeId required or stored.
+    // Ad platforms (GOOGLE_ADS/META_ADS/LINKEDIN_ADS/TIKTOK_ADS) default to
+    // company-wide (one shared account across every market) but MAY be
+    // scoped to a single office instead — e.g. a business running
+    // genuinely separate Google Ads accounts for Egypt and Kuwait, rather
+    // than one account with market-targeted campaigns. Optional ?officeId=
+    // query param, same validation as the social flow above; omitted
+    // means company-wide, exactly like before.
     const adType = type as AdOAuthType;
+    const requestedOfficeId = new URL(request.url).searchParams.get('officeId');
+    if (requestedOfficeId && !(await getOfficeById(requestedOfficeId))) {
+      return Response.json({ error: 'Unknown office.' }, { status: 400 });
+    }
     if (!isAdOAuthAppConfigured(adType)) {
       return Response.json(
         { error: `No OAuth app credentials configured for ${adType}. This is a one-time infrastructure step — see the Marketing Ads Control Center manual's platform setup section.` },
@@ -62,6 +71,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
     }
     const state = generateAdOAuthState();
     cookieStore.set(`oauth_state_${adType}`, state, cookieOptions);
+    if (requestedOfficeId) cookieStore.set(`oauth_office_${adType}`, requestedOfficeId, cookieOptions);
     return Response.redirect(buildAdAuthUrl(adType, state));
   } catch (error) {
     return guardErrorResponse(error) ?? Response.json({ error: 'Unexpected error.' }, { status: 500 });

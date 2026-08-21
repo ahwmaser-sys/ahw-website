@@ -1,6 +1,6 @@
 import { AdPlatformApiError, type AdCampaignSnapshot, type ConversionActionSnapshot } from './types';
 
-// Google Ads API (REST, v18 — https://developers.google.com/google-ads/api/rest/overview).
+// Google Ads API (REST, v25 — https://developers.google.com/google-ads/api/rest/overview).
 // Plain fetch, same as every other integration in this codebase (no
 // google-ads-api SDK dependency added). Every call needs three things:
 // an OAuth access token (refreshed per-call below, since there is no
@@ -8,6 +8,15 @@ import { AdPlatformApiError, type AdCampaignSnapshot, type ConversionActionSnaps
 // own "no automatic background refresh exists" note), the account-level
 // developer token (GOOGLE_ADS_DEVELOPER_TOKEN, a one-time manual-approval
 // credential — see the manual), and the target Customer ID.
+//
+// The Google Ads API moved to monthly major-version releases in 2026 and
+// retires each one roughly a year after release (v19 sunset 2026-02-11;
+// v18, used when this file was first written, sunset before that). The
+// GAQL fields queried below (campaign id/name/status/advertising_channel_type,
+// metrics.*, conversion_action id/name/status/category) are long-standing,
+// unaffected by v25's breaking changes (which only removed the legacy
+// CustomerLifecycleGoal/CampaignLifecycleGoal resources) — bump API_BASE's
+// version segment again well before this one's own sunset.
 
 export interface GoogleAdsCredential {
   refreshToken: string;
@@ -15,7 +24,7 @@ export interface GoogleAdsCredential {
   loginCustomerId?: string | undefined; // optional MCC manager account id, only needed if customerId is managed under one
 }
 
-const API_BASE = 'https://googleads.googleapis.com/v18';
+const API_BASE = 'https://googleads.googleapis.com/v25';
 
 async function getAccessToken(refreshToken: string): Promise<string> {
   const res = await fetch('https://oauth2.googleapis.com/token', {

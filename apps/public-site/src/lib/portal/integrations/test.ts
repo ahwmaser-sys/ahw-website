@@ -158,9 +158,12 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       if (!res.ok) return { ok: false, error: await res.text() };
       return { ok: true };
     }
-    // ── Marketing Ads Control Center — company-wide, officeId always null ──
+    // ── Marketing Ads Control Center — company-wide by default (officeId
+    // null), but a connection MAY be office-scoped instead (a business
+    // running separate ad accounts per market) — see ad-oauth.ts / the
+    // OAuth start route. officeId is passed through unchanged either way.
     case 'GOOGLE_ADS': {
-      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>(type);
+      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>(type, officeId);
       if (!cred) return { ok: false, error: 'Not connected.' };
       try {
         const result = await googleAds.testConnection(cred);
@@ -170,7 +173,7 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       }
     }
     case 'META_ADS': {
-      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>(type);
+      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>(type, officeId);
       if (!cred) return { ok: false, error: 'Not connected.' };
       try {
         const result = await metaAds.testConnection(cred);
@@ -180,7 +183,7 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       }
     }
     case 'LINKEDIN_ADS': {
-      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>(type);
+      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>(type, officeId);
       if (!cred) return { ok: false, error: 'Not connected.' };
       try {
         const result = await linkedInAds.testConnection(cred);
@@ -190,7 +193,7 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       }
     }
     case 'TIKTOK_ADS': {
-      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>(type);
+      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>(type, officeId);
       if (!cred) return { ok: false, error: 'Not connected.' };
       try {
         const result = await tiktokAds.testConnection(cred);

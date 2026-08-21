@@ -25,6 +25,15 @@ async function redirectToSettings(query: string): Promise<Response> {
   return Response.redirect(`${base}/admin/settings/integrations?${query}`);
 }
 
+// Ad-platform connections are managed on Admin → Ads, not Settings →
+// Integrations (which has no cards for GOOGLE_ADS/META_ADS/LINKEDIN_ADS/
+// TIKTOK_ADS) — redirecting there after connecting would land the admin
+// on a page with no visible confirmation of what just happened.
+async function redirectToAds(query: string): Promise<Response> {
+  const base = await getSiteUrl();
+  return Response.redirect(`${base}/admin/ads?${query}`);
+}
+
 export async function GET(request: Request, { params }: { params: Promise<{ type: string }> }) {
   const { type } = await params;
   const isSocial = SOCIAL_TYPES.includes(type as OAuthIntegration);
@@ -32,6 +41,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
   if (!isSocial && !isAd) {
     return Response.json({ error: 'Unknown integration.' }, { status: 404 });
   }
+  // Every redirect below (including the error paths that fire before the
+  // isSocial/isAd branch) goes back to wherever this connection is
+  // actually managed — Settings → Integrations for the four social
+  // types, Admin → Ads for the four ad types.
+  const redirect = isAd ? redirectToAds : redirectToSettings;
 
   try {
     const principal = await requireSession();
@@ -42,17 +56,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
     const state = url.searchParams.get('state');
     const oauthError = url.searchParams.get('error');
     if (oauthError) {
-      return await redirectToSettings(`error=${encodeURIComponent(`${type} declined: ${oauthError}`)}`);
+      return await redirect(`error=${encodeURIComponent(`${type} declined: ${oauthError}`)}`);
     }
     if (!code || !state) {
-      return await redirectToSettings(`error=${encodeURIComponent('Missing OAuth code or state.')}`);
+      return await redirect(`error=${encodeURIComponent('Missing OAuth code or state.')}`);
     }
 
     const cookieStore = await cookies();
     const expectedState = cookieStore.get(`oauth_state_${type}`)?.value;
     cookieStore.delete(`oauth_state_${type}`);
     if (!expectedState || expectedState !== state) {
-      return await redirectToSettings(`error=${encodeURIComponent('OAuth state mismatch — please try connecting again.')}`);
+      return await redirect(`error=${encodeURIComponent('OAuth state mismatch — please try connecting again.')}`);
     }
 
     if (isSocial) {
@@ -60,7 +74,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
       const officeId = cookieStore.get(`oauth_office_${oauthType}`)?.value;
       cookieStore.delete(`oauth_office_${oauthType}`);
       if (!officeId) {
-        return await redirectToSettings(`error=${encodeURIComponent('Missing office context — please try connecting again from the office\'s Connect button.')}`);
+        return await redirect(`error=${encodeURIComponent('Missing office context — please try connecting again from the office\'s Connect button.')}`);
       }
 
       const result = await exchangeCode(oauthType, code);
@@ -74,25 +88,40 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
 
       await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: `${oauthType}:${officeId}` });
 
-      return await redirectToSettings(
+      return await redirect(
         stillNeedsFollowUp ? `connected=${oauthType}&followUp=1&officeId=${officeId}` : `connected=${oauthType}&officeId=${officeId}`
       );
     }
 
-    // Ad platform — company-wide, no officeId.
+    // Ad platform — company-wide by default, but MAY be scoped to one
+    // office (see start/route.ts) for a business running genuinely
+    // separate ad accounts per market rather than one shared account.
     const adType = type as AdOAuthType;
+    const officeId = cookieStore.get(`oauth_office_${adType}`)?.value;
+    cookieStore.delete(`oauth_office_${adType}`);
+
     const result = await exchangeAdCode(adType, code);
     const stillNeedsFollowUp = adNeedsFollowUp(adType, result);
 
     await connectIntegration(adType, result, {
       metadata: { needsFollowUp: stillNeedsFollowUp },
       connectedById: principal.userId,
+      ...(officeId ? { officeId } : {}),
     });
 
-    await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: adType });
+    await recordActivity({
+      actorId: principal.userId,
+      action: 'admin.integration_connected',
+      entityType: 'IntegrationConfig',
+      entityId: officeId ? `${adType}:${officeId}` : adType,
+    });
 
-    return await redirectToSettings(stillNeedsFollowUp ? `connected=${adType}&followUp=1` : `connected=${adType}`);
+    return await redirect(
+      stillNeedsFollowUp
+        ? `connected=${adType}&followUp=1${officeId ? `&officeId=${officeId}` : ''}`
+        : `connected=${adType}${officeId ? `&officeId=${officeId}` : ''}`
+    );
   } catch (error) {
-    return await redirectToSettings(`error=${encodeURIComponent(error instanceof Error ? error.message : 'OAuth connection failed.')}`);
+    return await redirect(`error=${encodeURIComponent(error instanceof Error ? error.message : 'OAuth connection failed.')}`);
   }
 }

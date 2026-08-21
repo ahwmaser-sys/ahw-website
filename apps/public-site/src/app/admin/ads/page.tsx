@@ -3,22 +3,24 @@ import { requireAdminPage } from '../../../lib/portal/page-guard';
 import { prisma } from '../../../lib/portal/db';
 import { PortalShell } from '../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../nav-links';
+import { getAllOffices } from '../../../lib/portal/offices';
 import { TestConnectionForm, DisconnectForm } from '../settings/integrations/TestDisconnectForms';
 import { AdOAuthConnectLink, GoogleAdsFollowUpForm, MetaAdsFollowUpForm, LinkedInAdsFollowUpForm, TikTokAdsFollowUpForm, SyncNowForm } from './AdsConnectForms';
 import { getGoogleAdsConversionStatus } from '../../../lib/portal/actions/ads';
 import styles from '../../../components/portal/portal-ui.module.css';
-import type { IntegrationConfig, AdPlatform } from '@prisma/client';
+import type { IntegrationConfig, AdPlatform, Office } from '@prisma/client';
 
 const AD_TYPES = ['GOOGLE_ADS', 'META_ADS', 'LINKEDIN_ADS', 'TIKTOK_ADS'] as const;
+type AdType = (typeof AD_TYPES)[number];
 
-const LABELS: Record<(typeof AD_TYPES)[number], string> = {
+const LABELS: Record<AdType, string> = {
   GOOGLE_ADS: 'Google Ads',
   META_ADS: 'Meta Ads',
   LINKEDIN_ADS: 'LinkedIn Ads',
   TIKTOK_ADS: 'TikTok Ads',
 };
 
-const FOLLOW_UP_FORMS: Record<(typeof AD_TYPES)[number], ComponentType> = {
+const FOLLOW_UP_FORMS: Record<AdType, ComponentType<{ officeId?: string | undefined }>> = {
   GOOGLE_ADS: GoogleAdsFollowUpForm,
   META_ADS: MetaAdsFollowUpForm,
   LINKEDIN_ADS: LinkedInAdsFollowUpForm,
@@ -59,18 +61,56 @@ function ConfigDetails({ config }: { config: ConfigWithConnectedBy | undefined }
   );
 }
 
+function configKey(type: string, officeId: string | null): string {
+  return `${type}:${officeId ?? 'company'}`;
+}
+
+function ConnectionCard({
+  type,
+  officeId,
+  config,
+  totals,
+}: {
+  type: AdType;
+  officeId?: string | undefined;
+  config: ConfigWithConnectedBy | undefined;
+  totals: { active: number; total: number } | undefined;
+}) {
+  const needsFollowUp = Boolean((config?.metadata as { needsFollowUp?: boolean } | null)?.needsFollowUp);
+  const FollowUpForm = FOLLOW_UP_FORMS[type];
+  return (
+    <div className={styles.card}>
+      <ConfigDetails config={config} />
+      {totals && <p className={styles.cardMeta}>{totals.active} active / {totals.total} tracked campaign(s) locally.</p>}
+      {needsFollowUp && <FollowUpForm officeId={officeId} />}
+      <div className={styles.buttonRow}>
+        {config?.status === 'CONNECTED' || config?.status === 'ERROR' ? (
+          <>
+            <TestConnectionForm type={type} {...(officeId ? { officeId } : {})} />
+            <SyncNowForm platform={type} officeId={officeId} />
+            <DisconnectForm type={type} {...(officeId ? { officeId } : {})} />
+          </>
+        ) : !needsFollowUp ? (
+          <AdOAuthConnectLink type={type} officeId={officeId} />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default async function AdminAdsOverviewPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const principal = await requireAdminPage();
   const params = await searchParams;
 
-  const [configs, campaignCounts, conversionStatus] = await Promise.all([
+  const [configs, offices, campaignCounts, conversionChecks] = await Promise.all([
     prisma.integrationConfig.findMany({ where: { type: { in: [...AD_TYPES] } }, include: { connectedBy: { select: { name: true, email: true } } } }),
+    getAllOffices(),
     prisma.adCampaign.groupBy({ by: ['platform', 'status'], _count: true }),
     getGoogleAdsConversionStatus(),
   ]);
 
-  const configByType = new Map<string, ConfigWithConnectedBy>();
-  for (const config of configs) configByType.set(config.type, config);
+  const configByKey = new Map<string, ConfigWithConnectedBy>();
+  for (const config of configs) configByKey.set(configKey(config.type, config.officeId), config);
 
   const totalsByPlatform = new Map<AdPlatform, { active: number; total: number }>();
   for (const row of campaignCounts) {
@@ -98,52 +138,63 @@ export default async function AdminAdsOverviewPage({ searchParams }: { searchPar
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Phone Click – Website conversion</h2>
-        {conversionStatus.connected === false ? (
-          <p className={styles.cardMeta}>Connect Google Ads below to check this conversion&apos;s status. Tracking on the site itself is already live regardless — this only reads back its status from Google Ads.</p>
-        ) : conversionStatus.found ? (
-          <p className={styles.cardMeta}>
-            <span className={`${styles.badge} ${styles.badgeActive}`}>FOUND</span> &quot;{conversionStatus.conversion.name}&quot; — status: {conversionStatus.conversion.status}
-            {conversionStatus.conversion.category && <> · category: {conversionStatus.conversion.category}</>} · id: {conversionStatus.conversion.id}
-          </p>
+        {conversionChecks.length === 0 ? (
+          <p className={styles.cardMeta}>Connect a Google Ads account below to check this conversion&apos;s status. Tracking on the site itself is already live regardless — this only reads back its status from Google Ads.</p>
         ) : (
-          <p className={styles.cardMeta}>
-            <span className={`${styles.badge} ${styles.badgeWarn}`}>NOT FOUND</span> Could not find a conversion action named &quot;Phone Click – Website&quot; on the connected account.
-            {conversionStatus.error && <> {conversionStatus.error}</>} This does not mean tracking is broken — verify directly in Google Ads → Goals → Conversions.
-          </p>
+          conversionChecks.map((check) => (
+            <p key={check.officeId ?? 'company'} className={styles.cardMeta}>
+              <strong>{check.label}:</strong>{' '}
+              {check.found && check.conversion ? (
+                <>
+                  <span className={`${styles.badge} ${styles.badgeActive}`}>FOUND</span> &quot;{check.conversion.name}&quot; — status: {check.conversion.status}
+                  {check.conversion.category && <> · category: {check.conversion.category}</>} · id: {check.conversion.id}
+                </>
+              ) : (
+                <>
+                  <span className={`${styles.badge} ${styles.badgeWarn}`}>NOT FOUND</span> Could not find a conversion action named &quot;Phone Click – Website&quot; on this account.
+                  {check.error && <> {check.error}</>} This does not mean tracking is broken — verify directly in Google Ads → Goals → Conversions.
+                </>
+              )}
+            </p>
+          ))
         )}
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Platform connections</h2>
+        <h2 className={styles.sectionTitle}>Platform connections — company-wide</h2>
+        <p className={styles.cardMeta}>One shared account per platform, used across every market. This is the simplest setup — campaigns for different markets still live under the same account, distinguished by the Market field on each Ad Campaign.</p>
         <div className={styles.cardList}>
-          {AD_TYPES.map((type) => {
-            const config = configByType.get(type);
-            const needsFollowUp = Boolean((config?.metadata as { needsFollowUp?: boolean } | null)?.needsFollowUp);
-            const totals = totalsByPlatform.get(type as AdPlatform);
-            const FollowUpForm = FOLLOW_UP_FORMS[type];
-            return (
-              <div key={type} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <strong>{LABELS[type]}</strong>
-                  <StatusBadge config={config} />
-                </div>
-                <ConfigDetails config={config} />
-                {totals && <p className={styles.cardMeta}>{totals.active} active / {totals.total} tracked campaign(s) locally.</p>}
-                {needsFollowUp && <FollowUpForm />}
-                <div className={styles.buttonRow}>
-                  {config?.status === 'CONNECTED' || config?.status === 'ERROR' ? (
-                    <>
-                      <TestConnectionForm type={type} />
-                      <SyncNowForm platform={type} />
-                      <DisconnectForm type={type} />
-                    </>
-                  ) : !needsFollowUp ? (
-                    <AdOAuthConnectLink type={type} />
-                  ) : null}
-                </div>
+          {AD_TYPES.map((type) => (
+            <div key={type} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <strong>{LABELS[type]}</strong>
+                <StatusBadge config={configByKey.get(configKey(type, null))} />
               </div>
-            );
-          })}
+              <ConnectionCard type={type} config={configByKey.get(configKey(type, null))} totals={totalsByPlatform.get(type)} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Platform connections — per market (optional)</h2>
+        <p className={styles.cardMeta}>
+          Only needed if a market genuinely has its own, separate ad account (not just its own campaigns inside the
+          shared account above) — e.g. Egypt and Kuwait each billed and managed as independent Google Ads accounts.
+          Add a new market by creating its Office under Admin → Offices — no code change needed for it to appear here.
+        </p>
+        <div className={styles.cardList}>
+          {offices.flatMap((office: Office) =>
+            AD_TYPES.map((type) => (
+              <div key={`${office.id}:${type}`} className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <strong>{office.displayName} — {LABELS[type]}</strong>
+                  <StatusBadge config={configByKey.get(configKey(type, office.id))} />
+                </div>
+                <ConnectionCard type={type} officeId={office.id} config={configByKey.get(configKey(type, office.id))} totals={undefined} />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </PortalShell>

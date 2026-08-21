@@ -24,77 +24,103 @@ const ADS_PATH = '/admin/ads';
 // platform here always needs this one extra manual step before it's
 // actually usable.
 
+// officeId is present on every follow-up form as a hidden field
+// (undefined for the company-wide card, a real id for a per-office
+// card — see AdsConnectForms.tsx / app/admin/ads/page.tsx) so a
+// business that runs one Google/Meta/LinkedIn/TikTok Ads account per
+// market can complete each market's connection independently, without
+// them overwriting each other. getIntegrationCredential/connectIntegration
+// already support this generically (same officeId mechanism the four
+// social platforms have always used) — no schema change needed.
+
 const googleAdsFollowUpSchema = z.object({
   customerId: z.string().trim().min(1, 'Customer ID is required.'),
   loginCustomerId: z.string().trim().optional(),
+  officeId: z.string().trim().optional(),
 });
 
 export async function completeGoogleAdsConnection(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
   requireRole(principal, SUPER_ADMIN_ONLY);
-  const parsed = googleAdsFollowUpSchema.safeParse({ customerId: formData.get('customerId'), loginCustomerId: formData.get('loginCustomerId') || undefined });
+  const parsed = googleAdsFollowUpSchema.safeParse({
+    customerId: formData.get('customerId'),
+    loginCustomerId: formData.get('loginCustomerId') || undefined,
+    officeId: formData.get('officeId') || undefined,
+  });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
 
-  const existing = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS');
+  const existing = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS', parsed.data.officeId);
   if (!existing) return { error: 'Connect via OAuth first.' };
 
   await connectIntegration(
     'GOOGLE_ADS',
     { ...existing, customerId: parsed.data.customerId.replace(/-/g, ''), loginCustomerId: parsed.data.loginCustomerId?.replace(/-/g, '') },
-    { metadata: { needsFollowUp: false }, connectedById: principal.userId }
+    { metadata: { needsFollowUp: false }, connectedById: principal.userId, ...(parsed.data.officeId ? { officeId: parsed.data.officeId } : {}) }
   );
-  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: 'GOOGLE_ADS' });
+  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: parsed.data.officeId ? `GOOGLE_ADS:${parsed.data.officeId}` : 'GOOGLE_ADS' });
   revalidatePath(ADS_PATH);
   return { success: 'Google Ads connection completed.' };
 }
 
-const metaAdsFollowUpSchema = z.object({ adAccountId: z.string().trim().min(1, 'Ad Account ID is required.') });
+const metaAdsFollowUpSchema = z.object({ adAccountId: z.string().trim().min(1, 'Ad Account ID is required.'), officeId: z.string().trim().optional() });
 
 export async function completeMetaAdsConnection(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
   requireRole(principal, SUPER_ADMIN_ONLY);
-  const parsed = metaAdsFollowUpSchema.safeParse({ adAccountId: formData.get('adAccountId') });
+  const parsed = metaAdsFollowUpSchema.safeParse({ adAccountId: formData.get('adAccountId'), officeId: formData.get('officeId') || undefined });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
 
-  const existing = await getIntegrationCredential<metaAds.MetaAdsCredential>('META_ADS');
+  const existing = await getIntegrationCredential<metaAds.MetaAdsCredential>('META_ADS', parsed.data.officeId);
   if (!existing) return { error: 'Connect via OAuth first.' };
 
-  await connectIntegration('META_ADS', { ...existing, adAccountId: parsed.data.adAccountId.replace(/^act_/, '') }, { metadata: { needsFollowUp: false }, connectedById: principal.userId });
-  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: 'META_ADS' });
+  await connectIntegration(
+    'META_ADS',
+    { ...existing, adAccountId: parsed.data.adAccountId.replace(/^act_/, '') },
+    { metadata: { needsFollowUp: false }, connectedById: principal.userId, ...(parsed.data.officeId ? { officeId: parsed.data.officeId } : {}) }
+  );
+  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: parsed.data.officeId ? `META_ADS:${parsed.data.officeId}` : 'META_ADS' });
   revalidatePath(ADS_PATH);
   return { success: 'Meta Ads connection completed.' };
 }
 
-const linkedInAdsFollowUpSchema = z.object({ adAccountId: z.string().trim().min(1, 'Ad Account ID is required.') });
+const linkedInAdsFollowUpSchema = z.object({ adAccountId: z.string().trim().min(1, 'Ad Account ID is required.'), officeId: z.string().trim().optional() });
 
 export async function completeLinkedInAdsConnection(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
   requireRole(principal, SUPER_ADMIN_ONLY);
-  const parsed = linkedInAdsFollowUpSchema.safeParse({ adAccountId: formData.get('adAccountId') });
+  const parsed = linkedInAdsFollowUpSchema.safeParse({ adAccountId: formData.get('adAccountId'), officeId: formData.get('officeId') || undefined });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
 
-  const existing = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>('LINKEDIN_ADS');
+  const existing = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>('LINKEDIN_ADS', parsed.data.officeId);
   if (!existing) return { error: 'Connect via OAuth first.' };
 
-  await connectIntegration('LINKEDIN_ADS', { ...existing, adAccountId: parsed.data.adAccountId }, { metadata: { needsFollowUp: false }, connectedById: principal.userId });
-  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: 'LINKEDIN_ADS' });
+  await connectIntegration(
+    'LINKEDIN_ADS',
+    { ...existing, adAccountId: parsed.data.adAccountId },
+    { metadata: { needsFollowUp: false }, connectedById: principal.userId, ...(parsed.data.officeId ? { officeId: parsed.data.officeId } : {}) }
+  );
+  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: parsed.data.officeId ? `LINKEDIN_ADS:${parsed.data.officeId}` : 'LINKEDIN_ADS' });
   revalidatePath(ADS_PATH);
   return { success: 'LinkedIn Ads connection completed.' };
 }
 
-const tiktokAdsFollowUpSchema = z.object({ advertiserId: z.string().trim().min(1, 'Advertiser ID is required.') });
+const tiktokAdsFollowUpSchema = z.object({ advertiserId: z.string().trim().min(1, 'Advertiser ID is required.'), officeId: z.string().trim().optional() });
 
 export async function completeTikTokAdsConnection(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
   requireRole(principal, SUPER_ADMIN_ONLY);
-  const parsed = tiktokAdsFollowUpSchema.safeParse({ advertiserId: formData.get('advertiserId') });
+  const parsed = tiktokAdsFollowUpSchema.safeParse({ advertiserId: formData.get('advertiserId'), officeId: formData.get('officeId') || undefined });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
 
-  const existing = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>('TIKTOK_ADS');
+  const existing = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>('TIKTOK_ADS', parsed.data.officeId);
   if (!existing) return { error: 'Connect via OAuth first.' };
 
-  await connectIntegration('TIKTOK_ADS', { ...existing, advertiserId: parsed.data.advertiserId }, { metadata: { needsFollowUp: false }, connectedById: principal.userId });
-  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: 'TIKTOK_ADS' });
+  await connectIntegration(
+    'TIKTOK_ADS',
+    { ...existing, advertiserId: parsed.data.advertiserId },
+    { metadata: { needsFollowUp: false }, connectedById: principal.userId, ...(parsed.data.officeId ? { officeId: parsed.data.officeId } : {}) }
+  );
+  await recordActivity({ actorId: principal.userId, action: 'admin.integration_connected', entityType: 'IntegrationConfig', entityId: parsed.data.officeId ? `TIKTOK_ADS:${parsed.data.officeId}` : 'TIKTOK_ADS' });
   revalidatePath(ADS_PATH);
   return { success: 'TikTok Ads connection completed.' };
 }
@@ -104,27 +130,27 @@ export async function completeTikTokAdsConnection(_prevState: ActionState, formD
 // deliberate, honest limitation rather than new infrastructure invented
 // just for this feature) ──
 
-const syncSchema = z.object({ platform: z.enum(['GOOGLE_ADS', 'META_ADS', 'LINKEDIN_ADS', 'TIKTOK_ADS']) });
+const syncSchema = z.object({ platform: z.enum(['GOOGLE_ADS', 'META_ADS', 'LINKEDIN_ADS', 'TIKTOK_ADS']), officeId: z.string().trim().optional() });
 
-async function fetchSnapshots(platform: AdPlatform): Promise<AdCampaignSnapshot[]> {
+async function fetchSnapshots(platform: AdPlatform, officeId?: string): Promise<AdCampaignSnapshot[]> {
   switch (platform) {
     case 'GOOGLE_ADS': {
-      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS');
+      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('GOOGLE_ADS', 'Not connected.');
       return googleAds.listCampaigns(cred);
     }
     case 'META_ADS': {
-      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>('META_ADS');
+      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>('META_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('META_ADS', 'Not connected.');
       return metaAds.listCampaigns(cred);
     }
     case 'LINKEDIN_ADS': {
-      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>('LINKEDIN_ADS');
+      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>('LINKEDIN_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('LINKEDIN_ADS', 'Not connected.');
       return linkedInAds.listCampaigns(cred);
     }
     case 'TIKTOK_ADS': {
-      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>('TIKTOK_ADS');
+      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>('TIKTOK_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('TIKTOK_ADS', 'Not connected.');
       return tiktokAds.listCampaigns(cred);
     }
@@ -141,16 +167,18 @@ async function fetchSnapshots(platform: AdPlatform): Promise<AdCampaignSnapshot[
 export async function syncAdPlatformAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
   requireRole(principal, STAFF_ROLES);
-  const parsed = syncSchema.safeParse({ platform: formData.get('platform') });
+  const parsed = syncSchema.safeParse({ platform: formData.get('platform'), officeId: formData.get('officeId') || undefined });
   if (!parsed.success) return { error: 'Invalid platform.' };
+  const { platform, officeId } = parsed.data;
+  const syncLabel = officeId ? `${platform}:${officeId}` : platform;
 
   try {
-    const snapshots = await fetchSnapshots(parsed.data.platform);
+    const snapshots = await fetchSnapshots(platform, officeId);
     let created = 0;
     let updated = 0;
 
     for (const snap of snapshots) {
-      const existing = await prisma.adCampaign.findFirst({ where: { platform: parsed.data.platform, externalCampaignId: snap.externalCampaignId } });
+      const existing = await prisma.adCampaign.findFirst({ where: { platform, externalCampaignId: snap.externalCampaignId } });
       const metricsData = {
         lastSyncedAt: new Date(),
         lastSyncError: null,
@@ -161,6 +189,10 @@ export async function syncAdPlatformAction(_prevState: ActionState, formData: Fo
         conversionValue: snap.conversionValue ?? null,
       };
       if (existing) {
+        // Never overwrites officeId/market on an existing row — those
+        // are admin-owned (same rule as name/notes/UTM below), so a
+        // resync never silently reassigns a campaign the admin already
+        // placed under a market.
         await prisma.adCampaign.update({
           where: { id: existing.id },
           data: {
@@ -174,8 +206,14 @@ export async function syncAdPlatformAction(_prevState: ActionState, formData: Fo
       } else {
         await prisma.adCampaign.create({
           data: {
-            platform: parsed.data.platform,
-            market: 'Unspecified — set on this campaign',
+            platform,
+            // A campaign synced from an office-scoped connection is
+            // known to belong to that office/market immediately — no
+            // "Unspecified" placeholder needed. A company-wide
+            // connection can't infer the market on its own, so it still
+            // falls back to the placeholder for the admin to fill in.
+            market: officeId ? await officeMarketLabel(officeId) : 'Unspecified — set on this campaign',
+            officeId: officeId ?? null,
             name: snap.name,
             externalCampaignId: snap.externalCampaignId,
             status: snap.status === 'ACTIVE' ? 'ACTIVE' : snap.status === 'PAUSED' ? 'PAUSED' : 'DRAFT',
@@ -192,17 +230,22 @@ export async function syncAdPlatformAction(_prevState: ActionState, formData: Fo
       actorId: principal.userId,
       action: 'admin.ads_synced',
       entityType: 'AdCampaign',
-      entityId: parsed.data.platform,
-      metadata: { platform: parsed.data.platform, created, updated, total: snapshots.length },
+      entityId: syncLabel,
+      metadata: { platform, officeId, created, updated, total: snapshots.length },
     });
     revalidatePath(ADS_PATH);
     revalidatePath(`${ADS_PATH}/campaigns`);
-    return { success: `Synced ${snapshots.length} campaign(s) from ${parsed.data.platform} — ${created} new, ${updated} updated.` };
+    return { success: `Synced ${snapshots.length} campaign(s) from ${syncLabel} — ${created} new, ${updated} updated.` };
   } catch (error) {
     const message = error instanceof AdPlatformApiError ? error.message : error instanceof Error ? error.message : 'Sync failed.';
-    await recordActivity({ actorId: principal.userId, action: 'admin.ads_sync_failed', entityType: 'AdCampaign', entityId: parsed.data.platform, metadata: { error: message } });
+    await recordActivity({ actorId: principal.userId, action: 'admin.ads_sync_failed', entityType: 'AdCampaign', entityId: syncLabel, metadata: { error: message } });
     return { error: `Sync failed: ${message}` };
   }
+}
+
+async function officeMarketLabel(officeId: string): Promise<string> {
+  const office = await prisma.office.findUnique({ where: { id: officeId }, select: { displayName: true } });
+  return office?.displayName ?? 'Unspecified — set on this campaign';
 }
 
 // ── Conversion Center: read-only lookup of the existing Google Ads
@@ -214,18 +257,44 @@ export async function syncAdPlatformAction(_prevState: ActionState, formData: Fo
 
 const PHONE_CONVERSION_NAME = 'Phone Click – Website';
 
-export async function getGoogleAdsConversionStatus(): Promise<
-  { connected: false } | { connected: true; found: true; conversion: ConversionActionSnapshot } | { connected: true; found: false; error?: string }
-> {
-  const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS');
-  if (!cred?.customerId) return { connected: false };
-  try {
-    const actions = await googleAds.listConversionActions(cred);
-    const match = actions.find((a) => a.name === PHONE_CONVERSION_NAME);
-    return match ? { connected: true, found: true, conversion: match } : { connected: true, found: false };
-  } catch (error) {
-    return { connected: true, found: false, error: error instanceof AdPlatformApiError ? error.message : 'Lookup failed.' };
+export interface GoogleAdsConversionCheck {
+  label: string; // 'Company-wide' or the office's display name
+  officeId: string | null;
+  found: boolean;
+  conversion?: ConversionActionSnapshot;
+  error?: string;
+}
+
+// Checks every connected Google Ads account (the company-wide one, plus
+// any per-office ones — a business can run either or both, see
+// ad-oauth.ts) for the existing "Phone Click – Website" conversion by
+// name. A market-scoped Google Ads account only needs to be checked if
+// its own site traffic actually fires that tag; most setups will only
+// ever have it on one account, which this surfaces rather than assumes.
+export async function getGoogleAdsConversionStatus(): Promise<GoogleAdsConversionCheck[]> {
+  const configs = await prisma.integrationConfig.findMany({
+    where: { type: 'GOOGLE_ADS', status: 'CONNECTED' },
+    include: { office: { select: { displayName: true } } },
+  });
+  if (configs.length === 0) return [];
+
+  const results: GoogleAdsConversionCheck[] = [];
+  for (const config of configs) {
+    const label = config.office?.displayName ?? 'Company-wide';
+    const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS', config.officeId);
+    if (!cred?.customerId) {
+      results.push({ label, officeId: config.officeId, found: false, error: 'Missing Customer ID — finish setup on Admin → Ads.' });
+      continue;
+    }
+    try {
+      const actions = await googleAds.listConversionActions(cred);
+      const match = actions.find((a) => a.name === PHONE_CONVERSION_NAME);
+      results.push(match ? { label, officeId: config.officeId, found: true, conversion: match } : { label, officeId: config.officeId, found: false });
+    } catch (error) {
+      results.push({ label, officeId: config.officeId, found: false, error: error instanceof AdPlatformApiError ? error.message : 'Lookup failed.' });
+    }
   }
+  return results;
 }
 
 // ── AdCampaign CRUD (local planning record — always safe, never touches
@@ -407,7 +476,11 @@ export async function setAdCampaignStatusAction(_prevState: ActionState, formDat
   // push — COMPLETED/ARCHIVED are local-only planning states.
   if (campaign.externalCampaignId && (parsed.data.status === 'ACTIVE' || parsed.data.status === 'PAUSED')) {
     try {
-      await pushStatusToPlatform(campaign.platform, campaign.externalCampaignId, parsed.data.status);
+      // The campaign's own officeId picks which connection's credential
+      // to use — null for a campaign synced/created under the
+      // company-wide connection, a real office id for one synced/created
+      // under a market-scoped connection.
+      await pushStatusToPlatform(campaign.platform, campaign.officeId, campaign.externalCampaignId, parsed.data.status);
     } catch (error) {
       const message = error instanceof AdPlatformApiError ? error.message : error instanceof Error ? error.message : 'Platform update failed.';
       return { error: `Not changed — the platform rejected this update: ${message}` };
@@ -428,25 +501,25 @@ export async function setAdCampaignStatusAction(_prevState: ActionState, formDat
   return { success: `Status changed to ${parsed.data.status}${campaign.externalCampaignId ? ' (pushed to platform)' : ''}.` };
 }
 
-async function pushStatusToPlatform(platform: AdPlatform, externalCampaignId: string, status: 'ACTIVE' | 'PAUSED'): Promise<void> {
+async function pushStatusToPlatform(platform: AdPlatform, officeId: string | null, externalCampaignId: string, status: 'ACTIVE' | 'PAUSED'): Promise<void> {
   switch (platform) {
     case 'GOOGLE_ADS': {
-      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS');
+      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>('GOOGLE_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('GOOGLE_ADS', 'Not connected.');
       return googleAds.setCampaignStatus(cred, externalCampaignId, status);
     }
     case 'META_ADS': {
-      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>('META_ADS');
+      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>('META_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('META_ADS', 'Not connected.');
       return metaAds.setCampaignStatus(cred, externalCampaignId, status);
     }
     case 'LINKEDIN_ADS': {
-      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>('LINKEDIN_ADS');
+      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>('LINKEDIN_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('LINKEDIN_ADS', 'Not connected.');
       return linkedInAds.setCampaignStatus(cred, externalCampaignId, status);
     }
     case 'TIKTOK_ADS': {
-      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>('TIKTOK_ADS');
+      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>('TIKTOK_ADS', officeId);
       if (!cred) throw new AdPlatformApiError('TIKTOK_ADS', 'Not connected.');
       return tiktokAds.setCampaignStatus(cred, externalCampaignId, status);
     }
