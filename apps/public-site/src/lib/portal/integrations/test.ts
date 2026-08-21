@@ -2,6 +2,11 @@ import type { IntegrationType } from '@prisma/client';
 import { getIntegrationCredential } from './store';
 import { getGoogleAccessToken, type GoogleServiceAccountKey } from './google-service-account';
 import { FROM as EMAIL_FROM } from '../email';
+import * as googleAds from '../ads/google-ads';
+import * as metaAds from '../ads/meta-ads';
+import * as linkedInAds from '../ads/linkedin-ads';
+import * as tiktokAds from '../ads/tiktok-ads';
+import { AdPlatformApiError } from '../ads/types';
 
 export interface TestResult {
   ok: boolean;
@@ -152,6 +157,47 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       });
       if (!res.ok) return { ok: false, error: await res.text() };
       return { ok: true };
+    }
+    // ── Marketing Ads Control Center — company-wide, officeId always null ──
+    case 'GOOGLE_ADS': {
+      const cred = await getIntegrationCredential<googleAds.GoogleAdsCredential>(type);
+      if (!cred) return { ok: false, error: 'Not connected.' };
+      try {
+        const result = await googleAds.testConnection(cred);
+        return { ok: true, metadata: { customerId: result.customerId, descriptiveName: result.descriptiveName } };
+      } catch (error) {
+        return { ok: false, error: error instanceof AdPlatformApiError ? error.message : 'Test failed.' };
+      }
+    }
+    case 'META_ADS': {
+      const cred = await getIntegrationCredential<metaAds.MetaAdsCredential>(type);
+      if (!cred) return { ok: false, error: 'Not connected.' };
+      try {
+        const result = await metaAds.testConnection(cred);
+        return { ok: true, metadata: { adAccountName: result.adAccountName } };
+      } catch (error) {
+        return { ok: false, error: error instanceof AdPlatformApiError ? error.message : 'Test failed.' };
+      }
+    }
+    case 'LINKEDIN_ADS': {
+      const cred = await getIntegrationCredential<linkedInAds.LinkedInAdsCredential>(type);
+      if (!cred) return { ok: false, error: 'Not connected.' };
+      try {
+        const result = await linkedInAds.testConnection(cred);
+        return { ok: true, metadata: { adAccountName: result.adAccountName } };
+      } catch (error) {
+        return { ok: false, error: error instanceof AdPlatformApiError ? error.message : 'Test failed.' };
+      }
+    }
+    case 'TIKTOK_ADS': {
+      const cred = await getIntegrationCredential<tiktokAds.TikTokAdsCredential>(type);
+      if (!cred) return { ok: false, error: 'Not connected.' };
+      try {
+        const result = await tiktokAds.testConnection(cred);
+        return { ok: true, metadata: { advertiserName: result.advertiserName } };
+      } catch (error) {
+        return { ok: false, error: error instanceof AdPlatformApiError ? error.message : 'Test failed.' };
+      }
     }
   }
 }

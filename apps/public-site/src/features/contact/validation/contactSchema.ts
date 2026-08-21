@@ -13,6 +13,17 @@ export const contactFormSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters.'),
   // Honeypot field for spam prevention - should be hidden from real users
   honeypot: z.string().max(0, 'Spam detected').optional(),
+  // First-touch marketing attribution, read from sessionStorage by
+  // AttributionCapture/attribution.ts — absent for a direct/organic
+  // visit, never required.
+  utmSource: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  gclid: z.string().optional(),
+  fbclid: z.string().optional(),
+  ttclid: z.string().optional(),
+  referrer: z.string().optional(),
+  landingPath: z.string().optional(),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;

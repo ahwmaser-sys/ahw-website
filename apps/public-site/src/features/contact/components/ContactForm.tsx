@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactFormSchema, type ContactFormData } from '../validation/contactSchema';
 import { trackEvent } from '../../../lib/analytics';
+import { getStoredAttribution } from '../lib/attribution';
 import styles from './ContactForm.module.css';
 
 interface ContactFormProps {
@@ -48,10 +49,11 @@ export function ContactForm({ officeId }: ContactFormProps) {
     setSubmitStatus('idle');
 
     try {
+      const attribution = getStoredAttribution();
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, ...attribution }),
       });
 
       if (!response.ok) {

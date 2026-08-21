@@ -14,6 +14,7 @@ export const ADMIN_NAV_LINKS = [
   { href: '/admin/reviews', label: 'Reviews' },
   { href: '/admin/campaigns', label: 'Campaigns' },
   { href: '/admin/landing-pages', label: 'Landing Pages' },
+  { href: '/admin/ads', label: 'Ads' },
   { href: '/admin/media', label: 'Media' },
   { href: '/admin/templates', label: 'Templates' },
   { href: '/admin/brand-kit', label: 'Brand Kit' },

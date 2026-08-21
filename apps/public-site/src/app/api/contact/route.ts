@@ -83,6 +83,19 @@ export async function POST(request: Request) {
           ipAddress,
           userAgent,
           status: 'New',
+          // First-touch marketing attribution, captured client-side (see
+          // features/contact/lib/attribution.ts) — absent for a direct/
+          // organic visit. `referrer` falls back to the request header
+          // when the client didn't have one (e.g. a bookmarked contact
+          // page reload wouldn't have document.referrer set either way).
+          referrer: data.referrer || request.headers.get('referer') || null,
+          utmSource: data.utmSource || null,
+          utmMedium: data.utmMedium || null,
+          utmCampaign: data.utmCampaign || null,
+          landingPath: data.landingPath || null,
+          gclid: data.gclid || null,
+          fbclid: data.fbclid || null,
+          ttclid: data.ttclid || null,
         },
       });
     } catch (error) {

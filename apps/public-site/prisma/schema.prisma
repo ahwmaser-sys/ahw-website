@@ -44,6 +44,14 @@ model Enquiry {
   utmMedium   String?
   utmCampaign String?
   landingPath String?
+  // Same "raw signal only" rule as the utm_* fields above — captured
+  // client-side at first touch (see features/contact/lib/attribution.ts)
+  // and passed straight through untouched. Used by the Marketing Ads
+  // Control Center to attribute a lead back to the paid click that
+  // produced it; never validated/looked-up against the ad platforms here.
+  gclid       String? // Google Ads click id
+  fbclid      String? // Meta (Facebook/Instagram) click id
+  ttclid      String? // TikTok click id
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -100,12 +108,13 @@ model User {
   createdLandingPages LandingPage[]
   createdGraphics     GeneratedGraphic[]
   createdTemplates    SocialTemplate[]
+  createdAdCampaigns  AdCampaign[]
 
   // ── Go-live: Settings Center ──
   connectedIntegrations IntegrationConfig[]
   invitedById           String?
-  invitedBy             User?     @relation("StaffInvitedBy", fields: [invitedById], references: [id])
-  invitedUsers          User[]    @relation("StaffInvitedBy")
+  invitedBy             User?               @relation("StaffInvitedBy", fields: [invitedById], references: [id])
+  invitedUsers          User[]              @relation("StaffInvitedBy")
 
   @@index([role])
 }
@@ -180,12 +189,12 @@ model Office {
   mapLink         String? // short share link (e.g. maps.app.goo.gl/...)
   mapEmbedUrl     String? // full google.com/maps/embed?pb=... iframe src
 
-  phones String[]
-  emails String[] // first entry is the primary/display email by convention
-  website String? // office-specific page/domain, if distinct from the global site
-  workingHours String?
-  timezone     String?
-  defaultLanguage String @default("en")
+  phones          String[]
+  emails          String[] // first entry is the primary/display email by convention
+  website         String? // office-specific page/domain, if distinct from the global site
+  workingHours    String?
+  timezone        String?
+  defaultLanguage String   @default("en")
 
   // Public-facing listing link (distinct from the GOOGLE_BUSINESS
   // IntegrationConfig credential below, which is for automated posting).
@@ -201,9 +210,9 @@ model Office {
 
   // Optional per-office overrides — absent means "inherit from the
   // global BrandKit," never a second source of truth to keep in sync.
-  brandOverride   Json? // partial BrandColors
-  logoOverrideId  String?
-  qrCodeAssetId   String?
+  brandOverride  Json? // partial BrandColors
+  logoOverrideId String?
+  qrCodeAssetId  String?
 
   clients                Client[]
   projects               Project[]
@@ -211,6 +220,7 @@ model Office {
   socialPosts            SocialPost[]
   publishingDestinations PublishingDestination[]
   reviews                Review[]
+  adCampaigns            AdCampaign[]
 
   @@index([status])
 }
@@ -588,6 +598,7 @@ model Campaign {
   socialPosts       SocialPost[]
   generatedGraphics GeneratedGraphic[]
   landingPages      LandingPage[]
+  adCampaigns       AdCampaign[]
 
   @@index([status])
 }
@@ -624,9 +635,119 @@ model LandingPage {
   ogImage         MediaAsset?       @relation("LandingPageOgImage", fields: [ogImageId], references: [id])
   createdById     String
   createdBy       User              @relation(fields: [createdById], references: [id])
+  adCampaigns     AdCampaign[]
 
   @@index([status])
   @@index([campaignId])
+}
+
+// ── Marketing Ads Control Center: paid ad campaigns ──
+//
+// Deliberately a separate model from `Campaign` above, not a repurposing
+// of it: `Campaign` means "a group of content" (articles/social
+// posts/graphics/landing pages) and already has its own admin nav entry
+// with that meaning — this models a paid placement on an ad platform
+// (budget, external campaign id, spend) instead, and optionally *points
+// at* a content Campaign/LandingPage rather than being one.
+//
+// `market` is free text (e.g. "Egypt", "Kuwait", "Egypt + Kuwait"), not
+// an enum — per the Marketing Control Center brief, new markets must
+// never require a code change. `officeId` is an optional structured link
+// for when a campaign maps cleanly onto one existing Office; `market`
+// still carries the display label either way (a campaign can target a
+// market with no single-office mapping, e.g. multi-country retargeting).
+enum AdPlatform {
+  GOOGLE_ADS
+  META_ADS
+  LINKEDIN_ADS
+  TIKTOK_ADS
+}
+
+enum AdCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+model AdCampaign {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  platform AdPlatform
+  market   String
+  officeId String?
+  office   Office?    @relation(fields: [officeId], references: [id])
+
+  name         String
+  status       AdCampaignStatus @default(DRAFT)
+  // Free text, not an enum — ad types vary by platform (Search,
+  // Performance Max, Advantage+, Sponsored Content, Spark Ads...) far
+  // more than a shared enum could model without constantly growing.
+  campaignType String?
+
+  // The id of this campaign on the actual ad platform, once created
+  // there (via the platform's own UI, or — where write access is
+  // connected — via "Publish to platform" below). Null for a campaign
+  // that only exists as a local plan/draft so far.
+  externalCampaignId String?
+
+  landingPageId     String?
+  landingPage       LandingPage? @relation(fields: [landingPageId], references: [id])
+  contentCampaignId String?
+  contentCampaign   Campaign?    @relation(fields: [contentCampaignId], references: [id])
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  budgetAmount   Float?
+  budgetCurrency String? // e.g. "USD", "EGP", "KWD" — free text, no hardcoded market/currency pairing
+  budgetType     String? // "daily" | "lifetime", free text for the same reason as campaignType
+
+  // What this campaign is optimizing for on the platform side — e.g.
+  // "AW-18370654415/NlhrCP6-neUcEM_h57dE" (the existing Phone Click –
+  // Website conversion) or a Meta/LinkedIn pixel event name. Free text:
+  // the real conversion action always lives on the platform, this is a
+  // human-readable pointer to which one, not a foreign key to a table
+  // this app doesn't own.
+  conversionReference String?
+
+  // The UTM this campaign's ads are expected to drive traffic with —
+  // typically produced by the UTM Builder page and pasted into the ad
+  // platform's own URL/tracking-template field; recorded here so the
+  // link back from an Enquiry's utm_* columns to "which AdCampaign" is a
+  // simple match, not a manual lookup.
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+
+  notes String? @db.Text
+
+  // Latest known snapshot only (no history table in this pass — see the
+  // go-live report's "not implemented" list for the tradeoff). Populated
+  // by the platform's "Sync now" action; null until the first successful
+  // sync.
+  lastSyncedAt    DateTime?
+  lastSyncError   String?   @db.Text
+  spend           Float?
+  impressions     Int?
+  clicks          Int?
+  conversions     Float?
+  conversionValue Float?
+  metricsCurrency String?
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  @@index([platform])
+  @@index([status])
+  @@index([officeId])
+  @@index([contentCampaignId])
+  @@index([landingPageId])
 }
 
 // ── Marketing Studio: Media Library (Digital Asset Manager) ──
@@ -852,8 +973,8 @@ model BrandKit {
   companyInfo     Json? // { legalName, tagline, founded }
   defaultCta      Json? // { label, url }
   defaultHashtags String[]
-  brandVoice      String? @db.Text
-  emailSignature  String? @db.Text
+  brandVoice      String?  @db.Text
+  emailSignature  String?  @db.Text
   footerSettings  Json? // { copyrightText, showLegalLinks }
 }
 
@@ -949,6 +1070,16 @@ enum IntegrationType {
   AI_OPENAI
   AI_GEMINI
   AI_OPENROUTER
+  // ── Marketing Ads Control Center ── company-wide (officeId always
+  // null), unlike the four social types above — one Google/Meta/LinkedIn
+  // Ads account and one TikTok Business account serve every market
+  // (Egypt, Kuwait, and any future office), matching how AdCampaign.market
+  // is a free-text field rather than an office-scoped relation. See
+  // lib/portal/integrations/ad-oauth.ts.
+  GOOGLE_ADS
+  META_ADS
+  LINKEDIN_ADS
+  TIKTOK_ADS
 }
 
 enum IntegrationStatus {
@@ -1023,7 +1154,7 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  source ReviewSource @default(GOOGLE)
+  source     ReviewSource @default(GOOGLE)
   // Google's review resource name (e.g. "accounts/.../locations/.../reviews/...")
   // — null for MANUAL rows. The sync upserts on [source, externalId], so a
   // second sync updates the same row instead of creating a duplicate.
@@ -1032,7 +1163,7 @@ model Review {
   reviewerName     String
   reviewerPhotoUrl String?
   rating           Int // 1-5, as returned by Google (STAR_RATING_UNSPECIFIED never stored)
-  reviewText       String    @db.Text
+  reviewText       String   @db.Text
   reviewDate       DateTime // the review's own original date (Google's createTime), not when we synced it
   // Per-review URL when Google's API provides one; otherwise left null and
   // the UI falls back to office.googleBusinessProfileUrl at render time —
@@ -1065,10 +1196,10 @@ model Review {
 // since this is a small piece of selection state, not a secret.
 // Singleton row, same pattern as BrandKit/PortalSettings.
 model AISettings {
-  id              String            @id @default(cuid())
+  id              String           @id @default(cuid())
   defaultProvider IntegrationType?
   defaultModel    String?
-  updatedAt       DateTime          @updatedAt
+  updatedAt       DateTime         @updatedAt
 }
 
 // ── Settings Center: Client Portal ──
@@ -1098,12 +1229,12 @@ model PortalSettings {
 // destination address from an env var anymore; the app-level defaults
 // baked into getEmailSettings() only seed this row's first creation.
 model EmailSettings {
-  id                  String   @id @default(cuid())
-  primaryContactEmail String
+  id                    String  @id @default(cuid())
+  primaryContactEmail   String
   secondaryContactEmail String?
-  careersEmail        String?
-  hrEmail              String?
-  supportEmail         String?
+  careersEmail          String?
+  hrEmail               String?
+  supportEmail          String?
   salesEmail            String?
 
   // Sender identity per email type — distinct from the recipient fields
@@ -1131,7 +1262,7 @@ model EmailSettings {
   marketingFromEmail String?
   marketingReplyTo   String?
 
-  updatedAt            DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 // ── Settings Center: Legal pages ──

@@ -168,6 +168,7 @@ const typeSchema = z.object({
   type: z.enum([
     'INSTAGRAM', 'FACEBOOK', 'LINKEDIN', 'GOOGLE_BUSINESS', 'GOOGLE_ANALYTICS', 'GOOGLE_SEARCH_CONSOLE',
     'GOOGLE_MAPS', 'SMTP_EMAIL', 'AI_ANTHROPIC', 'AI_OPENAI', 'AI_GEMINI', 'AI_OPENROUTER',
+    'GOOGLE_ADS', 'META_ADS', 'LINKEDIN_ADS', 'TIKTOK_ADS',
   ]),
   officeId: z.string().trim().optional(),
 });

@@ -82,6 +82,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { NavigationHeader } from '../components/NavigationHeader';
 import { PublicChrome } from '../components/PublicChrome';
 import { GoogleAnalytics } from '../components/GoogleAnalytics';
+import { AttributionCapture } from '../features/contact/components/AttributionCapture';
 import { StructuredData, aboutData } from '@agp/ui-components';
 import { getSiteUrl } from '../lib/site-config';
 import { getActiveOfficesForDisplay, officeSocialLinks, getActiveOffices } from '../lib/portal/offices';
@@ -179,6 +180,7 @@ export default async function RootLayout({
     <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <GoogleAnalytics />
+        <AttributionCapture />
         <a href="#main-content" className="skipLink">Skip to content</a>
         <StructuredData data={organizationJsonLd} />
         <StructuredData data={websiteJsonLd} />
