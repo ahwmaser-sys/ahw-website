@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  buildTelLink,
+  TrackedPhoneLink,
   NativeReveal,
   Breadcrumbs,
   StructuredData,
@@ -342,7 +342,7 @@ export function CapabilityStatementContent({ offices, siteUrl, websiteQr, office
                 <p className={styles.officeAddress}>{office.address.full}</p>
                 <div className={styles.officeContacts}>
                   {office.contact.phones.map((phone) => (
-                    <a key={phone} href={buildTelLink(phone)} className={styles.officeLine}>{phone}</a>
+                    <TrackedPhoneLink key={phone} phone={phone} className={styles.officeLine} />
                   ))}
                   <a href={`mailto:${office.contact.primaryEmail}`} className={styles.officeLine}>{office.contact.primaryEmail}</a>
                 </div>

@@ -4,6 +4,7 @@ export type ComponentState = "active" | "disabled" | "focus" | "hover" | "loadin
 export * from './components/atoms/Button';
 export * from './components/atoms/PlaceholderImage';
 export * from './components/atoms/PageLoading';
+export * from './components/atoms/TrackedPhoneLink';
 export * from './components/molecules/Card';
 export * from './components/layout/Hero';
 export * from './components/navigation/Header';

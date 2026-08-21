@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from 'react';
 import type { ContactHubAction, ContactHubOfficeChoice } from '../../lib/getContactHubActions';
+import { handlePhoneLinkClick } from '../../lib/tel';
 import { CONTACT_HUB_ICONS, CONTACT_HUB_ACCENT_COLORS } from './contactHubIcons';
 import styles from './ContactHubMenu.module.css';
 
@@ -126,7 +127,10 @@ export function ContactHubMenu({ actions, isOpen, menuId, onItemActivated }: Con
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.subItem}
-                          onClick={() => handleSelectOffice(choice)}
+                          onClick={(e) => {
+                            handlePhoneLinkClick(e, singleTarget.href);
+                            handleSelectOffice(choice);
+                          }}
                           tabIndex={isOpen ? 0 : -1}
                         >
                           {choice.displayName}
@@ -152,7 +156,10 @@ export function ContactHubMenu({ actions, isOpen, menuId, onItemActivated }: Con
                               target={target.href.startsWith('tel:') ? undefined : '_blank'}
                               rel={target.href.startsWith('tel:') ? undefined : 'noopener noreferrer'}
                               className={styles.subItem}
-                              onClick={onItemActivated}
+                              onClick={(e) => {
+                                handlePhoneLinkClick(e, target.href);
+                                onItemActivated();
+                              }}
                               tabIndex={isOpen ? 0 : -1}
                             >
                               {target.label}

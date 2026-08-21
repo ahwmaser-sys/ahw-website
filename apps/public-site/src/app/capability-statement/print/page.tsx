@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { buildTelLink } from '@agp/ui-components';
+import { TrackedPhoneLink } from '@agp/ui-components';
 import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
 import { getCapabilityStatementQrCodes } from '../qrcodes';
@@ -301,7 +301,7 @@ export default async function CapabilityStatementPrint() {
                 </h3>
                 <p className={styles.officeAddress}>{office.address.full}</p>
                 {office.contact.phones.map((phone) => (
-                  <a key={phone} href={buildTelLink(phone)} className={styles.officeLine}>{phone}</a>
+                  <TrackedPhoneLink key={phone} phone={phone} className={styles.officeLine} />
                 ))}
                 <a href={`mailto:${office.contact.primaryEmail}`} className={styles.officeLine}>{office.contact.primaryEmail}</a>
                 {codes.length > 0 && (

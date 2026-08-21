@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { buildWhatsAppLink, buildTelLink, Breadcrumbs, buildBreadcrumbJsonLd, StructuredData, type Office } from '@agp/ui-components';
+import { buildWhatsAppLink, TrackedPhoneLink, Breadcrumbs, buildBreadcrumbJsonLd, StructuredData, type Office } from '@agp/ui-components';
 import { ContactForm } from './ContactForm';
 import styles from './ContactSection.module.css';
 
@@ -130,7 +130,7 @@ export function ContactSection({ initialOfficeId, offices: orderedOffices, siteU
                     <h2 className={styles.infoLabel}>Contact</h2>
                     {activeOffice.contact.phones.map((phone) => (
                       <p key={phone} className={styles.infoText}>
-                        <a href={buildTelLink(phone)} className={styles.phoneLink}>{phone}</a>
+                        <TrackedPhoneLink phone={phone} className={styles.phoneLink} />
                       </p>
                     ))}
                     <p className={styles.infoText}>

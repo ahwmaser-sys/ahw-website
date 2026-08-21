@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import type { Office } from '../../data/offices';
 import { getAllDocuments } from '../../data/documents';
-import { buildTelLink } from '../../lib/tel';
+import { TrackedPhoneLink } from '../atoms/TrackedPhoneLink';
 import { FooterSocialLinks } from './FooterSocialLinks';
 import styles from './Footer.module.css';
 
@@ -47,7 +47,7 @@ export function Footer({ offices, copyrightText }: FooterProps) {
                 <p className={styles.officeAddress}>{office.address.full}</p>
                 <div className={styles.officeContacts}>
                   {office.contact.phones.map((phone) => (
-                    <a key={phone} href={buildTelLink(phone)} className={styles.officeContact}>{phone}</a>
+                    <TrackedPhoneLink key={phone} phone={phone} className={styles.officeContact} />
                   ))}
                   <a href={`mailto:${office.contact.primaryEmail}`} className={styles.officeContact}>
                     {office.contact.primaryEmail}
