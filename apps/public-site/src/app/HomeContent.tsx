@@ -37,7 +37,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
     "name": "AHW Architects",
-    "description": "AHW Architects is a multidisciplinary Architecture, Interior Design & Design-Build practice serving Egypt, Kuwait, and the wider GCC.",
+    "description": "AHW Architects Masr is a design & build company — architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, from concept to final handover, across Egypt, Kuwait, and the wider GCC.",
     "url": siteUrl,
     // Same reasoning as layout.tsx's Organization schema: Google's Rich
     // Results Test flags a missing `image` as a non-critical issue.
@@ -65,9 +65,10 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
     // Commercial sector (see AUDIT.md D3); "Workplace Design" is the real,
     // supported equivalent (2 delivered office projects).
     "knowsAbout": [
-      "Architecture", "Interior Design", "Master Planning", "Landscape Architecture",
+      "Design & Build", "Architecture", "Architectural Design", "Interior Design", "Interior Architecture",
+      "Master Planning", "Landscape Architecture", "Interior Fit-Out", "Office Fit-Out", "Commercial Fit-Out",
       "Retail Fit-Out", "Workplace Design", "Residential", "Hospitality",
-      "Project Management", "Construction Supervision", "Design & Build"
+      "Project Management", "Construction Supervision", "Turnkey Delivery"
     ]
   };
 
@@ -83,8 +84,8 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
               Deliver.
             </>
           }
-          supportingHeading="Architecture Without Compromise."
-          subtitle="AHW Architects is a multidisciplinary architecture, interior design, engineering, and construction company delivering integrated design-build solutions from concept to completion. We create timeless, high-performance residential, commercial, hospitality, workplace, and mixed-use environments through innovation, technical excellence, and uncompromising quality."
+          supportingHeading="Design & Build, Without Compromise."
+          subtitle="AHW Architects Masr is a design & build company — architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, not four separate handoffs. We create timeless, high-performance residential, commercial, hospitality, workplace, and mixed-use environments through innovation, technical excellence, and uncompromising quality, from concept through final handover."
           primaryAction={{ label: 'Explore Projects', href: '/projects' }}
           secondaryAction={{ label: 'Our Expertise', href: '/expertise' }}
           posterSrc="/images/placeholders/ahw_hero_background.jpg"

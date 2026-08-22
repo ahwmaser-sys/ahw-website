@@ -49,7 +49,17 @@ export default async function FitOutPage() {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Fit-Out & Handover Services',
-      itemListElement: ['Interior Fit-Out', 'Authority Approvals', 'Final Handover', 'Retail Design', 'Commercial Design', 'Hospitality Design'].map((name) => ({
+      itemListElement: [
+        'Interior Fit-Out',
+        'Office Fit-Out',
+        'Commercial Fit-Out',
+        'Retail Fit-Out',
+        'Authority Approvals',
+        'Final Handover',
+        'Retail Design',
+        'Commercial Design',
+        'Hospitality Design',
+      ].map((name) => ({
         '@type': 'Offer',
         itemOffered: { '@type': 'Service', name },
       })),
@@ -67,15 +77,15 @@ export default async function FitOutPage() {
         title="Fit-Out"
         heroImage="/images/expertise/ahw_act4_built_dubai.jpg"
         heroStatement="The final layer of refinement. Where raw space becomes a premium, fully operational environment."
-        intro="Whether it is a five-star hospitality design venue, a flagship retail design space, or a commercial design fit-out, our teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space."
+        intro="Whether it is a five-star hospitality design venue, a flagship retail fit-out, or an office fit-out for a commercial headquarters, our teams execute with absolute precision. As a fit-out contractor, we handle authority approvals and complex installations, ensuring you step into a flawless space."
         services={[
-          { number: '13', name: 'Interior Fit-Out', proposition: 'Premium, turnkey interior completions built to the highest standards.' },
+          { number: '13', name: 'Interior Fit-Out', proposition: 'Premium, turnkey interior completions built to the highest standards — office fit-out, commercial fit-out, and retail fit-out alike.' },
           { number: '14', name: 'Authority Approvals', proposition: 'Navigating regulatory frameworks to ensure compliant, seamless handover.' },
           { number: '15', name: 'Final Handover', proposition: 'The moment a vision becomes a functioning reality.' },
         ]}
         feature={{
           title: 'Uncompromising Delivery',
-          description: 'Whether it is a five-star hospitality venue or a flagship retail space, our fit-out teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space.',
+          description: 'Whether it is a five-star hospitality venue or a flagship retail space, our fit-out teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space. For clients who want a single point of accountability from concept to handover, fit-out is delivered as part of our wider design & build model — see how architecture, interior design, and engineering come together into one turnkey delivery.',
           image: '/images/expertise/ahw_split_landscape.jpg',
           imagePosition: 'left',
         }}

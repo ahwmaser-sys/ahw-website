@@ -9,8 +9,8 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Design-Build Contractor in Egypt & Kuwait | Project Management',
-  description: 'One point of accountability from concept to completion — design-build delivery, project management, procurement, and site supervision across Egypt and the Gulf.',
+  title: 'Design & Build Company in Egypt & Kuwait | Architecture to Fit-Out, Turnkey',
+  description: 'AHW Architects Masr is a design & build company: architecture, interior design, engineering, fit-out, and construction under one point of accountability — project management, procurement, and site supervision, turnkey from concept to final handover.',
   alternates: {
     canonical: '/expertise/design-build',
   },
@@ -49,7 +49,7 @@ export default async function DesignBuildPage() {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Design & Build Services',
-      itemListElement: ['Design & Build', 'Project Management', 'Procurement', 'Site Supervision', 'Construction Management', 'Turnkey Projects'].map((name) => ({
+      itemListElement: ['Design & Build', 'Turnkey Delivery', 'Interior Design & Fit-Out', 'Project Management', 'Procurement', 'Site Supervision', 'Construction Management', 'Turnkey Projects'].map((name) => ({
         '@type': 'Offer',
         itemOffered: { '@type': 'Service', name },
       })),
@@ -66,10 +66,10 @@ export default async function DesignBuildPage() {
         eyebrow="Design & Build"
         title="Design & Build"
         heroImage="/images/expertise/ahw_act3_built.jpg"
-        heroStatement="We do not just hand over drawings. We take full accountability for the physical realization of the project."
-        intro="A singular point of responsibility from concept to completion. Our construction management and turnkey project delivery model means we manage the grit of the construction site to protect the purity of the design, overseeing timeline, budget, and complex logistics."
+        heroStatement="We are not an architecture firm that hands over drawings and walks away. AHW Architects Masr is a design & build company — we take full accountability for the physical realization of the project."
+        intro="A singular point of responsibility from concept to completion. Architecture, interior design, engineering, and interior fit-out come together under one roof, so the same team that designs a space is the same team accountable for building it — construction management and turnkey project delivery, overseeing timeline, budget, and complex logistics."
         services={[
-          { number: '08', name: 'Design & Build', proposition: 'A singular point of responsibility from concept to completion, delivered as turnkey projects.' },
+          { number: '08', name: 'Design & Build', proposition: 'A singular point of responsibility from concept to completion — architecture, interior design, engineering, and fit-out delivered as one turnkey project, not four separate handoffs.' },
           { number: '09', name: 'Project Management', proposition: 'Rigorous oversight of timeline, budget, and complex logistics.' },
           { number: '10', name: 'Procurement', proposition: 'Global sourcing of premium materials and bespoke FF&E.' },
           { number: '11', name: 'Site Supervision', proposition: 'Hands-on construction management to ensure the built form perfectly matches the design intent.' },

@@ -31,9 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: {
       template: '%s | AHW Architects',
-      default: 'AHW Architects | Premium Architectural Design',
+      default: 'AHW Architects Masr | Design & Build Company in Egypt',
     },
-    description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice. Modern, precise, internationally credible, regionally rooted.',
+    description: 'AHW Architects Masr is a design & build company serving Egypt, Kuwait, and the wider GCC — architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, from concept to final handover.',
     robots: {
       index: true,
       follow: true,
@@ -46,8 +46,8 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: 'AHW Architects',
-      description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
+      title: 'AHW Architects Masr | Design & Build Company in Egypt',
+      description: 'Architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, from concept to final handover.',
       url: siteUrl,
       siteName: 'AHW Architects',
       locale: 'en_US',
@@ -57,14 +57,14 @@ export async function generateMetadata(): Promise<Metadata> {
           url: '/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: 'AHW Architects | Premium Architectural Design',
+          alt: 'AHW Architects Masr | Design & Build Company in Egypt',
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'AHW Architects',
-      description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
+      title: 'AHW Architects Masr | Design & Build Company in Egypt',
+      description: 'Architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, from concept to final handover.',
       images: ['/og-image.jpg'],
     },
     icons: {
@@ -139,7 +139,7 @@ export default async function RootLayout({
     // separate "representative image" concept.
     image: `${siteUrl}/og-image.jpg`,
     foundingDate: '2012',
-    description: 'Premium MENA/GCC architecture, structural engineering, interior design, and design-build construction practice.',
+    description: 'AHW Architects Masr is a design & build company — architecture, interior design, structural engineering, and interior fit-out delivered as one turnkey project across Egypt, Kuwait, and the wider GCC.',
     sameAs,
     location: offices.map((office) => ({
       '@type': 'Place',

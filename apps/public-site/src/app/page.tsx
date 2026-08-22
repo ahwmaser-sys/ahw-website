@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   // empirically that the template does NOT reach this one page (it doubles
   // correctly on every nested route, e.g. /about/about-us, but renders with
   // no suffix at all here), so the brand suffix must stay explicit.
-  title: 'Architecture, Engineering & Construction Firm in Egypt & Kuwait | AHW Architects',
-  description: 'AHW Architects is a multidisciplinary architecture, structural engineering, interior design, and design-build construction practice serving Egypt, Kuwait, and the wider GCC — master planning, MEP coordination, project management, and fit-out, from concept to final handover.',
+  title: 'Design & Build Company in Egypt & Kuwait | AHW Architects Masr',
+  description: 'AHW Architects Masr is a design & build company delivering architecture, interior design, engineering, and interior fit-out as one turnkey project — from concept to final handover — across Egypt, Kuwait, and the wider GCC.',
   alternates: {
     canonical: '/',
   },

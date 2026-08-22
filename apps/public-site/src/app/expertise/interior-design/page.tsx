@@ -49,7 +49,7 @@ export default async function InteriorDesignPage() {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Interior & Engineering Services',
-      itemListElement: ['Structural Engineering', 'Engineering Design', 'Interior Design', 'Landscape Architecture', 'Landscape Design', 'BIM Coordination', 'MEP Coordination', 'Space Planning', 'Luxury Interiors', 'Bespoke Joinery', 'Hospitality Design', 'Workplace Design', 'Office Design'].map((name) => ({
+      itemListElement: ['Structural Engineering', 'Engineering Design', 'Interior Design', 'Interior Architecture', 'Commercial Interior Design', 'Residential Interior Design', 'Landscape Architecture', 'Landscape Design', 'BIM Coordination', 'MEP Coordination', 'Space Planning', 'Luxury Interiors', 'Bespoke Joinery', 'Hospitality Design', 'Workplace Design', 'Office Design'].map((name) => ({
         '@type': 'Offer',
         itemOffered: { '@type': 'Service', name },
       })),
@@ -67,10 +67,10 @@ export default async function InteriorDesignPage() {
         title="Interior Design"
         heroImage="/images/expertise/ahw_act2_built.jpg"
         heroStatement="From the structural skeleton to the tactile surface. Every detail is engineered for human experience and structural integrity."
-        intro="Beautiful spaces demand rigorous engineering design. By integrating our interior design and structural teams from day one, we eliminate friction between aesthetic intent and technical reality — across hospitality design, workplace design, office design, and luxury residential interiors."
+        intro="Beautiful spaces demand rigorous engineering design. By integrating our interior design, interior architecture, and structural teams from day one, we eliminate friction between aesthetic intent and technical reality — across commercial interior design, residential interior design, hospitality design, workplace design, and office design."
         services={[
           { number: '04', name: 'Structural Engineering', proposition: 'The invisible strength that makes extraordinary architecture possible.' },
-          { number: '05', name: 'Interior Design', proposition: 'Curating deeply personal, luxury interiors through space planning and bespoke joinery.' },
+          { number: '05', name: 'Interior Design & Interior Architecture', proposition: 'Curating deeply personal, luxury interiors through space planning and bespoke joinery — as interior designers and interior architects working from the same set of drawings.' },
           { number: '06', name: 'Landscape Architecture', proposition: 'Sculpting the natural environment through landscape design that complements the built form.' },
           { number: '07', name: 'BIM Coordination', proposition: 'Clash-free digital modeling and MEP coordination to guarantee flawless on-site execution.' },
         ]}
