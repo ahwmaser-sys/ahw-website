@@ -177,15 +177,17 @@ export const getActiveBrandKit = cache(async () => {
       typography: toJsonValue(DEFAULT_TYPOGRAPHY),
       ctaStyles: toJsonValue(DEFAULT_CTA_STYLES),
       logos: { light: null, dark: null, icon: null },
-      // www is the canonical origin in production — the apex domain
-      // 308-redirects here. This default only fires once, on the very
-      // first BrandKit row creation (a real row already exists in
-      // production); kept in sync so a from-scratch reseed doesn't
-      // resurrect the apex-vs-www canonical mismatch.
-      websiteUrl: 'https://www.ahwspaces.com',
+      // The apex domain (no www) is the canonical origin in production —
+      // www 308-redirects here. This default only fires once, on the very
+      // first BrandKit row creation for a database that has none yet (a
+      // real row already exists in production); kept in sync so a
+      // from-scratch reseed, preview environment, or disaster-recovery
+      // reseed can't resurrect the www-vs-apex canonical mismatch that a
+      // prior version of this default caused.
+      websiteUrl: 'https://ahwspaces.com',
       isActive: true,
       companyInfo: toJsonValue(DEFAULT_COMPANY_INFO),
-      defaultCta: toJsonValue({ label: 'Start Your Project', url: 'https://www.ahwspaces.com/contact' }),
+      defaultCta: toJsonValue({ label: 'Start Your Project', url: 'https://ahwspaces.com/contact' }),
       defaultHashtags: ['AHWArchitects', 'Architecture', 'InteriorDesign'],
       footerSettings: toJsonValue(DEFAULT_FOOTER_SETTINGS),
     },
