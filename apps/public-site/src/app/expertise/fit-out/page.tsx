@@ -8,22 +8,28 @@ const breadcrumbs = [
   { label: 'Fit-Out' },
 ];
 
+// The body copy already calls AHW "a fit-out contractor" and names
+// office/commercial/retail fit-out explicitly (see intro and services
+// below) — the title/description previously said "retail design,
+// hospitality design, and commercial design" instead, understating what
+// the page itself already claims and matching the interior-design page's
+// language rather than this page's own.
 export const metadata: Metadata = {
-  title: 'Interior Fit-Out Company in Egypt & Kuwait | Turnkey Delivery',
-  description: 'Premium turnkey interior fit-out spanning retail design, hospitality design, and commercial design — authority approvals, installations, and handover across Egypt and the Gulf.',
+  title: 'Fit-Out Contractor in Egypt & Kuwait | Office, Commercial & Retail Fit-Out',
+  description: 'AHW Architects is an interior fit-out contractor delivering office fit-out, commercial fit-out, and retail fit-out — turnkey, with authority approvals and handover, across Egypt and the Gulf.',
   alternates: {
     canonical: '/expertise/fit-out',
   },
   openGraph: {
-    title: 'Interior Fit-Out Company in Egypt & Kuwait | Turnkey Delivery',
-    description: 'Premium turnkey interior fit-out spanning retail design, hospitality design, and commercial design — authority approvals, installations, and handover across Egypt and the Gulf.',
+    title: 'Fit-Out Contractor in Egypt & Kuwait | Office, Commercial & Retail Fit-Out',
+    description: 'AHW Architects is an interior fit-out contractor delivering office fit-out, commercial fit-out, and retail fit-out — turnkey, with authority approvals and handover, across Egypt and the Gulf.',
     url: '/expertise/fit-out',
     images: [{ url: '/images/expertise/ahw_act4_built_dubai.jpg', width: 1200, height: 630, alt: 'AHW Architects — Fit-Out discipline' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Interior Fit-Out Company in Egypt & Kuwait | Turnkey Delivery',
-    description: 'Premium turnkey interior fit-out spanning retail design, hospitality design, and commercial design — authority approvals, installations, and handover across Egypt and the Gulf.',
+    title: 'Fit-Out Contractor in Egypt & Kuwait | Office, Commercial & Retail Fit-Out',
+    description: 'AHW Architects is an interior fit-out contractor delivering office fit-out, commercial fit-out, and retail fit-out — turnkey, with authority approvals and handover, across Egypt and the Gulf.',
     images: ['/images/expertise/ahw_act4_built_dubai.jpg'],
   },
 };

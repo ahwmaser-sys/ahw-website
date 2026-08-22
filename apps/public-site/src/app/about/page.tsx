@@ -117,7 +117,10 @@ export default async function AboutPage() {
       <section className={styles.downloadSection}>
         <div className={styles.container}>
           <h2 className={styles.downloadHeading}>Company Profile</h2>
-          <p className={styles.downloadText}>Download our complete company profile to learn more about our services, expertise, and featured projects.</p>
+          {/* /capability-statement had no inbound internal links anywhere
+              on the site — this is its natural home, right next to the
+              PDF version of the same content. */}
+          <p className={styles.downloadText}>Download our complete company profile, or <Link href="/capability-statement">view our capability statement online</Link>, to learn more about our services, expertise, and featured projects.</p>
           {companyProfile && (
             <DownloadCard document={companyProfile} layout="horizontal" className={styles.downloadCard} />
           )}

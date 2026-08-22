@@ -53,18 +53,15 @@ export async function generateMetadata(props: ContactPageProps): Promise<Metadat
 export default async function ContactPage(props: ContactPageProps) {
   const [officeParam, offices, siteUrl] = await Promise.all([resolveOfficeParam(props), getActiveOfficesForDisplay(), getSiteUrl()]);
 
-  // Generate JSON-LD Structured Data for Local Businesses — one entry
-  // per real office, however many exist.
+  // Extends the SAME Organization node the root layout already declares
+  // (same @id) rather than redeclaring name/url/logo/image and creating a
+  // second, unlinked Organization entity on this page — verified live
+  // that both scripts render on /contact, and without a shared @id they
+  // read as two different organizations describing the same business.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'AHW Architects',
-    url: siteUrl,
-    logo: `${siteUrl}/images/logo-white.webp`,
-    // Same reasoning as layout.tsx's Organization schema — Google's Rich
-    // Results Test flags a missing `image` on Organization/LocalBusiness
-    // as a non-critical issue; reusing the existing social-share photo.
-    image: `${siteUrl}/og-image.jpg`,
+    '@id': `${siteUrl}/#organization`,
     department: offices.map((office) => ({
       '@type': 'LocalBusiness',
       name: office.displayName,
