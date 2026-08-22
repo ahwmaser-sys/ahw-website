@@ -16,20 +16,20 @@ const breadcrumbs = [
 // residential interior design — see hasOfferCatalog and `services`
 // below), which also gives each expertise page a distinct search intent.
 export const metadata: Metadata = {
-  title: 'Interior Design & Interior Architecture in Egypt & Kuwait | AHW Architects',
+  title: 'Interior Design & Interior Architecture in Egypt & Kuwait',
   description: 'Bespoke interior design, interior architecture, and residential interior design — from space planning to luxury interiors, backed by our in-house structural and MEP coordination — delivered across Egypt, Kuwait, and the Gulf.',
   alternates: {
     canonical: '/expertise/interior-design',
   },
   openGraph: {
-    title: 'Interior Design & Interior Architecture in Egypt & Kuwait | AHW Architects',
+    title: 'Interior Design & Interior Architecture in Egypt & Kuwait',
     description: 'Bespoke interior design, interior architecture, and residential interior design — from space planning to luxury interiors, backed by our in-house structural and MEP coordination — delivered across Egypt, Kuwait, and the Gulf.',
     url: '/expertise/interior-design',
     images: [{ url: '/images/expertise/ahw_act2_built.jpg', width: 1200, height: 630, alt: 'AHW Architects — Interior Design discipline' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Interior Design & Interior Architecture in Egypt & Kuwait | AHW Architects',
+    title: 'Interior Design & Interior Architecture in Egypt & Kuwait',
     description: 'Bespoke interior design, interior architecture, and residential interior design — from space planning to luxury interiors, backed by our in-house structural and MEP coordination — delivered across Egypt, Kuwait, and the Gulf.',
     images: ['/images/expertise/ahw_act2_built.jpg'],
   },
