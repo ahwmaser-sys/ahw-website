@@ -43,6 +43,9 @@ export default async function InteriorDesignPage() {
     serviceType: 'Interior Design & Interior Architecture',
     provider: {
       '@type': 'ProfessionalService',
+      // Same @id as layout.tsx's Organization node, so this isn't read as
+      // a separate, unlinked entity.
+      '@id': `${siteUrl}/#organization`,
       name: 'AHW Architects',
       url: siteUrl,
       image: `${siteUrl}/og-image.jpg`,

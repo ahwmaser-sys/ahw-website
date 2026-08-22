@@ -337,8 +337,15 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
       address: { '@type': 'PostalAddress', addressLocality: project.city, addressCountry: project.market },
     },
     about: project.sector,
+    // The project's real discipline/scope (already shown on-page as
+    // "Scope: ..."), not previously represented in structured data at
+    // all — genuinely supported by project.services, not invented.
+    ...(project.services && project.services.length > 0 && { keywords: project.services }),
     creator: {
       '@type': 'ProfessionalService',
+      // Same @id as layout.tsx's Organization node, so this isn't read as
+      // a separate, unlinked entity.
+      '@id': `${siteUrl}/#organization`,
       name: 'AHW Architects',
       url: siteUrl,
       image: `${siteUrl}/og-image.jpg`,

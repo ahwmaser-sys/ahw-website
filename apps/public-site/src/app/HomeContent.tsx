@@ -36,6 +36,12 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
+    // Same @id as layout.tsx's Organization node — without this, this
+    // page declared a second, unlinked entity describing the identical
+    // real-world business (verified: no @id here meant search engines/
+    // LLMs had no explicit signal these two blocks are the same AHW
+    // Architects, not two different ones).
+    "@id": `${siteUrl}/#organization`,
     "name": "AHW Architects",
     "description": "AHW Architects Masr is a design & build company — architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, from concept to final handover, across Egypt, Kuwait, and the wider GCC.",
     "url": siteUrl,
@@ -64,11 +70,18 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
     // "Commercial Interiors" removed — no delivered project carries a
     // Commercial sector (see AUDIT.md D3); "Workplace Design" is the real,
     // supported equivalent (2 delivered office projects).
+    // Engineering, Procurement, Construction Management, and Final
+    // Handover are already real, claimed capabilities elsewhere on the
+    // site (expertise/engineering-project-management and
+    // expertise/design-build's own hasOfferCatalog entries) but were
+    // missing from this page's entity summary — added for consistency,
+    // not new claims.
     "knowsAbout": [
       "Design & Build", "Architecture", "Architectural Design", "Interior Design", "Interior Architecture",
-      "Master Planning", "Landscape Architecture", "Interior Fit-Out", "Office Fit-Out", "Commercial Fit-Out",
+      "Master Planning", "Landscape Architecture", "Engineering", "Interior Fit-Out", "Office Fit-Out", "Commercial Fit-Out",
       "Retail Fit-Out", "Workplace Design", "Residential", "Hospitality",
-      "Project Management", "Construction Supervision", "Turnkey Delivery"
+      "Project Management", "Procurement", "Construction Supervision", "Construction Management",
+      "Turnkey Delivery", "Final Handover"
     ]
   };
 

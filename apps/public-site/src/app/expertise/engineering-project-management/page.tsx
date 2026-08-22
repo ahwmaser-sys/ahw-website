@@ -36,6 +36,9 @@ export default async function EngineeringProjectManagementPage() {
     serviceType: 'Structural Engineering, MEP Coordination & Project Management',
     provider: {
       '@type': 'ProfessionalService',
+      // Same @id as layout.tsx's Organization node, so this isn't read as
+      // a separate, unlinked entity.
+      '@id': `${siteUrl}/#organization`,
       name: 'AHW Architects',
       url: siteUrl,
       image: `${siteUrl}/og-image.jpg`,

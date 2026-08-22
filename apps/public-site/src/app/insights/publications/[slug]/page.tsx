@@ -59,6 +59,11 @@ export default async function PublicationDetailPage({ params }: Props) {
     },
     publisher: {
       '@type': 'Organization',
+      // Same @id as layout.tsx's Organization node, so this isn't read as
+      // a separate, unlinked entity. Keeping name/logo inline too (rather
+      // than a bare reference) since Google's Article rich-result check
+      // looks for publisher.logo directly on this object.
+      '@id': `${siteUrl}/#organization`,
       name: 'AHW Architects',
       logo: {
         '@type': 'ImageObject',
