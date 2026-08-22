@@ -8,9 +8,17 @@ const breadcrumbs = [
   { label: 'Design & Build' },
 ];
 
+// The homepage's title/description already targets "Design & Build
+// Company in Egypt & Kuwait" (the company/entity-discovery intent) —
+// this page's title/description previously opened with the same exact
+// phrase, splitting ranking signal for that query between two pages on
+// the same site. Retargeted to the process/delivery-model intent this
+// page actually serves ("how does AHW's Design & Build model work"),
+// keeping Egypt/Kuwait and Turnkey but dropping the duplicate "Company"
+// framing, which stays the homepage's job.
 export const metadata: Metadata = {
-  title: 'Design & Build Company in Egypt & Kuwait | Architecture to Fit-Out, Turnkey',
-  description: 'AHW Architects Masr is a design & build company: architecture, interior design, engineering, fit-out, and construction under one point of accountability — project management, procurement, and site supervision, turnkey from concept to final handover.',
+  title: 'Design & Build Services in Egypt & Kuwait | Turnkey Delivery Model',
+  description: 'How AHW\'s Design & Build model works: architecture, interior design, engineering, fit-out, and construction under one point of accountability — project management, procurement, and site supervision, turnkey from concept to final handover, in Egypt and Kuwait.',
   alternates: {
     canonical: '/expertise/design-build',
   },

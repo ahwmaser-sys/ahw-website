@@ -62,16 +62,29 @@ export default async function ContactPage(props: ContactPageProps) {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': `${siteUrl}/#organization`,
+    // Each real office becomes its own stable, addressable local entity
+    // (own @id, own /contact/{office} url, own country-scoped areaServed)
+    // — nested under Organization via `department` and pointing back via
+    // `parentOrganization`, so Egypt and Kuwait are legible as distinct
+    // local businesses that both belong to the same AHW Architects
+    // organization, not one merged listing and not two disconnected ones.
+    // No `geo` (GeoCoordinates): the office data model only stores a
+    // Google Maps link (`hasMap`), not raw lat/long — adding one would
+    // mean fabricating coordinates.
     department: offices.map((office) => ({
       '@type': 'LocalBusiness',
+      '@id': `${siteUrl}/#office-${office.id}`,
       name: office.displayName,
+      url: `${siteUrl}/contact/${office.id}`,
       image: `${siteUrl}/og-image.jpg`,
+      parentOrganization: { '@id': `${siteUrl}/#organization` },
       address: {
         '@type': 'PostalAddress',
         streetAddress: office.address.street,
         addressLocality: office.address.city,
         addressCountry: office.country,
       },
+      areaServed: { '@type': 'Country', name: office.country },
       telephone: office.contact.phones[0],
       email: office.contact.primaryEmail,
       openingHours: office.workingHours,
