@@ -63,6 +63,7 @@ export function toLegacyOfficeShape(office: PrismaOffice): LegacyOfficeShape {
       street: office.addressStreet ?? '',
       building: office.addressBuilding ?? '',
       city: office.city,
+      ...(office.postalCode ? { postalCode: office.postalCode } : {}),
       mapLink: office.mapLink ?? '',
       embedUrl: office.mapEmbedUrl ?? '',
     },

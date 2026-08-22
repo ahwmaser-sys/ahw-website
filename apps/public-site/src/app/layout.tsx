@@ -148,6 +148,7 @@ export default async function RootLayout({
         '@type': 'PostalAddress',
         streetAddress: office.address.street,
         addressLocality: office.address.city,
+        ...(office.address.postalCode ? { postalCode: office.address.postalCode } : {}),
         addressCountry: office.country,
       },
     })),

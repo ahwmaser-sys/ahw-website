@@ -48,6 +48,11 @@ export function UpdateOfficeForm({ office }: { office: Office }) {
         <textarea className={styles.textarea} id="addressFull" name="addressFull" defaultValue={office.addressFull} required />
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="postalCode">Postal code</label>
+        <input className={styles.input} id="postalCode" name="postalCode" defaultValue={office.postalCode ?? ''} placeholder="Verified against the office's Google Business Profile" />
+      </div>
+
       <div className={styles.formRow}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="mapLink">Google Maps link</label>

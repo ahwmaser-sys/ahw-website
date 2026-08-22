@@ -18,6 +18,9 @@ export interface Office {
     street: string;
     building: string;
     city: string;
+    // Optional — only populated where verified against the office's real
+    // Google Business Profile listing, not every office has one on file.
+    postalCode?: string;
     mapLink: string;
     embedUrl: string;
   };

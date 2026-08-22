@@ -186,6 +186,7 @@ model Office {
   addressFull     String
   addressStreet   String?
   addressBuilding String?
+  postalCode      String? // verified against the office's real Google Business Profile listing, not invented
   mapLink         String? // short share link (e.g. maps.app.goo.gl/...)
   mapEmbedUrl     String? // full google.com/maps/embed?pb=... iframe src
 

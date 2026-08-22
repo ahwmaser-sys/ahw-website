@@ -82,6 +82,7 @@ export default async function ContactPage(props: ContactPageProps) {
         '@type': 'PostalAddress',
         streetAddress: office.address.street,
         addressLocality: office.address.city,
+        ...(office.address.postalCode ? { postalCode: office.address.postalCode } : {}),
         addressCountry: office.country,
       },
       areaServed: { '@type': 'Country', name: office.country },
