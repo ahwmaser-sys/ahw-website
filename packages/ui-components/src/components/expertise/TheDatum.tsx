@@ -104,11 +104,15 @@ export const TheDatum: React.FC = () => {
           </div>
         </div>
 
-        {/* HOLD II */}
+        {/* HOLD II — this Act's content (Interior Design, Structural
+            Engineering, Landscape Architecture, BIM) is the Interior
+            Design page's actual subject matter; previously linked to
+            Engineering & Project Management instead, which nothing in
+            this Act's copy is really about. */}
         <Hold
           imageSrc="/images/expertise/ahw_act2_built.jpg"
-          text="Explore Engineering & Project Management →"
-          href="/expertise/engineering-project-management"
+          text="Explore Interior Design & Engineering →"
+          href="/expertise/interior-design"
         />
       </div>
 
@@ -131,11 +135,19 @@ export const TheDatum: React.FC = () => {
         />
 
         {/* 10. PRINCIPAL 03 - CONSTRUCTION HERO */}
-        <Principal 
+        <Principal
           number="12"
           name="Construction Craftsmanship"
           statement="True luxury is found in the millimeters. We manage the grit of the construction site to protect the purity of the design."
           imageSrc="/images/expertise/ahw_act3_built.jpg"
+        />
+
+        {/* HOLD III — this Act had no CTA at all; nothing in the whole
+            /expertise scroll linked to /expertise/design-build. */}
+        <Hold
+          imageSrc="/images/expertise/ahw_act3_built.jpg"
+          text="Explore Design & Build Delivery →"
+          href="/expertise/design-build"
         />
       </div>
 
@@ -169,11 +181,14 @@ export const TheDatum: React.FC = () => {
           ]}
         />
 
-        {/* 12. HOLD - FINAL CONVICTION */}
+        {/* 12. HOLD - FINAL CONVICTION — this Act's whole subject is
+            Fit-Out (its RegisterStack above lists Interior Fit-Out,
+            Authority Approvals, Final Handover), but the CTA skipped past
+            /expertise/fit-out straight to the general projects index. */}
         <Hold
           imageSrc="/images/expertise/ahw_act4_built.jpg"
-          text="From First Sketch to Final Handover. View Our Projects →"
-          href="/projects"
+          text="Explore Fit-Out & Handover →"
+          href="/expertise/fit-out"
         />
       </div>
     </div>

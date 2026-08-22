@@ -363,13 +363,20 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
         {/* Hero */}
         <section className={styles.hero}>
           {project.heroImage && (
-            <NativeReveal behavior="aperture" className={styles.heroImageWrapper}>
+            // No NativeReveal here: this is the page's LCP image. NativeReveal's
+            // "aperture" behavior starts at clip-path: inset(50% 0 50% 0) — a
+            // near-invisible sliver — until an IntersectionObserver fires after
+            // hydration, which pushes Chrome's LCP paint timestamp back by
+            // however long that takes. Same reasoning Hero.tsx documents for
+            // never doing this to the homepage hero; below-fold NativeReveal
+            // usage elsewhere on this page is unaffected and stays as-is.
+            <div className={styles.heroImageWrapper}>
               <HeroSlider
                 images={[project.heroImage].filter(Boolean) as string[]}
                 alt={`${project.title}, ${project.sector}, ${project.city} — designed and built by AHW Architects`}
                 lightbox
               />
-            </NativeReveal>
+            </div>
           )}
           <div className={styles.heroContent}>
             <Breadcrumbs items={breadcrumbs} variant="onDark" />
@@ -424,7 +431,10 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
       {/* ── 1. HERO ── */}
       <section className={styles.hero}>
         {project.heroImage && (
-          <NativeReveal behavior="aperture" className={styles.heroImageWrapper}>
+          // No NativeReveal here — see the matching comment in the
+          // no-case-study branch above; slide 0 of this slider is the
+          // page's LCP image.
+          <div className={styles.heroImageWrapper}>
             <HeroSlider
               images={Array.from(new Set([
                 project.heroImage,
@@ -436,7 +446,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
               lightbox
               orientation={project.imageOrientation}
             />
-          </NativeReveal>
+          </div>
         )}
         <div className={styles.heroContent}>
           <Breadcrumbs items={breadcrumbs} variant="onDark" />

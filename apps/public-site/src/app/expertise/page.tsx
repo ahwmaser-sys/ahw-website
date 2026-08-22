@@ -8,8 +8,8 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
-  description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
+  title: 'Architecture, Interior Design, Fit-Out & Design & Build Services',
+  description: "AHW Architects Masr's five disciplines: architecture, interior design, fit-out, design & build, and engineering & project management — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.",
   alternates: {
     canonical: '/expertise',
   },

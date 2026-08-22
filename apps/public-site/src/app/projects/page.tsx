@@ -193,6 +193,12 @@ export default async function ProjectsPage({
         <Link href="/documents/ahw-company-profile.pdf" target="_blank" className={styles.secondaryAction}>
           Download company profile (PDF)
         </Link>
+        {/* Closes the one gap in the Homepage → Expertise → Projects
+            internal-link chain: this page previously had no link back to
+            /expertise at all. */}
+        <Link href="/expertise" className={styles.secondaryAction}>
+          Explore our expertise: architecture, interior design & fit-out →
+        </Link>
       </section>
     </main>
   );
