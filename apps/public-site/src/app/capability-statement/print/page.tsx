@@ -31,11 +31,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Same reasoning as capability-statement/page.tsx's revalidate: without
-// it, this route (which pulls the same office data) statically bakes
-// phone numbers/addresses in at build time, so a regenerated PDF could
-// embed stale office data until the next deployment.
-export const revalidate = 30;
+// Same reasoning and same confirmed ISR-regeneration failure as
+// capability-statement/page.tsx — see that file's comment. Forced fully
+// dynamic instead of revalidate=30 so a regenerated PDF always embeds
+// current office data, since Puppeteer only hits this route on demand
+// (when actually regenerating the PDF), not at high volume.
+export const dynamic = 'force-dynamic';
 
 // The web page uses next/image, which serves auto-resized/compressed
 // variants — but this print route renders plain <img> tags at the
