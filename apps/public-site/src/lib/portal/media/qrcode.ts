@@ -1,5 +1,4 @@
 import QRCode from 'qrcode';
-import sharp from 'sharp';
 import { readFileByKey } from '../storage';
 import type { BrandQrStyle } from '../brand-kit';
 
@@ -26,6 +25,17 @@ export async function generateQrCodeBuffer(
     return qrBuffer;
   }
 
+  // Lazy import: this is the only sharp import in the whole codebase
+  // that public-facing pages (capability-statement) end up bundling —
+  // every other sharp usage is confined to admin upload Server Actions.
+  // A generic 500 on capability-statement traced back to sharp's native
+  // binary failing to load in this route's bundle, even though this
+  // branch never actually runs today (the real Brand Kit config has
+  // logoOverlay: false) — the top-level `import sharp from 'sharp'`
+  // still pulled it into the module graph regardless. Deferring the
+  // import to here means routes that never hit this branch never load
+  // sharp at all.
+  const sharp = (await import('sharp')).default;
   const logoBuffer = await readFileByKey(logoStorageKey);
   const logoSize = 160;
   const resizedLogo = await sharp(logoBuffer)
