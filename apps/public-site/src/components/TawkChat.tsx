@@ -12,6 +12,15 @@ import Script from 'next/script';
  *   launcher bubble. The widget itself keeps running — ChatFloatingButton
  *   (packages/ui-components) opens it via the equally-official
  *   `Tawk_API.maximize()`, so chat still works exactly as before.
+ * - `onChatEnded` calls the official `minimize()` API when Tawk's own chat
+ *   lifecycle reports the session has terminated (documented at
+ *   developer.tawk.to/jsapi/ — the only event named for chat-ended,
+ *   fired regardless of whether a human agent, Apollo AI Assist, or an
+ *   inactivity timeout closed it). Only ever minimizes — never hides,
+ *   disables, or blocks starting a new chat — so the widget stays exactly
+ *   as available as before, just not left maximized after a finished
+ *   conversation. Deliberately NOT based on scanning message text for
+ *   "goodbye" or any other brittle heuristic.
  *
  * No `crossorigin` attribute on the injected <script> — setting one (this
  * file previously set `crossorigin="*"`) forces the browser to fetch the
@@ -35,6 +44,9 @@ export function TawkChat() {
         };
         Tawk_API.onLoad = function(){
           Tawk_API.hideWidget();
+        };
+        Tawk_API.onChatEnded = function(){
+          Tawk_API.minimize();
         };
         (function(){
           var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
