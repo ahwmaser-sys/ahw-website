@@ -36,14 +36,16 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    // Same @id as layout.tsx's Organization node — without this, this
-    // page declared a second, unlinked entity describing the identical
-    // real-world business (verified: no @id here meant search engines/
-    // LLMs had no explicit signal these two blocks are the same AHW
-    // Architects, not two different ones).
+    // Same @id as the Organization node in layout.tsx's root JSON-LD (on
+    // every page) — tells Google/AI crawlers this is the SAME real-world
+    // entity, not a second, disconnected company. Without this, the site
+    // described four unlinked Organization-shaped nodes (this one, the
+    // root layout's, the /contact page's, and one duplicated inline on
+    // every project/expertise page) that a knowledge-graph reader has no
+    // way to know are the same business.
     "@id": `${siteUrl}/#organization`,
     "name": "AHW Architects",
-    "description": "AHW Architects Masr is a design & build company — architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, from concept to final handover, across Egypt, Kuwait, and the wider GCC.",
+    "description": "AHW Architects is a multidisciplinary Architecture, Interior Design & Design-Build practice serving Egypt, Kuwait, and the wider GCC.",
     "url": siteUrl,
     // Same reasoning as layout.tsx's Organization schema: Google's Rich
     // Results Test flags a missing `image` as a non-critical issue.
@@ -70,18 +72,10 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
     // "Commercial Interiors" removed — no delivered project carries a
     // Commercial sector (see AUDIT.md D3); "Workplace Design" is the real,
     // supported equivalent (2 delivered office projects).
-    // Engineering, Procurement, Construction Management, and Final
-    // Handover are already real, claimed capabilities elsewhere on the
-    // site (expertise/engineering-project-management and
-    // expertise/design-build's own hasOfferCatalog entries) but were
-    // missing from this page's entity summary — added for consistency,
-    // not new claims.
     "knowsAbout": [
-      "Design & Build", "Architecture", "Architectural Design", "Interior Design", "Interior Architecture",
-      "Master Planning", "Landscape Architecture", "Engineering", "Interior Fit-Out", "Office Fit-Out", "Commercial Fit-Out",
+      "Architecture", "Interior Design", "Master Planning", "Landscape Architecture",
       "Retail Fit-Out", "Workplace Design", "Residential", "Hospitality",
-      "Project Management", "Procurement", "Construction Supervision", "Construction Management",
-      "Turnkey Delivery", "Final Handover"
+      "Project Management", "Construction Supervision", "Design & Build"
     ]
   };
 
@@ -97,8 +91,8 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
               Deliver.
             </>
           }
-          supportingHeading="Design & Build, Without Compromise."
-          subtitle="AHW Architects Masr is a design & build company — architecture, interior design, engineering, and interior fit-out delivered as one turnkey project, not four separate handoffs. We create timeless, high-performance residential, commercial, hospitality, workplace, and mixed-use environments through innovation, technical excellence, and uncompromising quality, from concept through final handover."
+          supportingHeading="Architecture Without Compromise."
+          subtitle="AHW Architects is a multidisciplinary architecture, interior design, engineering, and construction company delivering integrated design-build solutions from concept to completion. We create timeless, high-performance residential, commercial, hospitality, workplace, and mixed-use environments through innovation, technical excellence, and uncompromising quality."
           primaryAction={{ label: 'Explore Projects', href: '/projects' }}
           secondaryAction={{ label: 'Our Expertise', href: '/expertise' }}
           posterSrc="/images/placeholders/ahw_hero_background.jpg"

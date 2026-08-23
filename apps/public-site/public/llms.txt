@@ -2,7 +2,7 @@
 
 > AHW Architects is a multidisciplinary Architecture, Interior Design, Engineering, and Design & Build practice headquartered in Kuwait City, with an office in Cairo, Egypt, delivering projects across Egypt, Kuwait, and the wider Gulf Cooperation Council region.
 
-AHW Architects operates as an integrated Design & Build firm: the same team carries a project from architectural concept through construction and handover, across four core disciplines — Architecture, Interior Design, Design & Build, and Fit-Out. Project sectors include Residential, Commercial, Hospitality, Workplace, and Retail.
+AHW Architects operates as an integrated Design & Build firm: the same team carries a project from architectural concept through construction and handover, across five core disciplines — Architecture, Interior Design, Engineering & Project Management, Design & Build, and Fit-Out. Project sectors include Residential, Commercial, Hospitality, Workplace, and Retail.
 
 ## Company
 
@@ -16,6 +16,7 @@ AHW Architects operates as an integrated Design & Build firm: the same team carr
 
 - [Architecture](https://ahwspaces.com/expertise/architecture)
 - [Interior Design](https://ahwspaces.com/expertise/interior-design)
+- [Engineering & Project Management](https://ahwspaces.com/expertise/engineering-project-management)
 - [Design & Build](https://ahwspaces.com/expertise/design-build)
 - [Fit-Out](https://ahwspaces.com/expertise/fit-out)
 

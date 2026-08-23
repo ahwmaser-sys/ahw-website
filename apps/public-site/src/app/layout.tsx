@@ -164,7 +164,12 @@ export default async function RootLayout({
         '@type': 'PostalAddress',
         streetAddress: office.address.street,
         addressLocality: office.address.city,
-        ...(office.address.postalCode ? { postalCode: office.address.postalCode } : {}),
+        // No postalCode field exists anywhere in the actual data model
+        // (not in the Office Prisma model, not in this shared Office
+        // type) — AHW's offices are never given one to enter. A prior
+        // change here referenced office.address.postalCode, which never
+        // existed and was always undefined; removed rather than
+        // fabricating a field with no real data behind it.
         addressCountry: office.country,
       },
     })),

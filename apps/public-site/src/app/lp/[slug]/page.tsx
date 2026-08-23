@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { prisma } from '../../../lib/portal/db';
 import { collectAssetIds, type LandingPageBlock } from '../../../lib/content-studio/landing-page-blocks';
@@ -52,8 +53,7 @@ export default async function LandingPage({ params }: Props) {
             <section key={index} className={styles.hero}>
               {asset && (
                 <div className={styles.heroImage}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- server-generated route, not a static/optimizable local asset */}
-                  <img src={`/api/media/${asset.id}`} alt={asset.altText ?? page.title} />
+                  <Image src={`/api/media/${asset.id}`} alt={asset.altText ?? page.title} fill sizes="100vw" priority />
                 </div>
               )}
               <div className={styles.heroOverlay} />
@@ -88,8 +88,7 @@ export default async function LandingPage({ params }: Props) {
             <section key={index} className={styles.section}>
               <div className={styles.container}>
                 <div className={styles.imageBlock}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- server-generated route, not a static/optimizable local asset */}
-                  <img src={`/api/media/${asset.id}`} alt={asset.altText ?? block.caption ?? ''} />
+                  <Image src={`/api/media/${asset.id}`} alt={asset.altText ?? block.caption ?? ''} fill sizes="(min-width: 768px) 720px, 100vw" />
                 </div>
                 {block.caption && <p className={styles.imageCaption}>{block.caption}</p>}
               </div>
@@ -117,8 +116,7 @@ export default async function LandingPage({ params }: Props) {
                     if (!asset) return null;
                     return (
                       <div key={assetId} className={styles.galleryImage}>
-                        {/* eslint-disable-next-line @next/next/no-img-element -- server-generated route, not a static/optimizable local asset */}
-                        <img src={`/api/media/${asset.id}`} alt={asset.altText ?? ''} />
+                        <Image src={`/api/media/${asset.id}`} alt={asset.altText ?? ''} fill sizes="(min-width: 768px) 33vw, 100vw" />
                       </div>
                     );
                   })}

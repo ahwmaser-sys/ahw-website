@@ -34,15 +34,11 @@ export default async function ArchitecturePage() {
     '@context': 'https://schema.org',
     '@type': 'Service',
     serviceType: 'Architecture & Master Planning',
-    provider: {
-      '@type': 'ProfessionalService',
-      // Same @id as layout.tsx's Organization node, so this isn't read as
-      // a separate, unlinked entity.
-      '@id': `${siteUrl}/#organization`,
-      name: 'AHW Architects',
-      url: siteUrl,
-      image: `${siteUrl}/og-image.jpg`,
-    },
+    // Reference by @id (the Organization node in layout.tsx, present on
+    // every page) rather than re-describing AHW Architects as a fresh
+    // entity here — see HomeContent.tsx's jsonLd comment for the full
+    // reasoning.
+    provider: { '@id': `${siteUrl}/#organization` },
     areaServed: [
       { '@type': 'Country', name: 'Egypt' },
       { '@type': 'Country', name: 'Kuwait' },
@@ -52,7 +48,7 @@ export default async function ArchitecturePage() {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Architecture Services',
-      itemListElement: ['Architectural Design', 'Architectural Consultancy', 'Master Planning', 'Urban Design', 'Feasibility & Strategy', 'Renovation', 'Residential Design', 'Commercial Design'].map((name) => ({
+      itemListElement: ['Master Planning', 'Urban Design', 'Feasibility & Strategy', 'Renovation', 'Residential Design', 'Commercial Design'].map((name) => ({
         '@type': 'Offer',
         itemOffered: { '@type': 'Service', name },
       })),
@@ -70,9 +66,9 @@ export default async function ArchitecturePage() {
         title="Architecture"
         heroImage="/images/expertise/ahw_act1_built.jpg"
         heroStatement="Over a decade of delivering iconic structures across the Middle East. Form is the consequence of rigorous engineering and unwavering execution."
-        intro="Where master planning meets feasibility. As an architecture firm and architectural design consultancy, we organize land, budget, and purpose into a singular vision — before a single line is drawn. Our architectural design practice spans residential design, commercial design, and large-scale renovation of existing structures."
+        intro="Where master planning meets feasibility. We organize land, budget, and purpose into a singular vision — before a single line is drawn. Our architecture practice spans residential design, commercial design, and large-scale renovation of existing structures."
         services={[
-          { number: '01', name: 'Architectural Design & Master Planning', proposition: 'Designing comprehensive urban frameworks across Mixed-Use, Residential, and Commercial sectors.' },
+          { number: '01', name: 'Master Planning', proposition: 'Designing comprehensive urban frameworks across Mixed-Use, Residential, and Commercial sectors.' },
           { number: '02', name: 'Urban Design', proposition: 'Integrating architecture seamlessly with the public realm.' },
           { number: '03', name: 'Feasibility & Strategy', proposition: 'Ensuring every design decision is backed by strict budgetary control and spatial logic.' },
           { number: '04', name: 'Renovation', proposition: 'Reimagining existing buildings through renovation and architectural retrofit, from residential design to commercial design.' },

@@ -83,12 +83,10 @@ function ImageMoments({
   images,
   projectTitle,
   label,
-  orientation = 'landscape',
 }: {
   images: string[];
   projectTitle: string;
   label: string;
-  orientation?: 'landscape' | 'portrait' | undefined;
 }) {
   const count = images.length;
 
@@ -96,7 +94,7 @@ function ImageMoments({
   if (count === 1) {
     return (
       <div className={styles.imageMoments}>
-        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
+        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
           <Image
             src={images[0]!}
             alt={`${projectTitle} — ${label}`}
@@ -139,7 +137,7 @@ function ImageMoments({
     return (
       <div className={styles.imageMoments}>
         {/* First image: wide banner */}
-        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
+        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
           <Image
             src={images[0]!}
             alt={`${projectTitle} — ${label} 1`}
@@ -176,7 +174,7 @@ function ImageMoments({
     return (
       <div className={styles.imageMoments}>
         {/* First: wide banner */}
-        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
+        <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
           <Image
             src={images[0]!}
             alt={`${projectTitle} — ${label} 1`}
@@ -190,7 +188,7 @@ function ImageMoments({
         <div className={styles.momentSpacer} />
         {/* Feature + aside for remaining 3 */}
         <div className={styles.momentFeature}>
-          <NativeReveal behavior="aperture" delay={0.1} className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentItemPrimaryPortrait : styles.momentItemPrimary}`}>
+          <NativeReveal behavior="aperture" delay={0.1} className={`${styles.momentItem} ${styles.momentItemPrimary}`}>
             <Image
               src={images[1]!}
               alt={`${projectTitle} — ${label} 2`}
@@ -225,7 +223,7 @@ function ImageMoments({
   return (
     <div className={styles.imageMoments}>
       {/* Wide opener */}
-      <NativeReveal behavior="aperture" className={`${styles.momentItem} ${orientation === 'portrait' ? styles.momentWidePortrait : styles.momentWide}`}>
+      <NativeReveal behavior="aperture" className={`${styles.momentItem} ${styles.momentWide}`}>
         <Image
           src={first}
           alt={`${projectTitle} — ${label} 1`}
@@ -238,7 +236,7 @@ function ImageMoments({
       </NativeReveal>
       <div className={styles.momentSpacer} />
       {/* Trio composition */}
-      <div className={`${styles.momentTrio} ${orientation === 'portrait' ? styles.momentTrioPortrait : ''}`}>
+      <div className={styles.momentTrio}>
         {trioImages.map((img, i) => (
           <NativeReveal key={i} behavior="aperture" delay={i * 0.1} className={styles.momentItem}>
             <Image
@@ -337,25 +335,11 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
       address: { '@type': 'PostalAddress', addressLocality: project.city, addressCountry: project.market },
     },
     about: project.sector,
-    // The project's real discipline/scope (already shown on-page as
-    // "Scope: ..."), not previously represented in structured data at
-    // all — genuinely supported by project.services, not invented.
-    ...(project.services && project.services.length > 0 && { keywords: project.services }),
-    creator: {
-      '@type': 'ProfessionalService',
-      // Same @id as layout.tsx's Organization node, so this isn't read as
-      // a separate, unlinked entity.
-      '@id': `${siteUrl}/#organization`,
-      name: 'AHW Architects',
-      url: siteUrl,
-      image: `${siteUrl}/og-image.jpg`,
-      areaServed: [
-        { '@type': 'Country', name: 'Egypt' },
-        { '@type': 'Country', name: 'Kuwait' },
-        { '@type': 'Country', name: 'United Arab Emirates' },
-        { '@type': 'AdministrativeArea', name: 'GCC' },
-      ],
-    },
+    // Reference by @id (the same Organization node every other page's
+    // JSON-LD anchors to — see layout.tsx) rather than re-describing AHW
+    // Architects as a fresh, disconnected ProfessionalService on every
+    // single project page — the standard JSON-LD graph-linking pattern.
+    creator: { '@id': `${siteUrl}/#organization` },
   };
 
   // Minimal page — no case study data yet
@@ -370,20 +354,13 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
         {/* Hero */}
         <section className={styles.hero}>
           {project.heroImage && (
-            // No NativeReveal here: this is the page's LCP image. NativeReveal's
-            // "aperture" behavior starts at clip-path: inset(50% 0 50% 0) — a
-            // near-invisible sliver — until an IntersectionObserver fires after
-            // hydration, which pushes Chrome's LCP paint timestamp back by
-            // however long that takes. Same reasoning Hero.tsx documents for
-            // never doing this to the homepage hero; below-fold NativeReveal
-            // usage elsewhere on this page is unaffected and stays as-is.
-            <div className={styles.heroImageWrapper}>
+            <NativeReveal behavior="aperture" className={styles.heroImageWrapper}>
               <HeroSlider
                 images={[project.heroImage].filter(Boolean) as string[]}
                 alt={`${project.title}, ${project.sector}, ${project.city} — designed and built by AHW Architects`}
                 lightbox
               />
-            </div>
+            </NativeReveal>
           )}
           <div className={styles.heroContent}>
             <Breadcrumbs items={breadcrumbs} variant="onDark" />
@@ -438,10 +415,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
       {/* ── 1. HERO ── */}
       <section className={styles.hero}>
         {project.heroImage && (
-          // No NativeReveal here — see the matching comment in the
-          // no-case-study branch above; slide 0 of this slider is the
-          // page's LCP image.
-          <div className={styles.heroImageWrapper}>
+          <NativeReveal behavior="aperture" className={styles.heroImageWrapper}>
             <HeroSlider
               images={Array.from(new Set([
                 project.heroImage,
@@ -451,9 +425,8 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
               ])).filter(Boolean)}
               alt={`${project.title}, ${project.sector}, ${project.city} — designed and built by AHW Architects`}
               lightbox
-              orientation={project.imageOrientation}
             />
-          </div>
+          </NativeReveal>
         )}
         <div className={styles.heroContent}>
           <Breadcrumbs items={breadcrumbs} variant="onDark" />
@@ -536,7 +509,6 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
           images={cs.design.images}
           projectTitle={project.title}
           label="Design"
-          orientation={project.imageOrientation}
         />
       )}
       {cs.narrative?.imageStory?.design && (
@@ -581,7 +553,6 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
           images={cs.build.images}
           projectTitle={project.title}
           label="Build"
-          orientation={project.imageOrientation}
         />
       )}
       {cs.narrative?.imageStory?.build && (
@@ -621,7 +592,6 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
           images={cs.result.images}
           projectTitle={project.title}
           label="Result"
-          orientation={project.imageOrientation}
         />
       )}
       {cs.narrative?.imageStory?.result && (

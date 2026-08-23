@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { publications, StructuredData, Breadcrumbs, InsightsFilterBar, PublicationCard } from '@agp/ui-components';
+import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, InsightsFilterBar, PublicationCard } from '@agp/ui-components';
 import { getSiteUrl } from '../../../lib/site-config';
 import styles from './page.module.css';
 
@@ -70,6 +70,7 @@ export default async function PublicationsPage({
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <section className={styles.heroSection}>
         <div className={styles.container}>
           <Breadcrumbs items={breadcrumbs} />

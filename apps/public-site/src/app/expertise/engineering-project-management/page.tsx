@@ -34,15 +34,11 @@ export default async function EngineeringProjectManagementPage() {
     '@context': 'https://schema.org',
     '@type': 'Service',
     serviceType: 'Structural Engineering, MEP Coordination & Project Management',
-    provider: {
-      '@type': 'ProfessionalService',
-      // Same @id as layout.tsx's Organization node, so this isn't read as
-      // a separate, unlinked entity.
-      '@id': `${siteUrl}/#organization`,
-      name: 'AHW Architects',
-      url: siteUrl,
-      image: `${siteUrl}/og-image.jpg`,
-    },
+    // Reference by @id (the Organization node in layout.tsx, present on
+    // every page) rather than re-describing AHW Architects as a fresh
+    // entity here — see HomeContent.tsx's jsonLd comment for the full
+    // reasoning.
+    provider: { '@id': `${siteUrl}/#organization` },
     areaServed: [
       { '@type': 'Country', name: 'Egypt' },
       { '@type': 'Country', name: 'Kuwait' },

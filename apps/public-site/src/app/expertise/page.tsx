@@ -8,20 +8,20 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Architecture, Interior Design, Fit-Out & Design & Build Services',
-  description: "AHW Architects Masr's five disciplines: architecture, interior design, fit-out, design & build, and engineering & project management — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.",
+  title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
+  description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
   alternates: {
     canonical: '/expertise',
   },
   openGraph: {
-    title: 'Architecture, Interior Design, Fit-Out & Design & Build Services',
-    description: "AHW Architects Masr's five disciplines: architecture, interior design, fit-out, design & build, and engineering & project management — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.",
+    title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
+    description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
     url: '/expertise',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Architecture, Interior Design, Fit-Out & Design & Build Services',
-    description: "AHW Architects Masr's five disciplines: architecture, interior design, fit-out, design & build, and engineering & project management — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.",
+    title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
+    description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
   },
 };
 
@@ -31,15 +31,11 @@ export default async function ExpertisePage() {
     '@context': 'https://schema.org',
     '@type': 'Service',
     serviceType: 'Architecture, Interior Design & Design-Build Fit-Out',
-    provider: {
-      '@type': 'ProfessionalService',
-      // Same @id as layout.tsx's Organization node, so this isn't read as
-      // a separate, unlinked entity.
-      '@id': `${siteUrl}/#organization`,
-      name: 'AHW Architects',
-      url: siteUrl,
-      image: `${siteUrl}/og-image.jpg`,
-    },
+    // Reference by @id (the Organization node in layout.tsx, present on
+    // every page) rather than re-describing AHW Architects as a fresh
+    // entity here — see HomeContent.tsx's jsonLd comment for the full
+    // reasoning.
+    provider: { '@id': `${siteUrl}/#organization` },
     areaServed: [
       { '@type': 'Country', name: 'Egypt' },
       { '@type': 'Country', name: 'Kuwait' },

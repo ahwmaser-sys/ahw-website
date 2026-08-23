@@ -53,39 +53,34 @@ export async function generateMetadata(props: ContactPageProps): Promise<Metadat
 export default async function ContactPage(props: ContactPageProps) {
   const [officeParam, offices, siteUrl] = await Promise.all([resolveOfficeParam(props), getActiveOfficesForDisplay(), getSiteUrl()]);
 
-  // Extends the SAME Organization node the root layout already declares
-  // (same @id) rather than redeclaring name/url/logo/image and creating a
-  // second, unlinked Organization entity on this page — verified live
-  // that both scripts render on /contact, and without a shared @id they
-  // read as two different organizations describing the same business.
+  // Generate JSON-LD Structured Data for Local Businesses — one entry
+  // per real office, however many exist.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    // Same @id as the root layout's Organization (every page) and
+    // HomeContent's ProfessionalService — merges this page's real,
+    // office-specific `department` (LocalBusiness) data into the same
+    // entity graph node instead of describing a second, disconnected
+    // "AHW Architects" organization.
     '@id': `${siteUrl}/#organization`,
-    // Each real office becomes its own stable, addressable local entity
-    // (own @id, own /contact/{office} url, own country-scoped areaServed)
-    // — nested under Organization via `department` and pointing back via
-    // `parentOrganization`, so Egypt and Kuwait are legible as distinct
-    // local businesses that both belong to the same AHW Architects
-    // organization, not one merged listing and not two disconnected ones.
-    // No `geo` (GeoCoordinates): the office data model only stores a
-    // Google Maps link (`hasMap`), not raw lat/long — adding one would
-    // mean fabricating coordinates.
+    name: 'AHW Architects',
+    url: siteUrl,
+    logo: `${siteUrl}/images/logo-white.webp`,
+    // Same reasoning as layout.tsx's Organization schema — Google's Rich
+    // Results Test flags a missing `image` on Organization/LocalBusiness
+    // as a non-critical issue; reusing the existing social-share photo.
+    image: `${siteUrl}/og-image.jpg`,
     department: offices.map((office) => ({
       '@type': 'LocalBusiness',
-      '@id': `${siteUrl}/#office-${office.id}`,
       name: office.displayName,
-      url: `${siteUrl}/contact/${office.id}`,
       image: `${siteUrl}/og-image.jpg`,
-      parentOrganization: { '@id': `${siteUrl}/#organization` },
       address: {
         '@type': 'PostalAddress',
         streetAddress: office.address.street,
         addressLocality: office.address.city,
-        ...(office.address.postalCode ? { postalCode: office.address.postalCode } : {}),
         addressCountry: office.country,
       },
-      areaServed: { '@type': 'Country', name: office.country },
       telephone: office.contact.phones[0],
       email: office.contact.primaryEmail,
       openingHours: office.workingHours,

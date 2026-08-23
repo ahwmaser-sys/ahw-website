@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { StructuredData, Breadcrumbs, InsightsFilterBar, NewsCard } from '@agp/ui-components';
+import { StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, InsightsFilterBar, NewsCard } from '@agp/ui-components';
 import { getPublicNewsItems } from '../../../lib/portal/public-news';
 import { getSiteUrl } from '../../../lib/site-config';
 import styles from './page.module.css';
@@ -70,6 +70,7 @@ export default async function NewsPage({
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
       <section className={styles.heroSection}>
         <div className={styles.container}>
           <Breadcrumbs items={breadcrumbs} />

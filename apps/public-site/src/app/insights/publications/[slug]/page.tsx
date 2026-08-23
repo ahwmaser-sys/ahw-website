@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { publications, projects, StructuredData, Breadcrumbs, SocialShare } from '@agp/ui-components';
+import { publications, projects, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare } from '@agp/ui-components';
 import { getSiteUrl } from '../../../../lib/site-config';
 import styles from './page.module.css';
 
@@ -59,11 +59,6 @@ export default async function PublicationDetailPage({ params }: Props) {
     },
     publisher: {
       '@type': 'Organization',
-      // Same @id as layout.tsx's Organization node, so this isn't read as
-      // a separate, unlinked entity. Keeping name/logo inline too (rather
-      // than a bare reference) since Google's Article rich-result check
-      // looks for publisher.logo directly on this object.
-      '@id': `${siteUrl}/#organization`,
       name: 'AHW Architects',
       logo: {
         '@type': 'ImageObject',
@@ -88,7 +83,8 @@ export default async function PublicationDetailPage({ params }: Props) {
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
-      
+      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
+
       <article className={styles.article}>
         {/* Header */}
         <header className={styles.header}>
