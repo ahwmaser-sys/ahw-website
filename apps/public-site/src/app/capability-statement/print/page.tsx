@@ -31,6 +31,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Same reasoning as capability-statement/page.tsx's revalidate: without
+// it, this route (which pulls the same office data) statically bakes
+// phone numbers/addresses in at build time, so a regenerated PDF could
+// embed stale office data until the next deployment.
+export const revalidate = 30;
+
 // The web page uses next/image, which serves auto-resized/compressed
 // variants — but this print route renders plain <img> tags at the
 // original source resolution (some source files are 5-8MB, 4000px+ on a

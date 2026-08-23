@@ -20,6 +20,22 @@ export const viewport: Viewport = {
   themeColor: '#14171A',
 };
 
+// The root layout renders Footer/FloatingContactHub/Organization JSON-LD
+// (PublicChrome, below) on every public page — real office data (phones,
+// WhatsApp, addresses) fetched from the database. Any route that doesn't
+// declare its own `revalidate`/`dynamic` inherits Next.js's default
+// (fully static, baked in at build time) for its whole render tree,
+// including this shared layout content. Confirmed live via an actual
+// Admin edit: /about, /faq, /expertise, and others kept showing a phone
+// number for minutes after it was changed and restored in Admin — only
+// routes that already forced their own dynamic/ISR behavior (the
+// homepage's own revalidate below is a separate, pre-existing 30s
+// window for a different reason; /contact is inherently dynamic) stayed
+// fresh. This is the one place to fix it for every route that doesn't
+// set a stricter value of its own — Next.js's segment config inherits
+// down the layout tree, so this becomes the site-wide floor.
+export const revalidate = 30;
+
 // The Website Domain (Settings → Brand) drives metadataBase and every
 // absolute URL below — generateMetadata (not a static `metadata` export)
 // specifically so this can read it from the database on every request.
