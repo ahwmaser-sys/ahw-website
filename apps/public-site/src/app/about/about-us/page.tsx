@@ -54,11 +54,23 @@ export default async function AboutUsPage() {
     "name": leader.name,
     "jobTitle": leader.role,
     "description": leader.description,
-    "worksFor": {
-      "@type": "Organization",
-      "name": "AHW Architects",
-      "url": siteUrl
-    },
+    // Mahmoud's role ("Managing Partner | Egypt CEO") is explicitly tied
+    // to AHW's real Egypt office — the same @id the /contact page's own
+    // department entry for Egypt uses (see
+    // contact/[[...office]]/page.tsx), rather than the generic parent
+    // Organization every other leader gets, so the "Egypt CEO" job title
+    // is backed by a real, structured location relationship, not just
+    // free text. A minimal @type+name accompanies the @id (not a bare
+    // reference) so this page's own JSON-LD graph is self-contained even
+    // before a crawler cross-references the fuller LocalBusiness
+    // definition on /contact — the standard "same @id, described more
+    // than once" pattern already used for the root Organization node.
+    // Anyone whose role isn't office-specific (Ahmed leads design
+    // direction across all three markets, per his own bio below) still
+    // points at the canonical parent Organization.
+    "worksFor": leader.id === 'mahmoud-al-wardany'
+      ? { "@type": "Organization", "@id": `${siteUrl}/#organization-egypt`, "name": "AHW Architects Masr — Egypt Office" }
+      : { "@type": "Organization", "@id": `${siteUrl}/#organization`, "name": "AHW Architects" },
     "url": `${siteUrl}/about/about-us`
   }));
 
@@ -197,6 +209,11 @@ export default async function AboutUsPage() {
                   <h3 className={styles.leaderName}>{leader.name}</h3>
                   <span className={styles.leaderRole}>{leader.role}</span>
                   <p className={styles.leaderDescription}>{leader.description}</p>
+                  {leader.id === 'mahmoud-al-wardany' && (
+                    <Link href="/contact/egypt" className={styles.leaderLink}>
+                      Contact AHW Architects Masr — Cairo office
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>

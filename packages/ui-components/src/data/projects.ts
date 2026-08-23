@@ -629,13 +629,13 @@ export const projects: Project[] = [
     services: ['Interior Design', 'Fit-out'],
     client: 'AHW Architects',
     status: 'Completed',
-    resultStatement: 'A 110 sqm office fit-out for AHW Architects\'s own headquarters in Zahraa Al Maadi.',
+    resultStatement: 'A 110 sqm office fit-out for AHW Architects\'s own Egypt headquarters in Zahraa Al Maadi.',
     heroImage: '/ahw-projects-assets/06-ahw-hq-zahraa-al-maadi/build/ahw-hq-zahraa-al-maadi-exterior-facade-yjjb.jpg',
     hubFlagshipImage: '/ahw-projects-assets/06-ahw-hq-zahraa-al-maadi/build/ahw-hq-zahraa-al-maadi-exterior-facade-yjjb.jpg',
     ogImage: '/ahw-projects-assets/06-ahw-hq-zahraa-al-maadi/build/ahw-hq-zahraa-al-maadi-exterior-facade-yjjb.jpg',
     caseStudy: {
       brief: {
-        clientProblem: 'Designing our own headquarters required a space that not only fosters creativity and collaboration but also serves as a living showroom of our design and build capabilities.',
+        clientProblem: 'Designing our own Egypt headquarters required a space that not only fosters creativity and collaboration but also serves as a living showroom of our design and build capabilities.',
         definitionalSentence: 'A modern, collaborative workspace that embodies the AHW design philosophy.'
       },
       design: {
@@ -671,9 +671,9 @@ export const projects: Project[] = [
       },
       narrative: {
         heroHeadline: 'An Office Designed to Feel Like Home, Not a Showroom.',
-        heroSubtitle: "When the client is your own firm, the brief writes itself differently. Rather than a typical corporate office, AHW's 110 sqm headquarters in Zahraa Al Maadi was built to feel warm and welcoming for the team that works there every day and the clients who walk in to judge the firm by it.",
+        heroSubtitle: "When the client is your own firm, the brief writes itself differently. Rather than a typical corporate office, AHW's 110 sqm Egypt headquarters in Zahraa Al Maadi was built to feel warm and welcoming for the team that works there every day and the clients who walk in to judge the firm by it.",
         story: [
-          "Designing your own headquarters comes with a specific kind of pressure: it has to work as a daily workspace and double as a credible showroom of what the firm can do, inside a footprint of only 110 sqm and a ceiling height that left little room for architectural flourish.",
+          "Designing your own Egypt headquarters comes with a specific kind of pressure: it has to work as a daily workspace and double as a credible showroom of what the firm can do, inside a footprint of only 110 sqm and a ceiling height that left little room for architectural flourish.",
           "The response leaned on material warmth instead of scale — natural wood finishes and warm neutral tones that make the space feel closer to a home than a typical studio, while a professional client reception area was carved out without eating into the working space the team relies on. Delivered in two months, the office had to open functioning as both at once from day one."
         ],
         designPhilosophy: "With limited floor area and a low ceiling, the office couldn't rely on volume to feel generous — so warmth came from materials instead: natural wood, neutral tones, and lighting that softens the compact footprint rather than fighting it.",
@@ -684,7 +684,7 @@ export const projects: Project[] = [
           'Custom furniture and joinery integrated throughout, consistent with AHW\'s standard approach to every project'
         ],
         faq: [
-          { question: 'How big is the AHW Architects headquarters?', answer: '110 sqm, located in Zahraa Al Maadi, Cairo.' },
+          { question: 'How big is the AHW Architects Egypt headquarters?', answer: '110 sqm, located in Zahraa Al Maadi, Cairo.' },
           { question: 'What was the main design constraint?', answer: 'A compact 110 sqm footprint combined with a low ceiling height, while still needing a professional client reception area alongside the working studio.' },
           { question: 'How long did the fit-out take?', answer: 'Two months, from design through handover.' }
         ],
@@ -698,9 +698,9 @@ export const projects: Project[] = [
           focusKeyword: 'office interior design Cairo',
           secondaryKeywords: ['architecture studio design', 'workplace design Egypt', 'office fit-out Maadi', 'small office design Cairo'],
           ogTitle: "Inside AHW Architects' Own Studio in Cairo",
-          ogDescription: 'A 110 sqm office designed to feel like home for the team and credible on sight for visiting clients — AHW Architects\' own headquarters.',
+          ogDescription: 'A 110 sqm office designed to feel like home for the team and credible on sight for visiting clients — AHW Architects\' own Egypt headquarters.',
           twitterTitle: "AHW's Own Studio: Small Footprint, Real Warmth",
-          twitterDescription: "A look inside AHW Architects' 110 sqm headquarters in Zahraa Al Maadi, Cairo."
+          twitterDescription: "A look inside AHW Architects' 110 sqm Egypt headquarters in Zahraa Al Maadi, Cairo."
         }
       }
     }

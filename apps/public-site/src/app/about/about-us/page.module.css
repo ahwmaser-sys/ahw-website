@@ -218,6 +218,20 @@
   margin: 0;
 }
 
+.leaderLink {
+  display: inline-block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: var(--space-3);
+}
+
+.leaderLink:hover {
+  opacity: 0.8;
+}
+
 /* 3. Mission / Vision / Values */
 .mvvSection {
   padding: var(--space-24) 0;

@@ -73,6 +73,15 @@ export default async function ContactPage(props: ContactPageProps) {
     image: `${siteUrl}/og-image.jpg`,
     department: offices.map((office) => ({
       '@type': 'LocalBusiness',
+      // Stable per-office @id + an explicit parentOrganization back-
+      // reference — makes each real office (Egypt, Kuwait, ...) a
+      // clearly-connected part of the one canonical Organization rather
+      // than an anonymous nested object, and gives other pages (e.g. the
+      // Egypt CEO's Person schema) something real to point at instead of
+      // re-describing the office inline. No new data — every field below
+      // already existed here; this only adds the two linking properties.
+      '@id': `${siteUrl}/#organization-${office.id}`,
+      parentOrganization: { '@id': `${siteUrl}/#organization` },
       name: office.displayName,
       image: `${siteUrl}/og-image.jpg`,
       address: {
