@@ -43,6 +43,17 @@ export function CreateOfficeForm() {
         <textarea className={styles.textarea} id="addressFull" name="addressFull" required />
       </div>
 
+      <div className={styles.formRow}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="addressStreet">Street (structured)</label>
+          <input className={styles.input} id="addressStreet" name="addressStreet" />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="addressBuilding">Building / floor / office (structured)</label>
+          <input className={styles.input} id="addressBuilding" name="addressBuilding" />
+        </div>
+      </div>
+
       <div className={styles.field}>
         <label className={styles.label} htmlFor="postalCode">Postal code</label>
         <input className={styles.input} id="postalCode" name="postalCode" placeholder="Verified against the office's Google Business Profile" />

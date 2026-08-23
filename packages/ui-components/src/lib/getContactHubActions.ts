@@ -19,6 +19,10 @@ export interface ContactHubOfficeChoice {
   /** Always office.displayName — office.name is an internal/back-office
    *  label and must never reach the UI. */
   displayName: string;
+  /** "AHW Architects Masr" and "AHW Architects" read as near-identical at
+   *  a glance in a quick picker — the UI appends this so it's obvious
+   *  which office (Egypt vs Kuwait) each choice actually is. */
+  country: string;
   /** One destination for single-target channels (WhatsApp, booking); one
    *  per phone number for Call Us. UI renders a picker only when >1. */
   targets: ContactHubTarget[];
@@ -44,7 +48,7 @@ function officeChoicesFor(
   return offices.reduce<ContactHubOfficeChoice[]>((choices, office) => {
     const targets = getTargets(office);
     if (targets && targets.length > 0) {
-      choices.push({ officeId: office.id, displayName: office.displayName, targets });
+      choices.push({ officeId: office.id, displayName: office.displayName, country: office.country, targets });
     }
     return choices;
   }, []);

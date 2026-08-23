@@ -134,6 +134,7 @@ export function ContactHubMenu({ actions, isOpen, menuId, onItemActivated }: Con
                           tabIndex={isOpen ? 0 : -1}
                         >
                           {choice.displayName}
+                          <span className={styles.subItemCountry}>{choice.country}</span>
                         </a>
                       ) : (
                         <button
@@ -145,6 +146,7 @@ export function ContactHubMenu({ actions, isOpen, menuId, onItemActivated }: Con
                           tabIndex={isOpen ? 0 : -1}
                         >
                           {choice.displayName}
+                          <span className={styles.subItemCountry}>{choice.country}</span>
                         </button>
                       )}
                       {choice.targets.length > 1 && officeExpanded && (
