@@ -31,12 +31,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Same reasoning and same confirmed ISR-regeneration failure as
-// capability-statement/page.tsx — see that file's comment. Forced fully
-// dynamic instead of revalidate=30 so a regenerated PDF always embeds
-// current office data, since Puppeteer only hits this route on demand
-// (when actually regenerating the PDF), not at high volume.
-export const dynamic = 'force-dynamic';
+// REVERTED from `dynamic = 'force-dynamic'` — see capability-statement/
+// page.tsx's comment: forcing this route dynamic caused a live 500 in
+// production (QR generation is too slow to finish inside a synchronous
+// render). Back to revalidate=30 — a known, real staleness limitation,
+// not a safe one to force-fix without changing QR generation itself.
+export const revalidate = 30;
 
 // The web page uses next/image, which serves auto-resized/compressed
 // variants — but this print route renders plain <img> tags at the

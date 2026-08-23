@@ -3,21 +3,21 @@ import { getActiveOfficesForDisplay } from '../../lib/portal/offices';
 import { getSiteUrl } from '../../lib/site-config';
 import { getCapabilityStatementQrCodes } from './qrcodes';
 
-// `revalidate = 30` alone (the fix used everywhere else office data is
-// rendered) was not enough here — confirmed live via repeated requests:
-// x-vercel-cache stayed STALE with a continuously climbing `age`, never
-// flipping to a fresh HIT, while functionally identical routes (/about,
-// /faq, /expertise) with the same revalidate value updated correctly.
-// getCapabilityStatementQrCodes generates several sharp-composited QR
-// codes per request (website + up to ~4 per office), which is plausibly
-// too slow/heavy to complete inside Vercel's background ISR
-// regeneration budget — a live user-facing request has a larger budget
-// than a background revalidation does. Forcing this specific, low-
-// traffic page (an executive one-pager, not a high-volume route) fully
-// dynamic sidesteps that failure mode entirely: same approach already
-// proven correct on /contact, at an acceptable cost given how rarely
-// this page is actually requested.
-export const dynamic = 'force-dynamic';
+// REVERTED from `dynamic = 'force-dynamic'` — that made this page 500
+// in production. getCapabilityStatementQrCodes (several sharp-
+// composited QR codes per request) is too slow to finish inside a
+// synchronous request, which ISR's background regeneration was able to
+// silently absorb (serving stale content while it failed/timed out in
+// the background) but a forced-dynamic render cannot: there's no cached
+// fallback to serve when the render itself times out, so it surfaces as
+// a hard error instead. Back to revalidate=30, which is the same known
+// limitation this page had before this investigation — confirmed real
+// (an Admin change here can stay stale for longer than 30s, unlike
+// every other office-data consumer) but functional, unlike the
+// alternative. The real fix is making QR generation fast/reliable
+// enough to render synchronously; that's a separate, deliberate change,
+// not a safe one to make speculatively under this task's scope.
+export const revalidate = 30;
 
 // A thin Server Component wrapper — the page's actual content (hero,
 // lightbox gallery, etc.) needs 'use client' for its interactive state,
