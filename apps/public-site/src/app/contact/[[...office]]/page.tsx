@@ -66,7 +66,10 @@ export default async function ContactPage(props: ContactPageProps) {
     '@id': `${siteUrl}/#organization`,
     name: 'AHW Architects',
     url: siteUrl,
-    logo: `${siteUrl}/images/logo-white.webp`,
+    // logo-dark, not logo-white — see the same field in layout.tsx's
+    // Organization schema for why (white-on-transparent is invisible on
+    // the white cards external tools/crawlers render this logo on).
+    logo: `${siteUrl}/images/logo-dark.webp`,
     // Same reasoning as layout.tsx's Organization schema — Google's Rich
     // Results Test flags a missing `image` on Organization/LocalBusiness
     // as a non-critical issue; reusing the existing social-share photo.

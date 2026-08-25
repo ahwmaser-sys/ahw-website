@@ -18,8 +18,8 @@ export interface HomeContentProps {
    *  public/homepage-assets/selected-work/<project-slug>/. */
   selectedWork: SelectedWorkItem[];
   /** Real offices, fetched from the database by app/page.tsx — used
-   *  here only for the headquarters address in the ProfessionalService
-   *  structured data below. */
+   *  here only for the address in the ProfessionalService structured
+   *  data below. */
   offices: readonly Office[];
   siteUrl: string;
   /** Egypt-office featured+published reviews, already filtered/ordered by
@@ -31,7 +31,13 @@ export interface HomeContentProps {
 }
 
 export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl }: HomeContentProps) {
-  const headquarters = offices.find((office) => office.isHeadquarters) || offices[0];
+  // This node shares its @id with the root Organization in layout.tsx, so
+  // its single `address` field is what external tools reading "the"
+  // business address for that merged entity pick up — deliberately the
+  // Egypt office, not whichever office is flagged isHeadquarters (Kuwait).
+  // Kuwait's HQ status/ordering everywhere a visitor actually sees the
+  // site (footer, contact tabs, the "HQ" tag) is untouched by this.
+  const primaryContactOffice = offices.find((office) => office.id === 'egypt') || offices[0];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -61,12 +67,12 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
       { "@type": "AdministrativeArea", "name": "GCC" },
     ],
     "foundingDate": "2012",
-    ...(headquarters && {
+    ...(primaryContactOffice && {
       address: {
         "@type": "PostalAddress",
-        streetAddress: headquarters.address.street,
-        addressLocality: headquarters.address.city,
-        addressCountry: headquarters.country,
+        streetAddress: primaryContactOffice.address.street,
+        addressLocality: primaryContactOffice.address.city,
+        addressCountry: primaryContactOffice.country,
       },
     }),
     // "Commercial Interiors" removed — no delivered project carries a

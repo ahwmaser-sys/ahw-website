@@ -127,7 +127,14 @@ export default async function RootLayout({
   // Social profile URLs now live per-office (Settings → Offices), not as
   // one fixed brand-level list — aggregated here from however many
   // offices actually have them set, not a hardcoded six-URL array.
-  const sameAs = prismaOffices.flatMap((office) => {
+  // Egypt's profiles are ordered first (independent of prismaOffices'
+  // own display sortOrder, which stays Kuwait-first everywhere a visitor
+  // sees it) so a tool that just grabs "the first Instagram/LinkedIn URL"
+  // in this array links Egypt's account, not Kuwait's.
+  const socialOrderedOffices = [...prismaOffices].sort((a, b) =>
+    (a.slug === 'egypt' ? 0 : 1) - (b.slug === 'egypt' ? 0 : 1)
+  );
+  const sameAs = socialOrderedOffices.flatMap((office) => {
     const social = officeSocialLinks(office);
     return [social.instagram, social.facebook, social.linkedin].filter((url): url is string => Boolean(url));
   });
@@ -147,7 +154,11 @@ export default async function RootLayout({
     name: 'AHW Architects',
     legalName,
     url: siteUrl,
-    logo: `${siteUrl}/images/logo-white.webp`,
+    // logo-dark (the colored mark on a transparent/white ground), not
+    // logo-white — this field is read by external tools/crawlers (Google
+    // Knowledge Panel, business-listing imports) that render it on a
+    // white card; the white-on-transparent variant is invisible there.
+    logo: `${siteUrl}/images/logo-dark.webp`,
     // Distinct from `logo` (the brand mark) — Google's Rich Results Test
     // flags a plain Organization/ProfessionalService with no `image` as a
     // non-critical issue. Reusing the same photo already used for social
