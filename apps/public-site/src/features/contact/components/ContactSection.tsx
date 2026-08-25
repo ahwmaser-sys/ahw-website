@@ -95,7 +95,7 @@ export function ContactSection({ initialOfficeId, offices: orderedOffices, siteU
                     onKeyDown={(e) => handleTabKeyDown(e, index)}
                   >
                     {office.displayName}
-                    {office.isHeadquarters && <span className={styles.hqTag}>Head Office</span>}
+                    {office.isHeadquarters && <span className={styles.hqTag}>HQ</span>}
                   </button>
                 );
               })}

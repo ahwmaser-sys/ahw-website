@@ -70,16 +70,17 @@
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
+  border-radius: 2px 2px 0 0;
   border-bottom: 2px solid transparent;
   font-family: var(--font-family-secondary);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-light);
   color: var(--color-brand-stone);
   cursor: pointer;
-  transition: color var(--transition-fast), border-color var(--transition-fast);
+  transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .tab:hover {
@@ -93,6 +94,8 @@
 
 .tabActive {
   color: var(--color-brand-paper);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-bottom-width: 3px;
   border-bottom-color: var(--color-brand-paper);
 }
 
