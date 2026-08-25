@@ -58,12 +58,18 @@ export default async function NewsDetailPage({ params }: Props) {
     headline: news.title,
     image: news.coverImage ? [news.coverImage] : [],
     datePublished: news.date,
+    // @id merges this into the same canonical Organization node every
+    // other page anchors to (layout.tsx) rather than declaring a fresh,
+    // disconnected "AHW Architects" each time.
     publisher: {
       '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
       name: 'AHW Architects',
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/images/logo-dark.webp`,
+        url: `${siteUrl}/images/ahw-brand-icon.png`,
+        width: 512,
+        height: 512,
       },
     },
     description: news.excerpt,

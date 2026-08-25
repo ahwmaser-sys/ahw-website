@@ -56,7 +56,7 @@ export default async function NewsPage({
       '@type': 'NewsArticle',
       headline: news.title,
       datePublished: news.date,
-      publisher: { '@type': 'Organization', name: 'AHW Architects' },
+      publisher: { '@type': 'Organization', '@id': `${siteUrl}/#organization`, name: 'AHW Architects' },
       url: `${siteUrl}/insights/news/${news.slug}`,
     })),
   };

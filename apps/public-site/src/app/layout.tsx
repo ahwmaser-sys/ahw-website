@@ -86,7 +86,7 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: {
       icon: [
         { url: '/favicon.ico' },
-        { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
       ],
       shortcut: '/favicon.ico',
       apple: '/apple-touch-icon.png',
@@ -154,11 +154,13 @@ export default async function RootLayout({
     name: 'AHW Architects',
     legalName,
     url: siteUrl,
-    // logo-dark (the colored mark on a transparent/white ground), not
-    // logo-white — this field is read by external tools/crawlers (Google
-    // Knowledge Panel, business-listing imports) that render it on a
-    // white card; the white-on-transparent variant is invisible there.
-    logo: `${siteUrl}/images/logo-dark.webp`,
+    // ahw-brand-icon.png (dedicated square 512x512 mark), not the wide
+    // 1571x592 logo-dark used in the Header/Footer — Google recommends a
+    // roughly-square Organization logo for clean Knowledge Panel
+    // rendering; the wide wordmark crops awkwardly there. This is a
+    // separate, machine-facing asset — it never touches the visual
+    // Header/Footer logo.
+    logo: `${siteUrl}/images/ahw-brand-icon.png`,
     // Distinct from `logo` (the brand mark) — Google's Rich Results Test
     // flags a plain Organization/ProfessionalService with no `image` as a
     // non-critical issue. Reusing the same photo already used for social
