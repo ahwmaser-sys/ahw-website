@@ -9,6 +9,46 @@ import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
 import styles from './page.module.css';
 
+// Maps a project's own, already-authored services[] entry (projects.ts)
+// to its corresponding public discipline page — using only the site's 5
+// existing disciplines and the exact service strings already present in
+// the data. Never inferred from a project's name/description, never a
+// new service invented: an entry with no clean match (e.g. "Renovation",
+// "Landscape", "Furnishing" — real attributes of some projects, but not
+// one of the 5 public disciplines) is intentionally left unmapped and
+// still renders as plain text, exactly as before this change.
+const SERVICE_TO_EXPERTISE_HREF: Record<string, string> = {
+  Architecture: '/expertise/architecture',
+  'Interior Design': '/expertise/interior-design',
+  'Design & Build': '/expertise/design-build',
+  'Fit-out': '/expertise/fit-out',
+  'Fit-Out': '/expertise/fit-out',
+  'Project Management': '/expertise/engineering-project-management',
+  'Construction Supervision': '/expertise/engineering-project-management',
+};
+
+function ScopeList({ services, linkClassName }: { services: string[]; linkClassName: string | undefined }) {
+  return (
+    <>
+      {services.map((service, i) => {
+        const href = SERVICE_TO_EXPERTISE_HREF[service];
+        return (
+          <span key={service}>
+            {href ? (
+              <Link href={href} className={linkClassName}>
+                {service}
+              </Link>
+            ) : (
+              service
+            )}
+            {i < services.length - 1 ? ', ' : ''}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -370,7 +410,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
               <span className={styles.dataItem}>{project.city}</span>
               {project.area !== 'Unknown' && <span className={styles.dataItem}>{project.area} m²</span>}
               <span className={styles.dataItem}>{project.year}</span>
-              <span className={styles.dataItem}>Scope: {(project.services ?? []).join(', ')}</span>
+              <span className={styles.dataItem}>Scope: <ScopeList services={project.services ?? []} linkClassName={styles.scopeLink} /></span>
             </NativeReveal>
           </div>
         </section>
@@ -441,7 +481,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
             <span className={styles.dataItem}>{project.city}</span>
             {project.area !== 'Unknown' && <span className={styles.dataItem}>{project.area} m²</span>}
             <span className={styles.dataItem}>{project.year}</span>
-            <span className={styles.dataItem}>Scope: {(project.services ?? []).join(', ')}</span>
+            <span className={styles.dataItem}>Scope: <ScopeList services={project.services ?? []} linkClassName={styles.scopeLink} /></span>
           </NativeReveal>
           {cs.narrative?.heroSubtitle && (
             <NativeReveal behavior="fade" delay={0.3} as="p" className={styles.heroSubtitle}>

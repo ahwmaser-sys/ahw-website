@@ -170,6 +170,20 @@
   opacity: 0.35;
 }
 
+/* Inline links inside the "Scope: ..." data item — only the services
+   that map to one of the site's 5 public discipline pages become links;
+   the rest stay plain text exactly as before. */
+.scopeLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity var(--transition-fast);
+}
+
+.scopeLink:hover {
+  opacity: 0.7;
+}
+
 .heroSubtitle {
   font-family: var(--font-family-primary);
   font-size: clamp(1rem, 1.4vw, 1.2rem);

@@ -30,9 +30,19 @@ export const metadata: Metadata = {
 
 export default async function InteriorDesignPage() {
   const siteUrl = await getSiteUrl();
+  const pageUrl = `${siteUrl}/expertise/interior-design`;
+  // Stable @ids so this page's Service/BreadcrumbList/WebPage nodes are
+  // one connected graph (WebPage --about--> Service --provider--> the
+  // sitewide Organization, WebPage --isPartOf--> the sitewide WebSite,
+  // WebPage --breadcrumb--> this page's own BreadcrumbList) instead of
+  // three disconnected blobs that happen to sit on the same page.
+  const serviceId = `${pageUrl}#service`;
+  const breadcrumbId = `${pageUrl}#breadcrumb`;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
+    '@id': serviceId,
     serviceType: 'Interior Design & Structural Engineering',
     // Reference by @id (the Organization node in layout.tsx, present on
     // every page) rather than re-describing AHW Architects as a fresh
@@ -55,10 +65,24 @@ export default async function InteriorDesignPage() {
     },
   };
 
+  const breadcrumbJsonLd = { ...buildBreadcrumbJsonLd(breadcrumbs, siteUrl), '@id': breadcrumbId };
+
+  const webPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${pageUrl}#webpage`,
+    url: pageUrl,
+    name: metadata.title as string,
+    isPartOf: { '@id': `${siteUrl}/#website` },
+    about: { '@id': serviceId },
+    breadcrumb: { '@id': breadcrumbId },
+  };
+
   return (
     <>
+      <StructuredData data={webPageJsonLd} />
       <StructuredData data={jsonLd} />
-      <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
+      <StructuredData data={breadcrumbJsonLd} />
       <DisciplinePage
         breadcrumbs={breadcrumbs}
         numeral="II"
