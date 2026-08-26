@@ -66,7 +66,7 @@ export default async function ArchitecturePage() {
         title="Architecture"
         heroImage="/images/expertise/ahw_act1_built.jpg"
         heroStatement="Over a decade of delivering iconic structures across the Middle East. Form is the consequence of rigorous engineering and unwavering execution."
-        intro="Where master planning meets feasibility. We organize land, budget, and purpose into a singular vision — before a single line is drawn. Our architecture practice spans residential design, commercial design, and large-scale renovation of existing structures."
+        intro="Where master planning meets feasibility. We organize land, budget, and purpose into a singular vision — before a single line is drawn. Our architecture practice spans residential design, commercial design, and large-scale renovation of existing structures, delivered across Egypt, Kuwait, and the wider Gulf."
         services={[
           { number: '01', name: 'Master Planning', proposition: 'Designing comprehensive urban frameworks across Mixed-Use, Residential, and Commercial sectors.' },
           { number: '02', name: 'Urban Design', proposition: 'Integrating architecture seamlessly with the public realm.' },
@@ -80,6 +80,13 @@ export default async function ArchitecturePage() {
           imagePosition: 'left',
         }}
         projectsHref="/projects"
+        featuredProject={{
+          title: 'IL Bosco Villa',
+          href: '/projects/il-bosco-villa-new-capital-egypt',
+          sector: 'Residential',
+          city: 'New Capital, Egypt',
+          image: '/ahw-projects-assets/17-IL bosco VILLA- NEW Cabital/Orignal/il-bosco-villa-new-cabital-interior-detail-3-atv8.jpg',
+        }}
         otherDisciplines={[
           { name: 'Interior Design', href: '/expertise/interior-design' },
           { name: 'Design & Build', href: '/expertise/design-build' },

@@ -21,6 +21,14 @@ export interface DisciplineFeature {
   imagePosition?: 'left' | 'right';
 }
 
+export interface DisciplineFeaturedProject {
+  title: string;
+  href: string;
+  sector: string;
+  city: string;
+  image: string;
+}
+
 export interface DisciplinePageProps {
   numeral: string;
   eyebrow: string;
@@ -32,6 +40,11 @@ export interface DisciplinePageProps {
   feature?: DisciplineFeature;
   quote?: { line1: string; line2: string };
   projectsHref: string;
+  // A single real, delivered project whose own services genuinely include
+  // this discipline — concrete evidence linked from the discipline page
+  // itself, not just the generic "View Projects" hub. Optional so a
+  // discipline with no clean match isn't forced into one.
+  featuredProject?: DisciplineFeaturedProject;
   otherDisciplines: { name: string; href: string }[];
   breadcrumbs?: BreadcrumbItem[];
 }
@@ -47,6 +60,7 @@ export const DisciplinePage: React.FC<DisciplinePageProps> = ({
   feature,
   quote,
   projectsHref,
+  featuredProject,
   otherDisciplines,
   breadcrumbs,
 }) => {
@@ -120,6 +134,34 @@ export const DisciplinePage: React.FC<DisciplinePageProps> = ({
           <div className={styles.quoteContent}>
             <p className={styles.quoteText}>{quote.line1}</p>
             <p className={styles.quoteTextMuted}>{quote.line2}</p>
+          </div>
+        </section>
+      )}
+
+      {/* EVIDENCE — a real, delivered project in this discipline */}
+      {featuredProject && (
+        <section className={styles.evidenceSection}>
+          <div className={styles.container}>
+            <span className={styles.evidenceLabel}>Delivered</span>
+            <Link href={featuredProject.href} className={styles.evidenceCard}>
+              <div className={styles.evidenceImageWrapper}>
+                <Image
+                  src={featuredProject.image}
+                  alt={featuredProject.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 240px"
+                  className={styles.evidenceImage}
+                />
+              </div>
+              <div>
+                <h3 className={styles.evidenceTitle}>{featuredProject.title}</h3>
+                <span className={styles.evidenceMeta}>
+                  {featuredProject.sector} · {featuredProject.city}
+                </span>
+                <br />
+                <span className={styles.evidenceLinkText}>View Project →</span>
+              </div>
+            </Link>
           </div>
         </section>
       )}

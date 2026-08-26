@@ -66,7 +66,7 @@ export default async function InteriorDesignPage() {
         title="Interior Design"
         heroImage="/images/expertise/ahw_act2_built.jpg"
         heroStatement="From the structural skeleton to the tactile surface. Every detail is engineered for human experience and structural integrity."
-        intro="Beautiful spaces demand rigorous engineering design. By integrating our interior design and structural teams from day one, we eliminate friction between aesthetic intent and technical reality — across hospitality design, workplace design, office design, and luxury residential interiors."
+        intro="Beautiful spaces demand rigorous engineering design. By integrating our interior design and structural teams from day one, we eliminate friction between aesthetic intent and technical reality — across hospitality design, workplace design, office design, and luxury residential interiors, from Cairo to Kuwait City."
         services={[
           { number: '04', name: 'Structural Engineering', proposition: 'The invisible strength that makes extraordinary architecture possible.' },
           { number: '05', name: 'Interior Design', proposition: 'Curating deeply personal, luxury interiors through space planning and bespoke joinery.' },
@@ -81,6 +81,13 @@ export default async function InteriorDesignPage() {
         }}
         quote={{ line1: 'Design is only a promise.', line2: 'Execution is the proof.' }}
         projectsHref="/projects"
+        featuredProject={{
+          title: 'Stone Residence',
+          href: '/projects/stone-residence-new-cairo-egypt',
+          sector: 'Residential',
+          city: 'New Cairo, Egypt',
+          image: '/ahw-projects-assets/07-stone-residence-new-cairo/hub-flagship.jpg',
+        }}
         otherDisciplines={[
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Design & Build', href: '/expertise/design-build' },

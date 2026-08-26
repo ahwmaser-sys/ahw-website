@@ -80,6 +80,13 @@ export default async function EngineeringProjectManagementPage() {
           imagePosition: 'left',
         }}
         projectsHref="/projects"
+        featuredProject={{
+          title: 'Beit Al Watan Smart Residential Building',
+          href: '/projects/beit-al-watan-residential-new-cairo-egypt',
+          sector: 'Residential',
+          city: 'New Cairo, Egypt',
+          image: '/ahw-projects-assets/19-beit-al-watan-building/orignal/beit-al-watan-construction-10.png',
+        }}
         otherDisciplines={[
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Interior Design', href: '/expertise/interior-design' },

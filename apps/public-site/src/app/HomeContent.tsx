@@ -134,7 +134,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
 
               <div className={styles.introContent}>
                 <p className={styles.introText}>
-                  We believe that true architectural excellence is born at the intersection of visionary creativity and flawless execution. Our company operates globally, delivering end-to-end solutions from master planning and conceptual design through to complete construction and bespoke interior fit-outs. We do not just design spaces; we curate environments that inspire human connection, operational efficiency, and lasting legacy.
+                  We believe that true architectural excellence is born at the intersection of visionary creativity and flawless execution. Across Kuwait, Egypt, and the UAE, we deliver end-to-end solutions from master planning and conceptual design through to complete construction and bespoke interior fit-outs. We do not just design spaces; we curate environments that inspire human connection, operational efficiency, and lasting legacy.
                 </p>
 
                 <div className={styles.trustGrid}>

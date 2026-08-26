@@ -66,7 +66,7 @@ export default async function DesignBuildPage() {
         title="Design & Build"
         heroImage="/images/expertise/ahw_act3_built.jpg"
         heroStatement="We do not just hand over drawings. We take full accountability for the physical realization of the project."
-        intro="A singular point of responsibility from concept to completion. Our construction management and turnkey project delivery model means we manage the grit of the construction site to protect the purity of the design, overseeing timeline, budget, and complex logistics."
+        intro="A singular point of responsibility from concept to completion. Our construction management and turnkey project delivery model means we manage the grit of the construction site to protect the purity of the design, overseeing timeline, budget, and complex logistics for clients across Egypt and Kuwait."
         services={[
           { number: '08', name: 'Design & Build', proposition: 'A singular point of responsibility from concept to completion, delivered as turnkey projects.' },
           { number: '09', name: 'Project Management', proposition: 'Rigorous oversight of timeline, budget, and complex logistics.' },
@@ -80,6 +80,13 @@ export default async function DesignBuildPage() {
           imagePosition: 'left',
         }}
         projectsHref="/projects"
+        featuredProject={{
+          title: 'AUREA Social House',
+          href: '/projects/aurea-social-house-new-capital-egypt',
+          sector: 'Hospitality',
+          city: 'New Administrative Capital, Cairo',
+          image: '/ahw-projects-assets/18-AUREA SOCIAL HOUSE/design/aurea-social-house-interior-detail-146-4h82.png',
+        }}
         otherDisciplines={[
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Interior Design', href: '/expertise/interior-design' },

@@ -263,6 +263,82 @@
   color: rgba(242, 244, 247, 0.6);
 }
 
+/* EVIDENCE — a real, delivered project demonstrating this discipline */
+.evidenceSection {
+  padding: var(--space-16) 0;
+  border-top: 1px solid var(--color-border-strong);
+}
+
+.evidenceLabel {
+  display: block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-brand-stone);
+  margin-bottom: var(--space-6);
+}
+
+.evidenceCard {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (min-width: 768px) {
+  .evidenceCard {
+    grid-template-columns: 240px 1fr;
+    align-items: center;
+  }
+}
+
+.evidenceImageWrapper {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.evidenceImage {
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.evidenceCard:hover .evidenceImage {
+  transform: scale(1.03);
+}
+
+.evidenceTitle {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-light);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.evidenceMeta {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.evidenceLinkText {
+  display: inline-block;
+  margin-top: var(--space-4);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-paper);
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: var(--space-1);
+  transition: opacity var(--transition-fast);
+}
+
+.evidenceCard:hover .evidenceLinkText {
+  opacity: 0.7;
+}
+
 /* CTA */
 .ctaSection {
   padding: var(--space-24) 0;

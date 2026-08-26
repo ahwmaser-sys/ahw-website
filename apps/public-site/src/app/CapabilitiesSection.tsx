@@ -10,6 +10,7 @@ const capabilityImageAlt: Record<string, string> = {
   '/images/placeholders/ahw_service_interior.jpg': 'AHW Architects — Interior Design discipline, bespoke luxury interiors',
   '/images/expertise/ahw_act3_built.jpg': 'AHW Architects — Design & Build discipline, construction management',
   '/images/placeholders/ahw_retail.jpg': 'AHW Architects — Fit-Out discipline, premium retail and hospitality completion',
+  '/images/expertise/ahw_act2_built.jpg': 'AHW Architects — Engineering & Project Management discipline, structural and MEP coordination',
 };
 
 // The only interactive piece of the homepage's "Disciplines" section (hover
@@ -105,6 +106,25 @@ export function CapabilitiesSection() {
                   The final layer of refinement. Whether a five-star hospitality venue or a flagship retail space, our fit-out teams execute with absolute precision, ensuring you step into a flawless environment.
                 </p>
                 <Link href="/expertise/fit-out" className={styles.exploreLinkAward}>Explore Fit-Out →</Link>
+              </div>
+            </div>
+
+            <div
+              className={styles.capAwardItem}
+              onMouseEnter={() => setActiveCapabilityImage('/images/expertise/ahw_act2_built.jpg')}
+            >
+              <div className={styles.capAwardItemHeader}>
+                <span className={styles.capAwardNum}>05</span>
+                <h3 className={styles.capAwardTitle}>Engineering &amp; Project Management</h3>
+              </div>
+              <div className={styles.capAwardItemImageMobile}>
+                <Image src="/images/expertise/ahw_act2_built.jpg" alt="AHW Architects — Engineering & Project Management discipline" fill sizes="100vw" className={styles.capAwardImage} />
+              </div>
+              <div className={styles.capAwardItemContent}>
+                <p className={styles.capAwardDesc}>
+                  Structural and MEP coordination running in parallel with the design itself, plus hands-on project management and site supervision — the discipline that carries a project from drawing to a building that performs exactly as intended.
+                </p>
+                <Link href="/expertise/engineering-project-management" className={styles.exploreLinkAward}>Explore Engineering →</Link>
               </div>
             </div>
 

@@ -66,7 +66,7 @@ export default async function FitOutPage() {
         title="Fit-Out"
         heroImage="/images/expertise/ahw_act4_built_dubai.jpg"
         heroStatement="The final layer of refinement. Where raw space becomes a premium, fully operational environment."
-        intro="Whether it is a five-star hospitality design venue, a flagship retail design space, or a commercial design fit-out, our teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space."
+        intro="Whether it is a five-star hospitality design venue, a flagship retail design space, or a commercial design fit-out, our teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space — in Cairo, Kuwait City, or across the Gulf."
         services={[
           { number: '13', name: 'Interior Fit-Out', proposition: 'Premium, turnkey interior completions built to the highest standards.' },
           { number: '14', name: 'Authority Approvals', proposition: 'Navigating regulatory frameworks to ensure compliant, seamless handover.' },
@@ -79,6 +79,13 @@ export default async function FitOutPage() {
           imagePosition: 'left',
         }}
         projectsHref="/projects"
+        featuredProject={{
+          title: 'AHW Architects HQ',
+          href: '/projects/ahw-architects-hq-maadi-egypt',
+          sector: 'Workplace',
+          city: 'Zahraa Al Maadi, Egypt',
+          image: '/ahw-projects-assets/06-ahw-hq-zahraa-al-maadi/build/ahw-hq-zahraa-al-maadi-exterior-facade-yjjb.jpg',
+        }}
         otherDisciplines={[
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Interior Design', href: '/expertise/interior-design' },
