@@ -110,6 +110,15 @@ export default async function FitOutPage() {
           city: 'Zahraa Al Maadi, Egypt',
           image: '/ahw-projects-assets/06-ahw-hq-zahraa-al-maadi/build/ahw-hq-zahraa-al-maadi-exterior-facade-yjjb.jpg',
         }}
+        additionalProjects={[
+          {
+            title: 'Samsung Store, Nasr City',
+            href: '/projects/samsung-store-nasr-city-egypt',
+            sector: 'Retail',
+            city: 'Nasr City, Egypt',
+            image: '/ahw-projects-assets/05-samsung-nasr-city/Orignal/samsung-nasr-city-exterior-facade-4cks.png',
+          },
+        ]}
         otherDisciplines={[
           { name: 'Architecture', href: '/expertise/architecture' },
           { name: 'Interior Design', href: '/expertise/interior-design' },

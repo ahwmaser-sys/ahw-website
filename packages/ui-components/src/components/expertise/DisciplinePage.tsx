@@ -45,6 +45,11 @@ export interface DisciplinePageProps {
   // itself, not just the generic "View Projects" hub. Optional so a
   // discipline with no clean match isn't forced into one.
   featuredProject?: DisciplineFeaturedProject;
+  // Further real, delivered projects whose services[] also genuinely
+  // include this discipline — rendered alongside featuredProject rather
+  // than replacing it. Optional and additive: omitting it leaves this
+  // section identical to before for every page that doesn't pass it.
+  additionalProjects?: DisciplineFeaturedProject[];
   otherDisciplines: { name: string; href: string }[];
   breadcrumbs?: BreadcrumbItem[];
 }
@@ -61,6 +66,7 @@ export const DisciplinePage: React.FC<DisciplinePageProps> = ({
   quote,
   projectsHref,
   featuredProject,
+  additionalProjects,
   otherDisciplines,
   breadcrumbs,
 }) => {
@@ -143,25 +149,48 @@ export const DisciplinePage: React.FC<DisciplinePageProps> = ({
         <section className={styles.evidenceSection}>
           <div className={styles.container}>
             <span className={styles.evidenceLabel}>Delivered</span>
-            <Link href={featuredProject.href} className={styles.evidenceCard}>
-              <div className={styles.evidenceImageWrapper}>
-                <Image
-                  src={featuredProject.image}
-                  alt={featuredProject.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 240px"
-                  className={styles.evidenceImage}
-                />
-              </div>
-              <div>
-                <h3 className={styles.evidenceTitle}>{featuredProject.title}</h3>
-                <span className={styles.evidenceMeta}>
-                  {featuredProject.sector} · {featuredProject.city}
-                </span>
-                <br />
-                <span className={styles.evidenceLinkText}>View Project →</span>
-              </div>
-            </Link>
+            <div className={styles.evidenceList}>
+              <Link href={featuredProject.href} className={styles.evidenceCard}>
+                <div className={styles.evidenceImageWrapper}>
+                  <Image
+                    src={featuredProject.image}
+                    alt={featuredProject.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 240px"
+                    className={styles.evidenceImage}
+                  />
+                </div>
+                <div>
+                  <h3 className={styles.evidenceTitle}>{featuredProject.title}</h3>
+                  <span className={styles.evidenceMeta}>
+                    {featuredProject.sector} · {featuredProject.city}
+                  </span>
+                  <br />
+                  <span className={styles.evidenceLinkText}>View Project →</span>
+                </div>
+              </Link>
+              {additionalProjects?.map((project) => (
+                <Link key={project.href} href={project.href} className={styles.evidenceCard}>
+                  <div className={styles.evidenceImageWrapper}>
+                    <Image
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 240px"
+                      className={styles.evidenceImage}
+                    />
+                  </div>
+                  <div>
+                    <h3 className={styles.evidenceTitle}>{project.title}</h3>
+                    <span className={styles.evidenceMeta}>
+                      {project.sector} · {project.city}
+                    </span>
+                    <br />
+                    <span className={styles.evidenceLinkText}>View Project →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
