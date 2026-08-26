@@ -206,7 +206,12 @@ export async function testIntegrationAction(_prevState: ActionState, formData: F
   }
   await recordIntegrationTest(parsed.data.type, result, parsed.data.officeId ?? null);
   revalidatePath(SETTINGS_PATH);
-  return result.ok ? { success: 'Connection test passed.' } : { error: `Connection test failed: ${result.error}` };
+  if (result.ok) return { success: 'Connection test passed.' };
+  // PENDING is a real, valid credential — the API just isn't available
+  // yet (e.g. Google hasn't approved Business Profile access). Surfaced
+  // as informational, not as a red "failed" message.
+  if (result.status === 'PENDING') return { success: result.error ?? 'Authenticated — API access is pending.' };
+  return { error: `Connection test failed: ${result.error}` };
 }
 
 const aiSettingsSchema = z.object({

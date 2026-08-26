@@ -136,23 +136,29 @@ export async function disconnectIntegration(type: IntegrationType, officeId?: st
 
 export async function recordIntegrationTest(
   type: IntegrationType,
-  result: { ok: boolean; error?: string; metadata?: Record<string, unknown> },
+  result: { ok: boolean; error?: string; metadata?: Record<string, unknown>; status?: 'PENDING' },
   officeId?: string | null
 ): Promise<void> {
   const office = officeKey(officeId);
   const now = new Date();
+  // result.status overrides the plain ok→CONNECTED/ERROR mapping for the
+  // one case a credential is genuinely valid but the API it authenticates
+  // isn't usable yet (Google Business Profile's quota-pending state) —
+  // PENDING reads as "not fully ready," not "broken," on every badge
+  // that already renders it (Settings → Integrations, Ads).
+  const status = result.status ?? (result.ok ? 'CONNECTED' : 'ERROR');
   await upsertIntegrationConfig(
     type,
     office,
     {
-      status: result.ok ? 'CONNECTED' : 'ERROR',
+      status,
       lastTestedAt: now,
       lastSuccessAt: result.ok ? now : null,
       lastError: result.ok ? null : (result.error ?? 'Test failed.'),
       metadata: toJsonValue(result.metadata ?? {}),
     },
     {
-      status: result.ok ? 'CONNECTED' : 'ERROR',
+      status,
       lastTestedAt: now,
       ...(result.ok ? { lastSuccessAt: now, lastError: null } : { lastError: result.error ?? 'Test failed.' }),
       ...(result.metadata ? { metadata: toJsonValue(result.metadata) } : {}),

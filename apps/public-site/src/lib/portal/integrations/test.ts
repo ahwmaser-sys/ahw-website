@@ -7,11 +7,19 @@ import * as metaAds from '../ads/meta-ads';
 import * as linkedInAds from '../ads/linkedin-ads';
 import * as tiktokAds from '../ads/tiktok-ads';
 import { AdPlatformApiError } from '../ads/types';
+import { fetchGoogleBusinessApi, isGoogleBusinessQuotaPendingBody } from './google-business-http';
 
 export interface TestResult {
   ok: boolean;
   error?: string;
   metadata?: Record<string, unknown>;
+  // Set only for the one case OAuth succeeds but the API itself can't be
+  // used yet (Google Business Profile's quota-pending state) — lets the
+  // caller persist IntegrationStatus.PENDING (an amber "not fully ready"
+  // badge, already used elsewhere in this admin) instead of ERROR (a red
+  // "broken" badge), so a valid, working credential never gets reported
+  // as if it were revoked or misconfigured.
+  status?: 'PENDING';
 }
 
 // One real, live, read-only API call per integration type — never a
@@ -65,10 +73,21 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       // (confirmed: passing the full v4 path returns Google's generic
       // frontend 404 page, not a JSON API error).
       const locationOnly = cred.locationId.replace(/^accounts\/[^/]+\//, '');
-      const res = await fetch(`https://mybusinessbusinessinformation.googleapis.com/v1/${locationOnly}?readMask=name,title`, {
+      const res = await fetchGoogleBusinessApi(`https://mybusinessbusinessinformation.googleapis.com/v1/${locationOnly}?readMask=name,title`, {
         headers: { Authorization: `Bearer ${cred.accessToken}` },
       });
-      if (!res.ok) return { ok: false, error: await res.text() };
+      if (!res.ok) {
+        const bodyText = await res.text();
+        if (res.status === 429 && isGoogleBusinessQuotaPendingBody(bodyText)) {
+          return {
+            ok: false,
+            status: 'PENDING',
+            error:
+              'Authenticated with Google successfully — the OAuth credential is valid. Google has not yet approved this project for Business Profile API access (quota is 0), so no API call can succeed until Google grants it. No action needed here; this is not a broken connection.',
+          };
+        }
+        return { ok: false, error: bodyText };
+      }
       return { ok: true };
     }
     case 'GOOGLE_ANALYTICS': {

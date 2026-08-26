@@ -1,6 +1,7 @@
 import type { SocialAdapter, SocialPostSource, FormattedSocialContent, PublishResult } from './types';
 import { canonicalNewsUrl } from './types';
 import { getIntegrationCredential } from '../integrations/store';
+import { fetchGoogleBusinessApi } from '../integrations/google-business-http';
 
 // Google Business Profile API access requires a Google-approved access
 // request and a verified Business Profile — restricted significantly
@@ -48,7 +49,10 @@ export const googleBusinessAdapter: SocialAdapter = {
       throw new Error('Google Business Profile adapter is not configured — this should never be called while isConfigured() is false.');
     }
 
-    const res = await fetch(`${API}/${cred.locationId}/localPosts`, {
+    // A 429 here unambiguously means Google rejected the request before
+    // any server-side effect (no post was created) — safe for the
+    // shared retry wrapper to reissue the same POST body.
+    const res = await fetchGoogleBusinessApi(`${API}/${cred.locationId}/localPosts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

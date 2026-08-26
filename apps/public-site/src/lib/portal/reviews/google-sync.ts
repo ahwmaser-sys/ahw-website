@@ -2,6 +2,55 @@ import { prisma } from '../db';
 import { mergeIntegrationMetadata } from '../integrations/store';
 import { fetchReviewsPage } from './google-api';
 
+// All GOOGLE_BUSINESS offices share ONE Google Cloud project (same
+// GOOGLE_CLIENT_ID/SECRET as every other Google integration in this
+// app), which means they share ONE project-level API quota too — a
+// sync running for Egypt and a sync running for Kuwait at the same
+// moment would stack two request streams against that same shared
+// quota. The lock below is deliberately cross-office: it checks every
+// GOOGLE_BUSINESS row, not just this office's own, so "one office's
+// sync can't burst another office's headroom" (and a double-click on
+// the same office's Sync Now button) are the same guarantee.
+//
+// This is a best-effort lock (a read-then-write on IntegrationConfig
+// .metadata, not a database-enforced atomic lock) — correct enough for
+// this app's actual scale (a handful of admins clicking a button by
+// hand, never a high-concurrency path) without introducing a new
+// locking primitive (e.g. a Postgres advisory lock) this codebase has
+// never used anywhere else. STALE_LOCK_MS bounds the downside: a sync
+// that crashed mid-run without releasing the lock can never block
+// syncing for longer than this.
+const STALE_LOCK_MS = 5 * 60 * 1000;
+
+interface SyncLockMetadata {
+  syncInProgress?: boolean;
+  syncStartedAt?: string;
+}
+
+export interface SyncLockResult {
+  acquired: boolean;
+  /** Which office's sync is currently holding the lock, when acquired is false. */
+  heldByOfficeId?: string | null;
+}
+
+async function acquireGoogleBusinessSyncLock(officeId: string): Promise<SyncLockResult> {
+  const rows = await prisma.integrationConfig.findMany({ where: { type: 'GOOGLE_BUSINESS' } });
+  const now = Date.now();
+  for (const row of rows) {
+    const meta = (row.metadata as SyncLockMetadata | null) ?? {};
+    if (!meta.syncInProgress) continue;
+    const startedAtMs = meta.syncStartedAt ? Date.parse(meta.syncStartedAt) : NaN;
+    const isStale = Number.isNaN(startedAtMs) || now - startedAtMs >= STALE_LOCK_MS;
+    if (!isStale) return { acquired: false, heldByOfficeId: row.officeId };
+  }
+  await mergeIntegrationMetadata('GOOGLE_BUSINESS', officeId, { syncInProgress: true, syncStartedAt: new Date(now).toISOString() });
+  return { acquired: true };
+}
+
+async function releaseGoogleBusinessSyncLock(officeId: string): Promise<void> {
+  await mergeIntegrationMetadata('GOOGLE_BUSINESS', officeId, { syncInProgress: false });
+}
+
 // Server-only. Never imported by a Client Component — the credential this
 // reads (access token + Business Profile location) never leaves
 // google-business-token.ts. Reuses the SAME GOOGLE_BUSINESS credential
@@ -34,6 +83,30 @@ export interface ReviewSyncResult {
 // office.googleBusinessProfileUrl (already a field, admin-editable) is a
 // verified link. Never constructed here.
 export async function syncGoogleReviewsForOffice(officeId: string): Promise<ReviewSyncResult> {
+  const lock = await acquireGoogleBusinessSyncLock(officeId);
+  if (!lock.acquired) {
+    return {
+      ok: false,
+      retrieved: 0,
+      created: 0,
+      updated: 0,
+      unchanged: 0,
+      skipped: 0,
+      error:
+        lock.heldByOfficeId === officeId
+          ? 'A sync for this office is already running — wait for it to finish before starting another.'
+          : `A Google Business Profile sync is already running for another office (${lock.heldByOfficeId ?? 'unknown'}) — it shares the same Google Cloud project quota, so this waits its turn. Try again shortly.`,
+    };
+  }
+
+  try {
+    return await runGoogleReviewsSync(officeId);
+  } finally {
+    await releaseGoogleBusinessSyncLock(officeId);
+  }
+}
+
+async function runGoogleReviewsSync(officeId: string): Promise<ReviewSyncResult> {
   const result: ReviewSyncResult = { ok: true, retrieved: 0, created: 0, updated: 0, unchanged: 0, skipped: 0 };
   let pageToken: string | undefined;
   let pages = 0;

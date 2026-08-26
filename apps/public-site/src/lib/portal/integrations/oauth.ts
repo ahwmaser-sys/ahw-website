@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 import type { IntegrationType } from '@prisma/client';
+import { fetchGoogleBusinessApi } from './google-business-http';
 
 // OAuth for the platforms that support it (Instagram/Facebook share one
 // Meta app; LinkedIn and Google Business Profile each have their own).
@@ -178,7 +179,7 @@ export async function exchangeCode(type: OAuthIntegration, code: string): Promis
 
 async function discoverGoogleBusinessLocationId(accessToken: string): Promise<string | null> {
   try {
-    const accountsRes = await fetch('https://mybusinessaccountmanagement.googleapis.com/v1/accounts', {
+    const accountsRes = await fetchGoogleBusinessApi('https://mybusinessaccountmanagement.googleapis.com/v1/accounts', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!accountsRes.ok) return null;
@@ -186,7 +187,10 @@ async function discoverGoogleBusinessLocationId(accessToken: string): Promise<st
 
     const locationNames: string[] = [];
     for (const account of accountsBody.accounts ?? []) {
-      const locationsRes = await fetch(
+      // Sequential, not Promise.all — an account with many locations
+      // should not fan out simultaneous requests against the same
+      // project-wide quota this discovery call itself might be gated by.
+      const locationsRes = await fetchGoogleBusinessApi(
         `https://mybusinessbusinessinformation.googleapis.com/v1/${account.name}/locations?readMask=name,title`,
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );

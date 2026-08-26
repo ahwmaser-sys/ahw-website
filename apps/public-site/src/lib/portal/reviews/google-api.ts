@@ -1,4 +1,5 @@
 import { getFreshGoogleBusinessAccessToken } from '../integrations/google-business-token';
+import { fetchGoogleBusinessApi, isGoogleBusinessQuotaPendingBody } from '../integrations/google-business-http';
 
 // Low-level Google Business Profile Reviews API client — the one place
 // that actually calls Google for this feature. Both the sync engine
@@ -50,17 +51,6 @@ export type ReviewsApiPageResult =
   | { kind: 'HTTP_ERROR'; message: string }
   | { kind: 'NETWORK_ERROR'; message: string };
 
-// Google's quota-exceeded error body carries an ErrorInfo detail with
-// metadata.quota_limit_value — "0" specifically means the Cloud project's
-// Business Profile API access hasn't been approved yet (this project's
-// exact, current state — Case 0-7592000041310, pending). A generic 429
-// with a nonzero/absent quota_limit_value is real throttling instead, and
-// gets a different message (retry later, vs. nothing to do but wait on
-// Google's approval).
-function isQuotaPendingBody(bodyText: string): boolean {
-  return bodyText.includes('quota_limit_value') && /"quota_limit_value"\s*:\s*"0"/.test(bodyText);
-}
-
 export async function fetchReviewsPage(officeId: string, opts: { pageSize: number; pageToken?: string | undefined }): Promise<ReviewsApiPageResult> {
   const token = await getFreshGoogleBusinessAccessToken(officeId);
   if (!token.ok) {
@@ -71,7 +61,7 @@ export async function fetchReviewsPage(officeId: string, opts: { pageSize: numbe
     const url = new URL(`${REVIEWS_API_BASE}/${token.locationId}/reviews`);
     url.searchParams.set('pageSize', String(opts.pageSize));
     if (opts.pageToken) url.searchParams.set('pageToken', opts.pageToken);
-    return fetch(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } });
+    return fetchGoogleBusinessApi(url.toString(), { headers: { Authorization: `Bearer ${accessToken}` } });
   };
 
   try {
@@ -95,7 +85,7 @@ export async function fetchReviewsPage(officeId: string, opts: { pageSize: numbe
     }
     if (res.status === 429) {
       const bodyText = await res.text().catch(() => '');
-      if (isQuotaPendingBody(bodyText)) {
+      if (isGoogleBusinessQuotaPendingBody(bodyText)) {
         return {
           kind: 'QUOTA_PENDING',
           message: 'Google API access is not yet approved for this project (quota is 0). This is expected while the Business Profile Basic API Access request (Case 0-7592000041310) is pending — no action needed here; try again after Google approves access.',
