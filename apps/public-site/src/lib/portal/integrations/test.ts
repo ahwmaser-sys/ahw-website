@@ -8,6 +8,7 @@ import * as linkedInAds from '../ads/linkedin-ads';
 import * as tiktokAds from '../ads/tiktok-ads';
 import { AdPlatformApiError } from '../ads/types';
 import { fetchGoogleBusinessApi, isGoogleBusinessQuotaPendingBody } from './google-business-http';
+import { getFreshGoogleBusinessAccessToken } from './google-business-token';
 
 export interface TestResult {
   ok: boolean;
@@ -56,25 +57,37 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       return { ok: true };
     }
     case 'GOOGLE_BUSINESS': {
-      const cred = await getIntegrationCredential<{ accessToken: string; locationId?: string }>(type, officeId);
-      if (!cred) return { ok: false, error: 'Not connected.' };
-      if (!cred.locationId) return { ok: false, error: 'Missing Location ID — finish setup below.' };
+      // getFreshGoogleBusinessAccessToken, not getIntegrationCredential
+      // directly — this previously read the raw stored accessToken and
+      // sent it as-is, with no expiry check. Google access tokens last
+      // ~1 hour; any test run after that returned 401 UNAUTHENTICATED
+      // regardless of whether the underlying credential/refresh token
+      // was actually fine (confirmed in production: connected 11:06 AM,
+      // tested ~4 hours later, 401). google-api.ts's Reviews path
+      // already went through this same helper correctly — this brings
+      // the generic test path in line with it instead of duplicating a
+      // second, incomplete token-handling implementation. Shared across
+      // every office: officeId is a parameter, nothing here is Egypt- or
+      // Kuwait-specific.
+      if (!officeId) return { ok: false, error: 'Missing office context.' };
+      const token = await getFreshGoogleBusinessAccessToken(officeId);
+      if (!token.ok) return { ok: false, error: token.error };
       // Business Information API (current), not the legacy My Business
       // API v4 — Google has been sunsetting v4 read endpoints in favor of
       // this one, so this is the check least likely to break out from
       // under a stored, working credential.
       //
-      // cred.locationId is stored (and entered via the follow-up form) as
-      // the full v4-style resource path "accounts/{account}/locations/{location}"
+      // locationId is stored (and entered via the follow-up form) as the
+      // full v4-style resource path "accounts/{account}/locations/{location}"
       // — that's what the publish adapter (google-business.ts, still on
       // v4) needs. This v1 API addresses a Location as a top-level
       // resource, "locations/{location}" with no account segment, so the
       // account prefix has to be stripped here or Google 404s the request
       // (confirmed: passing the full v4 path returns Google's generic
       // frontend 404 page, not a JSON API error).
-      const locationOnly = cred.locationId.replace(/^accounts\/[^/]+\//, '');
+      const locationOnly = token.locationId.replace(/^accounts\/[^/]+\//, '');
       const res = await fetchGoogleBusinessApi(`https://mybusinessbusinessinformation.googleapis.com/v1/${locationOnly}?readMask=name,title`, {
-        headers: { Authorization: `Bearer ${cred.accessToken}` },
+        headers: { Authorization: `Bearer ${token.accessToken}` },
       });
       if (!res.ok) {
         const bodyText = await res.text();
