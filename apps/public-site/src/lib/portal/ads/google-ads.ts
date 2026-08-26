@@ -66,10 +66,17 @@ async function gaqlSearch(credential: GoogleAdsCredential, query: string): Promi
   const results: Record<string, unknown>[] = [];
   let pageToken: string | undefined;
   do {
+    // No pageSize here — GoogleAdsService.Search (v19+) rejects it with
+    // PAGE_SIZE_NOT_SUPPORTED and always returns a fixed 10,000-row page.
+    // Pagination still works via pageToken/nextPageToken below; this is
+    // the one shared search function every Google Ads call in this file
+    // goes through (listCampaigns, listConversionActions, testConnection),
+    // so the fix applies to every account (Egypt, Kuwait, any future one)
+    // with no per-account branching.
     const res = await fetch(`${API_BASE}/customers/${customerId}/googleAds:search`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ query, pageToken, pageSize: 200 }),
+      body: JSON.stringify({ query, pageToken }),
     });
     if (!res.ok) throw new AdPlatformApiError('GOOGLE_ADS', `${res.status} ${await res.text()}`);
     const body = (await res.json()) as { results?: Record<string, unknown>[]; nextPageToken?: string };
