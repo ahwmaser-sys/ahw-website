@@ -12,6 +12,22 @@ export const stats = [
   { value: '3+', label: 'Markets Served' },
 ] as const;
 
+// Overrides the first two values above with the live Settings -> Brand
+// -> Company Information numbers (the same "22+"/"250+" facts shown on
+// Home/About) — m² Delivered and Markets Served aren't part of that
+// admin form, so they stay as-is. Takes plain strings rather than
+// importing lib/portal/brand-kit.ts directly so this file (imported by
+// a 'use client' component) stays free of any server-only/Prisma
+// dependency; callers already fetch BrandKit for other reasons.
+export function getStatsWithCompanyInfo(yearsOfExperience: string, totalProjects: string) {
+  return [
+    { value: yearsOfExperience, label: stats[0].label },
+    { value: totalProjects, label: stats[1].label },
+    stats[2],
+    stats[3],
+  ] as const;
+}
+
 // Opens on the problem an executive reader already recognizes (design
 // and delivery are not the same skill) rather than a firm-description
 // sentence any practice could write about itself.

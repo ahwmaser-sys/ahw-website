@@ -221,6 +221,12 @@ const companyInfoSchema = z.object({
   legalName: z.string().trim().min(1, 'Legal name is required.'),
   tagline: z.string().trim().optional(),
   founded: z.string().trim().optional(),
+  // Free-text, not numeric — these render verbatim as "22+", "250+",
+  // "4" etc. sitewide, so an admin can keep the existing "+" convention
+  // or drop it, without the form rejecting either.
+  yearsOfExperience: z.string().trim().optional(),
+  totalProjects: z.string().trim().optional(),
+  globalOffices: z.string().trim().optional(),
 });
 
 export async function updateCompanyInfo(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -230,6 +236,9 @@ export async function updateCompanyInfo(_prevState: ActionState, formData: FormD
     legalName: formData.get('legalName'),
     tagline: formData.get('tagline') || '',
     founded: formData.get('founded') || '',
+    yearsOfExperience: formData.get('yearsOfExperience') || '',
+    totalProjects: formData.get('totalProjects') || '',
+    globalOffices: formData.get('globalOffices') || '',
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
 

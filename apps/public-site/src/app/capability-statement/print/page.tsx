@@ -3,10 +3,11 @@ import { TrackedPhoneLink } from '@agp/ui-components';
 import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
 import { getCapabilityStatementQrCodes } from '../qrcodes';
+import { getActiveBrandKit, getCompanyInfo } from '../../../lib/portal/brand-kit';
 import {
   firmOverview,
   firmPromise,
-  stats,
+  getStatsWithCompanyInfo,
   whyAhw,
   services,
   audiences,
@@ -70,8 +71,10 @@ const P = ({ src, alt, className }: { src: string; alt: string; className?: stri
 
 export default async function CapabilityStatementPrint() {
   const [workHero, ...workRest] = featuredWork;
-  const [offices, siteUrl] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl()]);
+  const [offices, siteUrl, brandKit] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl(), getActiveBrandKit()]);
   const qrCodes = await getCapabilityStatementQrCodes(siteUrl);
+  const companyInfo = getCompanyInfo(brandKit);
+  const stats = getStatsWithCompanyInfo(companyInfo.yearsOfExperience, companyInfo.totalProjects);
   const codesFor = (officeId: string) => qrCodes.byOffice.find((q) => q.officeId === officeId)?.codes ?? [];
   const displayUrl = siteUrl.replace(/^https?:\/\//, '');
 

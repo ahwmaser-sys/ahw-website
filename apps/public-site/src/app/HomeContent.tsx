@@ -1,4 +1,4 @@
-import { Hero, ImageRotator, aboutData, StructuredData, publications, type Office } from '@agp/ui-components';
+import { Hero, ImageRotator, StructuredData, publications, type Office } from '@agp/ui-components';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Review } from '@prisma/client';
@@ -28,9 +28,13 @@ export interface HomeContentProps {
   reviews: Review[];
   reviewsAggregate: { averageRating: number; totalCount: number } | null;
   reviewsGoogleUrl: string | null;
+  /** Trust-stat block ("22+ Years of Excellence", "250+ Projects
+   *  Delivered", "4 Global Offices") — admin-editable via Settings ->
+   *  Brand -> Company Information, fetched by app/page.tsx. */
+  companyStats: { yearsOfExperience: string; totalProjects: string; globalOffices: string };
 }
 
-export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl }: HomeContentProps) {
+export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl, companyStats }: HomeContentProps) {
   // This node shares its @id with the root Organization in layout.tsx, so
   // its single `address` field is what external tools reading "the"
   // business address for that merged entity pick up — deliberately the
@@ -139,15 +143,15 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
 
                 <div className={styles.trustGrid}>
                   <div className={styles.statItem}>
-                    <span className={styles.statNumber}>{aboutData.yearsOfExperience}</span>
+                    <span className={styles.statNumber}>{companyStats.yearsOfExperience}</span>
                     <span className={styles.statLabel}>Years of Excellence</span>
                   </div>
                   <div className={styles.statItem}>
-                    <span className={styles.statNumber}>{aboutData.totalProjects}</span>
+                    <span className={styles.statNumber}>{companyStats.totalProjects}</span>
                     <span className={styles.statLabel}>Projects Delivered</span>
                   </div>
                   <div className={styles.statItem}>
-                    <span className={styles.statNumber}>{aboutData.offices.length}</span>
+                    <span className={styles.statNumber}>{companyStats.globalOffices}</span>
                     <span className={styles.statLabel}>Global Offices</span>
                   </div>
                 </div>

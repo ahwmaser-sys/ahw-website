@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { aboutData, Timeline, StructuredData, NativeReveal, Breadcrumbs, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { PrincipalExperience } from './PrincipalExperience';
 import { getSiteUrl } from '../../../lib/site-config';
+import { getActiveBrandKit, getCompanyInfo } from '../../../lib/portal/brand-kit';
 import styles from './page.module.css';
 
 const breadcrumbs = [
@@ -35,7 +36,8 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutUsPage() {
-  const siteUrl = await getSiteUrl();
+  const [siteUrl, brandKit] = await Promise.all([getSiteUrl(), getActiveBrandKit()]);
+  const companyStats = getCompanyInfo(brandKit);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -121,15 +123,15 @@ export default async function AboutUsPage() {
 
             <div className={styles.statsRow}>
               <div className={styles.statBlock}>
-                <span className={styles.statNumber}>{aboutData.totalProjects}</span>
+                <span className={styles.statNumber}>{companyStats.totalProjects}</span>
                 <span className={styles.statLabel}>Projects Delivered</span>
               </div>
               <div className={styles.statBlock}>
-                <span className={styles.statNumber}>{aboutData.yearsOfExperience}</span>
+                <span className={styles.statNumber}>{companyStats.yearsOfExperience}</span>
                 <span className={styles.statLabel}>Founders&rsquo; Combined Experience</span>
               </div>
               <div className={styles.statBlock}>
-                <span className={styles.statNumber}>{aboutData.offices.length}</span>
+                <span className={styles.statNumber}>{companyStats.globalOffices}</span>
                 <span className={styles.statLabel}>Offices</span>
               </div>
             </div>

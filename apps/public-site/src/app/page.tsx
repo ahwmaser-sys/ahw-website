@@ -4,6 +4,7 @@ import { getRotationImages, getSelectedWork } from '../lib/homepageAssets';
 import { getActiveOfficesForDisplay, getOfficeBySlug } from '../lib/portal/offices';
 import { getSiteUrl } from '../lib/site-config';
 import { getPublishedFeaturedReviews, getGoogleReviewsAggregate } from '../lib/portal/reviews/queries';
+import { getActiveBrandKit, getCompanyInfo } from '../lib/portal/brand-kit';
 
 export const metadata: Metadata = {
   // Unlike every other route, the homepage's own page.tsx lives in the
@@ -30,7 +31,8 @@ export default async function HomePage() {
   const heroImages = getRotationImages('hero');
   const precisionImages = getRotationImages('precision');
   const selectedWork = getSelectedWork();
-  const [offices, siteUrl, egyptOffice] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl(), getOfficeBySlug('egypt')]);
+  const [offices, siteUrl, egyptOffice, brandKit] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl(), getOfficeBySlug('egypt'), getActiveBrandKit()]);
+  const { yearsOfExperience, totalProjects, globalOffices } = getCompanyInfo(brandKit);
 
   // Client Reviews is Egypt-scoped (see build brief) — reads only from
   // our own database (editorially featured+published rows, plus the
@@ -52,6 +54,7 @@ export default async function HomePage() {
       reviews={reviews}
       reviewsAggregate={reviewsAggregate}
       reviewsGoogleUrl={egyptOffice?.googleBusinessProfileUrl ?? null}
+      companyStats={{ yearsOfExperience, totalProjects, globalOffices }}
     />
   );
 }

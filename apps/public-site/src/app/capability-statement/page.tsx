@@ -2,6 +2,8 @@ import { CapabilityStatementContent } from './CapabilityStatementContent';
 import { getActiveOfficesForDisplay } from '../../lib/portal/offices';
 import { getSiteUrl } from '../../lib/site-config';
 import { getCapabilityStatementQrCodes } from './qrcodes';
+import { getActiveBrandKit, getCompanyInfo } from '../../lib/portal/brand-kit';
+import { getStatsWithCompanyInfo } from './content';
 
 // REVERTED from `dynamic = 'force-dynamic'` — that made this page 500
 // in production. getCapabilityStatementQrCodes (several sharp-
@@ -24,7 +26,9 @@ export const revalidate = 30;
 // so office data and the QR codes (which need real database + Brand Kit
 // access) are fetched here and passed down as props instead.
 export default async function CapabilityStatement() {
-  const [offices, siteUrl] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl()]);
+  const [offices, siteUrl, brandKit] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl(), getActiveBrandKit()]);
   const qrCodes = await getCapabilityStatementQrCodes(siteUrl);
-  return <CapabilityStatementContent offices={offices} siteUrl={siteUrl} websiteQr={qrCodes.website} officeQrCodes={qrCodes.byOffice} />;
+  const companyInfo = getCompanyInfo(brandKit);
+  const stats = getStatsWithCompanyInfo(companyInfo.yearsOfExperience, companyInfo.totalProjects);
+  return <CapabilityStatementContent offices={offices} siteUrl={siteUrl} websiteQr={qrCodes.website} officeQrCodes={qrCodes.byOffice} stats={stats} />;
 }

@@ -7,6 +7,7 @@ import { aboutData, getDocumentById } from '@agp/ui-components';
 import { DownloadCard } from '@agp/ui-components';
 import { StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getSiteUrl } from '../../lib/site-config';
+import { getActiveBrandKit, getCompanyInfo } from '../../lib/portal/brand-kit';
 import styles from './page.module.css';
 
 const breadcrumbs = [
@@ -36,7 +37,8 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const companyProfile = getDocumentById('companyProfile');
-  const siteUrl = await getSiteUrl();
+  const [siteUrl, brandKit] = await Promise.all([getSiteUrl(), getActiveBrandKit()]);
+  const companyStats = getCompanyInfo(brandKit);
 
   return (
     <main className={styles.main}>
@@ -56,15 +58,15 @@ export default async function AboutPage() {
             <p className={styles.paragraph}>{aboutData.textContent.aboutIntroParagraph2}</p>
             <div className={styles.trustStrip}>
               <div className={styles.trustStat}>
-                <span className={styles.trustNumber}>{aboutData.totalProjects}</span>
+                <span className={styles.trustNumber}>{companyStats.totalProjects}</span>
                 <span className={styles.trustLabel}>Projects Delivered</span>
               </div>
               <div className={styles.trustStat}>
-                <span className={styles.trustNumber}>{aboutData.yearsOfExperience}</span>
+                <span className={styles.trustNumber}>{companyStats.yearsOfExperience}</span>
                 <span className={styles.trustLabel}>Founders&rsquo; Experience</span>
               </div>
               <div className={styles.trustStat}>
-                <span className={styles.trustNumber}>{aboutData.offices.length}</span>
+                <span className={styles.trustNumber}>{companyStats.globalOffices}</span>
                 <span className={styles.trustLabel}>Offices</span>
               </div>
               <div className={styles.trustStat}>

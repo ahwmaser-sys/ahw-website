@@ -29,6 +29,24 @@ export function CompanyInfoForm({ info }: { info: BrandCompanyInfo }) {
           <input className={styles.input} id="founded" name="founded" defaultValue={info.founded} placeholder="e.g. 2010" />
         </div>
       </div>
+      {/* Trust stats shown on Home, About, and the Capability Statement
+          (e.g. "22+ Years of Excellence", "250+ Projects Delivered",
+          "4 Global Offices") — free text, not numeric, so the existing
+          "+" convention is optional, not enforced. */}
+      <div className={styles.formRow}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="yearsOfExperience">Years of experience</label>
+          <input className={styles.input} id="yearsOfExperience" name="yearsOfExperience" defaultValue={info.yearsOfExperience} placeholder="e.g. 22+" />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="totalProjects">Projects delivered</label>
+          <input className={styles.input} id="totalProjects" name="totalProjects" defaultValue={info.totalProjects} placeholder="e.g. 250+" />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="globalOffices">Global offices</label>
+          <input className={styles.input} id="globalOffices" name="globalOffices" defaultValue={info.globalOffices} placeholder="e.g. 4" />
+        </div>
+      </div>
     </ActionForm>
   );
 }

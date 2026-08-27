@@ -62,6 +62,14 @@ export interface BrandCompanyInfo {
   legalName: string;
   tagline: string;
   founded: string;
+  // Public-facing trust stats (Home, About, Capability Statement) — the
+  // same kind of "global company fact" as legalName/founded above, so
+  // they live in this same Settings -> Brand blob rather than a second
+  // field/model. Every consumer reads these through getCompanyInfo()
+  // below, never a second hardcoded copy.
+  yearsOfExperience: string;
+  totalProjects: string;
+  globalOffices: string;
 }
 
 export interface BrandDefaultCta {
@@ -106,6 +114,12 @@ const DEFAULT_COMPANY_INFO: BrandCompanyInfo = {
   legalName: 'AHW Architects Masr',
   tagline: 'Luxury Architecture & Interior Design',
   founded: '2012',
+  // Match the values already hardcoded across Home/About/Capability
+  // Statement before this became admin-editable, so turning this on
+  // changes nothing visually until an admin actually edits a stat.
+  yearsOfExperience: '22+',
+  totalProjects: '250+',
+  globalOffices: '4',
 };
 
 const DEFAULT_FOOTER_SETTINGS: BrandFooterSettings = {
@@ -128,6 +142,16 @@ const DEFAULT_FOOTER_SETTINGS: BrandFooterSettings = {
 // instead of one per call site, which matters on this app's small local
 // connection pool (see lib/portal/db.ts's own history of connection-
 // exhaustion bugs).
+// Merges DB-stored companyInfo over the defaults so a row saved before
+// yearsOfExperience/totalProjects/globalOffices existed (or missing just
+// one of them) still reads back every field correctly — companyInfo is
+// untyped Json, and updateCompanyInfo's action below replaces the whole
+// blob on save, so this is the one place that guarantees the shape
+// rather than every call site doing its own ad-hoc cast.
+export function getCompanyInfo(kit: { companyInfo: unknown }): BrandCompanyInfo {
+  return { ...DEFAULT_COMPANY_INFO, ...(kit.companyInfo as Partial<BrandCompanyInfo> | null ?? {}) };
+}
+
 export const getActiveBrandKit = cache(async () => {
   // Deterministic orderBy is load-bearing, not cosmetic: every Brand Kit
   // write action (colors, website domain, company info, etc.) reads its

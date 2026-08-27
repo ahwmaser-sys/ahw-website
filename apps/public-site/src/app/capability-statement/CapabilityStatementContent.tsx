@@ -17,7 +17,6 @@ import {
 import {
   firmOverview,
   firmPromise,
-  stats,
   whyAhw,
   services,
   audiences,
@@ -32,6 +31,7 @@ import {
   coverImage,
   firmImage,
 } from './content';
+import type { getStatsWithCompanyInfo } from './content';
 import type { CapabilityQrCode, OfficeQrCodes } from './qrcodes';
 import styles from './CapabilityStatement.module.css';
 
@@ -48,9 +48,13 @@ interface CapabilityStatementContentProps {
   siteUrl: string;
   websiteQr: CapabilityQrCode | null;
   officeQrCodes: readonly OfficeQrCodes[];
+  // Years of Experience / Projects Completed sourced live from Settings
+  // -> Brand -> Company Information by page.tsx; see content.ts's
+  // getStatsWithCompanyInfo.
+  stats: ReturnType<typeof getStatsWithCompanyInfo>;
 }
 
-export function CapabilityStatementContent({ offices, siteUrl, websiteQr, officeQrCodes }: CapabilityStatementContentProps) {
+export function CapabilityStatementContent({ offices, siteUrl, websiteQr, officeQrCodes, stats }: CapabilityStatementContentProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const capabilityDoc = getDocumentById('capabilityStatement');
   const galleryImages = featuredWork.map((w) => w.image);

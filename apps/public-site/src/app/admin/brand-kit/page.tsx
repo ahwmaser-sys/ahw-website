@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { requireAdminPage } from '../../../lib/portal/page-guard';
-import { getActiveBrandKit } from '../../../lib/portal/brand-kit';
+import { getActiveBrandKit, getCompanyInfo } from '../../../lib/portal/brand-kit';
 import { prisma } from '../../../lib/portal/db';
 import { PortalShell } from '../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../nav-links';
@@ -15,7 +15,6 @@ import type {
   BrandLogos,
   BrandWatermark,
   BrandQrStyle,
-  BrandCompanyInfo,
   BrandDefaultCta,
   BrandFooterSettings,
 } from '../../../lib/portal/brand-kit';
@@ -36,7 +35,7 @@ export default async function AdminBrandKitPage() {
   const logos = kit.logos as unknown as BrandLogos;
   const watermark = kit.watermark as unknown as BrandWatermark | null;
   const qrStyle = kit.qrCodeStyle as unknown as BrandQrStyle | null;
-  const companyInfo = kit.companyInfo as unknown as BrandCompanyInfo;
+  const companyInfo = getCompanyInfo(kit);
   const defaultCta = kit.defaultCta as unknown as BrandDefaultCta;
   const footerSettings = kit.footerSettings as unknown as BrandFooterSettings;
 
