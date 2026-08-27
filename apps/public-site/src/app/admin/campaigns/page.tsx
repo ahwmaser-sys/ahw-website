@@ -24,11 +24,12 @@ export default async function AdminCampaignsPage() {
   return (
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.title}>Campaigns</h1>
+        <h1 className={styles.title}>Content Campaigns</h1>
       </div>
       <p className={styles.subtitle}>
         The top-level marketing object — a campaign groups the articles, social posts, generated graphics, and landing
-        pages built for it. Link items to a campaign from their own editors.
+        pages built for it. Link items to a campaign from their own editors. Looking for real paid-media campaigns
+        (Google/Meta/LinkedIn/TikTok spend, clicks, conversions)? That&apos;s <a href="/admin/ads/campaigns">Ad Campaigns</a>.
       </p>
 
       <div className={styles.section}>

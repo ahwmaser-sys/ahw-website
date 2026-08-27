@@ -35,7 +35,7 @@ export default async function AdminPublishingPage() {
   return (
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.title}>Publishing</h1>
+        <h1 className={styles.title}>Publishing Destinations</h1>
       </div>
       <p className={styles.subtitle}>
         Which office&apos;s connected account takes part in publishing, per platform — independent of the credential

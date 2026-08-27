@@ -18,7 +18,7 @@ const SECTIONS: { href: string; label: string; description: string; superAdminOn
   { href: '/admin/settings/client-portal', label: 'Client Portal', description: 'Enable, maintenance mode, invitations, support contact.', superAdminOnly: true },
   { href: '/admin/settings/integrations', label: 'Integrations', description: 'Instagram, Facebook, LinkedIn, Google services, Email.', superAdminOnly: true },
   { href: '/admin/settings/ai', label: 'AI', description: 'Connect AI providers, choose the default for the Marketing Assistant.', superAdminOnly: true },
-  { href: '/admin/publishing', label: 'Publishing', description: 'Per-office, per-platform publishing participation — a Marketing setting, separate from Integrations.', superAdminOnly: true },
+  { href: '/admin/publishing', label: 'Publishing Destinations', description: 'Per-office, per-platform publishing participation — a Marketing setting, separate from Integrations. Not to be confused with the "Publishing" section on an individual article or landing page, which just publishes/unpublishes that one item.', superAdminOnly: true },
   { href: '/admin/analytics', label: 'Analytics', description: 'Content performance, campaign performance, media usage.' },
   { href: '/admin/settings/system', label: 'System', description: 'Live health for database, storage, and every connected service.' },
   { href: '/admin/settings/backup', label: 'Backup & Restore', description: 'Export every table as JSON, validate a backup, restore from one.', superAdminOnly: true },
