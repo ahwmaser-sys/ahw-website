@@ -22,14 +22,17 @@ import Script from 'next/script';
  *   conversation. Deliberately NOT based on scanning message text for
  *   "goodbye" or any other brittle heuristic.
  *
- * No `crossorigin` attribute on the injected <script> — setting one (this
- * file previously set `crossorigin="*"`) forces the browser to fetch the
- * script in CORS mode, which embed.tawk.to's CDN doesn't answer with an
- * Access-Control-Allow-Origin header. Confirmed live via PageSpeed
- * Insights: the request failed outright (net::ERR_FAILED), meaning the
- * whole chat widget silently never loaded. A plain cross-origin <script
- * src> load doesn't need CORS at all — Tawk's own embed snippet never
- * sets this attribute either.
+ * `crossorigin="*"` on the injected <script> matches Tawk's own current
+ * official embed snippet exactly (pulled directly from the account's Tawk
+ * dashboard — Administration → Chat Widget → Widget Code, 2026-08-27). A
+ * prior fix in this codebase removed this attribute based on an observed
+ * ERR_FAILED — that observation predates Tawk's CDN sending
+ * `Access-Control-Allow-Origin: *` (confirmed live via curl against
+ * embed.tawk.to today) and was itself the cause of a real regression:
+ * without `crossorigin`, Chrome's Opaque Response Blocking rejects the
+ * script outright (net::ERR_BLOCKED_BY_ORB, confirmed live on production)
+ * because Tawk's CDN serves it with the legacy `application/x-javascript`
+ * Content-Type. Restoring the official attribute is the fix.
  */
 export function TawkChat() {
   return (
@@ -53,6 +56,7 @@ export function TawkChat() {
           s1.async = true;
           s1.src = 'https://embed.tawk.to/6a6f0595055f021d4ace1bdb/1jv0qrk1v';
           s1.charset = 'UTF-8';
+          s1.setAttribute('crossorigin', '*');
           s0.parentNode.insertBefore(s1, s0);
         })();
       `}
