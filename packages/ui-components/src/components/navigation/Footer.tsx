@@ -47,9 +47,18 @@ export function Footer({ offices, copyrightText }: FooterProps) {
                 <p className={styles.officeAddress}>{office.address.full}</p>
                 <div className={styles.officeContacts}>
                   {office.contact.phones.map((phone) => (
-                    <TrackedPhoneLink key={phone} phone={phone} className={styles.officeContact} />
+                    <TrackedPhoneLink
+                      key={phone}
+                      phone={phone}
+                      className={styles.officeContact}
+                      ariaLabel={`${office.displayName} phone: ${phone}`}
+                    />
                   ))}
-                  <a href={`mailto:${office.contact.primaryEmail}`} className={styles.officeContact}>
+                  <a
+                    href={`mailto:${office.contact.primaryEmail}`}
+                    className={styles.officeContact}
+                    aria-label={`${office.displayName} email: ${office.contact.primaryEmail}`}
+                  >
                     {office.contact.primaryEmail}
                   </a>
                 </div>

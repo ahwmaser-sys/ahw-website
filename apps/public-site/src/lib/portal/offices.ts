@@ -84,5 +84,19 @@ export function toLegacyOfficeShape(office: PrismaOffice): LegacyOfficeShape {
 
 export async function getActiveOfficesForDisplay(): Promise<LegacyOfficeShape[]> {
   const offices = await getActiveOffices();
-  return offices.map(toLegacyOfficeShape);
+  const displayOffices = offices.map(toLegacyOfficeShape);
+  // ahwspaces.com is AHW Architects Masr's public site — the Egypt-facing
+  // entity. Every visitor-facing surface reads office order from this one
+  // function (Footer, Header/ContactHub, homepage, /contact's default
+  // office and its Organization/LocalBusiness structured data, the
+  // discipline pages' shared footer), so sorting Egypt first here is a
+  // single, shared fix for AI search engines that read DOM/JSON-LD order
+  // as an entity-priority signal (confirmed live: Perplexity extracted
+  // Kuwait's contact details before Egypt's when asked about AHW).
+  // Deliberately independent of the admin-editable sortOrder itself
+  // (still Kuwait-first there — see getActiveOffices, unchanged, still
+  // used as-is by the admin UI and sitemap.ts) since that field is real
+  // business data (Kuwait genuinely is the headquarters), not a
+  // presentation choice for this specific Egypt-facing site.
+  return [...displayOffices].sort((a, b) => (a.id === 'egypt' ? 0 : 1) - (b.id === 'egypt' ? 0 : 1));
 }

@@ -107,6 +107,14 @@ export function ContactForm({ officeId }: ContactFormProps) {
 
   const budgetOptions = getBudgetOptions(selectedOfficeId);
 
+  // Placeholders are examples only, not defaults submitted with the form —
+  // but a Kuwait-format phone/country example stayed on screen even when
+  // Egypt's office tab was active, which misrepresents which office the
+  // form is actually addressed to (both to a visitor and to an AI reading
+  // the rendered page). Keyed off the same officeId the tabs already set.
+  const phonePlaceholder = selectedOfficeId === 'egypt' ? '+20 10 000 0000' : '+965 0000 0000';
+  const countryPlaceholder = selectedOfficeId === 'egypt' ? 'Egypt' : 'Kuwait';
+
   if (submitStatus === 'success') {
     return (
       <div className={styles.successState}>
@@ -174,7 +182,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             id="phone"
             type="tel"
             className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
-            placeholder="+965 0000 0000"
+            placeholder={phonePlaceholder}
             {...register('phone')}
             aria-invalid={!!errors.phone}
             aria-describedby={errors.phone ? 'phone-error' : undefined}
@@ -190,7 +198,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             id="country"
             type="text"
             className={`${styles.input} ${errors.country ? styles.inputError : ''}`}
-            placeholder="Kuwait"
+            placeholder={countryPlaceholder}
             {...register('country')}
             aria-invalid={!!errors.country}
             aria-describedby={errors.country ? 'country-error' : undefined}

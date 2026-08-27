@@ -130,11 +130,19 @@ export function ContactSection({ initialOfficeId, offices: orderedOffices, siteU
                     <h2 className={styles.infoLabel}>Contact</h2>
                     {activeOffice.contact.phones.map((phone) => (
                       <p key={phone} className={styles.infoText}>
-                        <TrackedPhoneLink phone={phone} className={styles.phoneLink} />
+                        <TrackedPhoneLink
+                          phone={phone}
+                          className={styles.phoneLink}
+                          ariaLabel={`${activeOffice.displayName} phone: ${phone}`}
+                        />
                       </p>
                     ))}
                     <p className={styles.infoText}>
-                      <a href={`mailto:${activeOffice.contact.primaryEmail}`} className={styles.emailLink}>
+                      <a
+                        href={`mailto:${activeOffice.contact.primaryEmail}`}
+                        className={styles.emailLink}
+                        aria-label={`${activeOffice.displayName} email: ${activeOffice.contact.primaryEmail}`}
+                      >
                         {activeOffice.contact.primaryEmail}
                       </a>
                     </p>
