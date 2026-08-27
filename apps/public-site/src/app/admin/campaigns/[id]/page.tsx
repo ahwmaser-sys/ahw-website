@@ -23,7 +23,7 @@ export default async function AdminCampaignDetailPage({ params }: { params: Prom
     include: {
       newsPosts: { select: { id: true, title: true, status: true } },
       socialPosts: { select: { id: true, platform: true, status: true, newsPostId: true } },
-      generatedGraphics: { select: { id: true, templateId: true, createdAt: true }, include: { template: { select: { name: true } } } },
+      generatedGraphics: { select: { id: true, templateId: true, createdAt: true, template: { select: { name: true } } } },
       landingPages: { select: { id: true, title: true, status: true } },
     },
   });
