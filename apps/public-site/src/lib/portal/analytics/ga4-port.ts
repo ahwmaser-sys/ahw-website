@@ -30,6 +30,73 @@ async function isKeywordsConfigured(): Promise<boolean> {
   return Boolean(cred?.siteUrl && cred.serviceAccountKey);
 }
 
+export interface CampaignTrafficResult {
+  totalSessions: number;
+  topPages: { path: string; sessions: number }[];
+}
+
+// Read-only GA4 Data API lookup filtered to one AdCampaign's own recorded
+// UTM values (set on its own Details form) — genuinely aggregate session
+// counts per page path, never anything visitor-identifying. This is a
+// completely separate credential and API from the actual Google Ads
+// OAuth connection (Settings -> Ads) that drives conversion tracking and
+// the platform-side spend/clicks sync shown on the campaign detail page
+// — this function never touches that connection, its tokens, or its
+// data, so nothing about the live conversion tracking can regress here.
+export async function getCampaignTraffic(
+  utm: { source: string | null; medium: string | null; campaign: string | null },
+  rangeStart: string,
+  rangeEnd: string
+): Promise<CampaignTrafficResult | null> {
+  if (!(await isTrafficConfigured())) return null;
+  if (!utm.source && !utm.medium && !utm.campaign) return null;
+
+  const cred = await getIntegrationCredential<GA4Credential>('GOOGLE_ANALYTICS');
+  if (!cred) return null;
+  const propertyId = cred.propertyId;
+  const token = await getGoogleAccessToken(cred.serviceAccountKey, ['https://www.googleapis.com/auth/analytics.readonly']);
+
+  const expressions: object[] = [];
+  if (utm.source) expressions.push({ filter: { fieldName: 'sessionSource', stringFilter: { value: utm.source, matchType: 'EXACT' } } });
+  if (utm.medium) expressions.push({ filter: { fieldName: 'sessionMedium', stringFilter: { value: utm.medium, matchType: 'EXACT' } } });
+  if (utm.campaign) expressions.push({ filter: { fieldName: 'sessionCampaignName', stringFilter: { value: utm.campaign, matchType: 'EXACT' } } });
+  const dimensionFilter = { andGroup: { expressions } };
+
+  async function runReport(dimensions: { name: string }[], limit?: number) {
+    const res = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: rangeStart, endDate: rangeEnd }],
+        metrics: [{ name: 'sessions' }],
+        dimensions,
+        dimensionFilter,
+        ...(dimensions.length > 0 ? { orderBys: [{ metric: { metricName: 'sessions' }, desc: true }] } : {}),
+        ...(limit ? { limit } : {}),
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`GA4 Data API request failed (${res.status}): ${await res.text()}`);
+    }
+    return (await res.json()) as { rows?: { dimensionValues: { value: string }[]; metricValues: { value: string }[] }[] };
+  }
+
+  // Two separate reports rather than one: summing the per-page-path
+  // sessions metric below would overcount a real total (a session that
+  // viewed 3 pages appears in 3 rows) — this query has no page
+  // dimension, so it's the actual deduplicated session count.
+  const totalsBody = await runReport([]);
+  const totalSessions = Number(totalsBody.rows?.[0]?.metricValues[0]?.value ?? '0');
+
+  const pagesBody = await runReport([{ name: 'pagePath' }], 10);
+  const topPages = (pagesBody.rows ?? []).map((row) => ({
+    path: row.dimensionValues[0]?.value ?? '(unknown)',
+    sessions: Number(row.metricValues[0]?.value ?? '0'),
+  }));
+
+  return { totalSessions, topPages };
+}
+
 export const ga4AnalyticsProvider: AnalyticsPort = {
   async isConfigured(): Promise<boolean> {
     return (await isTrafficConfigured()) || (await isKeywordsConfigured());
