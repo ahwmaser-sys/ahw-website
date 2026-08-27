@@ -74,7 +74,7 @@ export default async function AdminAdCampaignsPage({ searchParams }: { searchPar
             )}
             {campaigns.map((c) => (
               <tr key={c.id}>
-                <td><a href={`/admin/ads/campaigns/${c.id}`}>{c.name}</a></td>
+                <td>{c.name}</td>
                 <td>{PLATFORM_LABELS[c.platform] ?? c.platform}</td>
                 <td>{c.market}{c.office ? ` (${c.office.displayName})` : ''}</td>
                 <td>{StatusBadgeFor(c.status)}</td>
@@ -82,7 +82,7 @@ export default async function AdminAdCampaignsPage({ searchParams }: { searchPar
                 <td>{formatMoney(c.spend, c.metricsCurrency)}</td>
                 <td>{c.conversions ?? '—'}</td>
                 <td>{c.lastSyncedAt ? c.lastSyncedAt.toLocaleDateString() : 'Never'}</td>
-                <td><a href={`/admin/ads/campaigns/${c.id}`}>View →</a></td>
+                <td><a href={`/admin/ads/campaigns/${c.id}`}>Manage</a></td>
               </tr>
             ))}
           </tbody>

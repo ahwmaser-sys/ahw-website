@@ -39,7 +39,7 @@ export default async function AdminLandingPagesPage() {
                   <td>{p.title}</td>
                   <td><span className={`${styles.badge} ${p.status === 'PUBLISHED' ? styles.badgeActive : styles.badgeMuted}`}>{p.status}</span></td>
                   <td>/lp/{p.slug}</td>
-                  <td><Link href={`/admin/landing-pages/${p.id}`}>Edit</Link></td>
+                  <td><Link href={`/admin/landing-pages/${p.id}`}>Manage</Link></td>
                 </tr>
               ))}
             </tbody>

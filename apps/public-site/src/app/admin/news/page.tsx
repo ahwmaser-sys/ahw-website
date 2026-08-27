@@ -54,7 +54,7 @@ export default async function AdminNewsPage() {
                   </td>
                   <td>{post.author.name}</td>
                   <td>
-                    <Link href={`/admin/news/${post.id}`}>Edit</Link>
+                    <Link href={`/admin/news/${post.id}`}>Manage</Link>
                   </td>
                 </tr>
               ))}

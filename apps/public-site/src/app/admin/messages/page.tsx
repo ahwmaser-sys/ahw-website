@@ -58,7 +58,7 @@ export default async function AdminMessagesPage() {
                   <td>{last ? formatDate(last.createdAt) : '—'}</td>
                   <td>{project._count.messages}</td>
                   <td>
-                    <Link href={`/admin/projects/${project.id}`}>Open</Link>
+                    <Link href={`/admin/projects/${project.id}`}>Manage</Link>
                   </td>
                 </tr>
               );
