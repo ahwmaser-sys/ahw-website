@@ -58,13 +58,21 @@
 .logoWhite, .logoDark {
   height: 48px; /* Increased by 20% from 40px */
   width: auto;
-  /* height + width:auto alone lets a flex ancestor's own width
-     constraints (.logo, .container) squeeze this narrower than its
-     natural ratio on small viewports — confirmed live via PageSpeed
-     Insights (88x36 displayed vs the real 1571x592 ratio). aspect-ratio
-     pins the ratio directly so the browser adjusts within that
-     constraint instead of silently distorting it. */
+  /* aspect-ratio alone doesn't actually hold on narrow viewports: .nav's
+     content (CTA + AppearanceToggle + MenuTrigger) still leaves .logo
+     less horizontal room than 36px-tall * this ratio needs, so the box
+     itself renders narrower than the ratio wants regardless (confirmed
+     live via a real rendered-vs-natural measurement: 74x36 rendered
+     against the source image's real 2.65 ratio) — aspect-ratio isn't a
+     hard override of a tighter flex-driven width. Widening .logo's
+     flex-shrink budget to fix that risks the opposite failure (header
+     overflow on the narrowest phones), so object-fit: contain fixes the
+     actual visible symptom instead: whatever box size flex settles on,
+     the image scales down within it instead of stretching to fill it.
+     Worst case is a touch of empty space above/below the mark at the
+     tightest widths, never a distorted logo. */
   aspect-ratio: 1571 / 592;
+  object-fit: contain;
   flex-shrink: 0;
   transition: opacity var(--transition-fast);
 }
