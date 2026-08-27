@@ -16,6 +16,8 @@ export async function GET() {
   const response = await fetch(TAWK_SCRIPT_URL, { next: { revalidate: 3600 } });
 
   if (!response.ok) {
+    const snippet = (await response.text()).slice(0, 300);
+    console.error(`[tawk-widget] upstream ${response.status} ${response.statusText}: ${snippet}`);
     return new NextResponse('', { status: 502 });
   }
 
