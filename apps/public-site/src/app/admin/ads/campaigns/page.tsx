@@ -63,12 +63,13 @@ export default async function AdminAdCampaignsPage({ searchParams }: { searchPar
               <th>Spend (30d)</th>
               <th>Conversions (30d)</th>
               <th>Last synced</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {campaigns.length === 0 && (
               <tr className={styles.emptyRow}>
-                <td colSpan={8}>No ad campaigns yet — create one, or connect a platform on the Ads page and Sync now to pull in what already exists there.</td>
+                <td colSpan={9}>No ad campaigns yet — create one, or connect a platform on the Ads page and Sync now to pull in what already exists there.</td>
               </tr>
             )}
             {campaigns.map((c) => (
@@ -81,6 +82,7 @@ export default async function AdminAdCampaignsPage({ searchParams }: { searchPar
                 <td>{formatMoney(c.spend, c.metricsCurrency)}</td>
                 <td>{c.conversions ?? '—'}</td>
                 <td>{c.lastSyncedAt ? c.lastSyncedAt.toLocaleDateString() : 'Never'}</td>
+                <td><a href={`/admin/ads/campaigns/${c.id}`}>View →</a></td>
               </tr>
             ))}
           </tbody>

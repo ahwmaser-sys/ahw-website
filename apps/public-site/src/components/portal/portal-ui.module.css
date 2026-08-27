@@ -12,6 +12,16 @@
   margin-bottom: var(--space-8);
 }
 
+/* Groups more than one action (button/link) on the right side of a
+   .pageHeader as one flex item, so space-between still puts the title
+   on the left and every action together on the right. */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
 .title {
   font-family: var(--font-family-secondary);
   font-size: var(--font-size-2xl);

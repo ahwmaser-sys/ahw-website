@@ -124,13 +124,16 @@ export default async function AdminAdsOverviewPage({ searchParams }: { searchPar
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
       <div className={styles.pageHeader}>
         <h1 className={styles.title}>Ads</h1>
+        <div className={styles.headerActions}>
+          <a href="/admin/ads/campaigns" className={styles.button}>View campaigns →</a>
+          <a href="/admin/ads/utm" className={styles.buttonSecondary}>UTM Builder</a>
+        </div>
       </div>
       <p className={styles.subtitle}>
         Marketing Ads Control Center — connect ad platform accounts, review campaigns across Google Ads, Meta, LinkedIn,
-        and TikTok, and check the existing Google Ads phone-click conversion&apos;s health. See{' '}
-        <a href="/admin/ads/campaigns">Campaigns</a> for the full list and <a href="/admin/ads/utm">UTM Builder</a> for
-        tracking links. Each platform&apos;s own developer app (Client ID/Secret) is a one-time infrastructure step set
-        in environment variables, same as Settings → Integrations.
+        and TikTok, and check the existing Google Ads phone-click conversion&apos;s health. Each platform&apos;s own
+        developer app (Client ID/Secret) is a one-time infrastructure step set in environment variables, same as
+        Settings → Integrations.
       </p>
 
       {params.connected && <p className={styles.successMessage} role="status">{params.connected.replace('_', ' ')} connected.</p>}
