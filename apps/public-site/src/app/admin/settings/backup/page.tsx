@@ -1,13 +1,13 @@
 import { requireSuperAdminPage } from '../../../../lib/portal/page-guard';
-import { listBackups } from '../../../../lib/portal/backup';
+import { listBackups, isUsingBlobStorage } from '../../../../lib/portal/backup';
 import { PortalShell } from '../../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../../nav-links';
-import { CreateBackupForm, ValidateBackupForm, RestoreBackupForm } from './BackupForms';
+import { CreateBackupForm, ValidateBackupForm, RestoreBackupForm, DeleteBackupForm } from './BackupForms';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
 export default async function AdminBackupPage() {
   const principal = await requireSuperAdminPage();
-  const backups = await listBackups();
+  const [backups, usingBlob] = await Promise.all([listBackups(), Promise.resolve(isUsingBlobStorage())]);
 
   return (
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
@@ -15,9 +15,14 @@ export default async function AdminBackupPage() {
         <h1 className={styles.title}>Backup & Restore</h1>
       </div>
       <p className={styles.subtitle}>
-        A full export of every table, stored as JSON on the server (outside the public web root). Restore is
-        transaction-wrapped — if anything fails partway, nothing changes.
+        A full export of every table, as JSON, stored in {usingBlob ? 'Vercel Blob storage' : "this server's local disk — only durable in local development, not in production"}.
+        Restore is transaction-wrapped — if anything fails partway, nothing changes.
       </p>
+      {!usingBlob && (
+        <p className={styles.errorMessage} role="alert">
+          BLOB_READ_WRITE_TOKEN isn&apos;t set in this environment — backups created here will not survive between requests. Connect Vercel Blob storage to this project before relying on backups.
+        </p>
+      )}
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Create backup</h2>
@@ -54,6 +59,7 @@ export default async function AdminBackupPage() {
                       </a>
                       <ValidateBackupForm fileName={b.fileName} />
                       <RestoreBackupForm fileName={b.fileName} />
+                      <DeleteBackupForm fileName={b.fileName} />
                     </div>
                   </td>
                 </tr>

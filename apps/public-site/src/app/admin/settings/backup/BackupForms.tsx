@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createBackupAction, validateBackupAction, restoreBackupAction } from '../../../../lib/portal/actions/backup';
+import { createBackupAction, validateBackupAction, restoreBackupAction, deleteBackupAction } from '../../../../lib/portal/actions/backup';
 import { ActionForm } from '../../../../components/portal/ActionForm';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
@@ -41,6 +41,14 @@ export function RestoreBackupForm({ fileName }: { fileName: string }) {
         </label>
         <input className={styles.input} id={`confirm-${fileName}`} name="confirmation" placeholder="RESTORE" required />
       </div>
+    </ActionForm>
+  );
+}
+
+export function DeleteBackupForm({ fileName }: { fileName: string }) {
+  return (
+    <ActionForm action={deleteBackupAction} submitLabel="Delete" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
+      <input type="hidden" name="fileName" value={fileName} />
     </ActionForm>
   );
 }

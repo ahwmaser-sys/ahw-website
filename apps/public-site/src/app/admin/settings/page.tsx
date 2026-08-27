@@ -21,6 +21,7 @@ const SECTIONS: { href: string; label: string; description: string; superAdminOn
   { href: '/admin/publishing', label: 'Publishing', description: 'Per-office, per-platform publishing participation — a Marketing setting, separate from Integrations.', superAdminOnly: true },
   { href: '/admin/analytics', label: 'Analytics', description: 'Content performance, campaign performance, media usage.' },
   { href: '/admin/settings/system', label: 'System', description: 'Live health for database, storage, and every connected service.' },
+  { href: '/admin/settings/backup', label: 'Backup & Restore', description: 'Export every table as JSON, validate a backup, restore from one.', superAdminOnly: true },
 ];
 
 export default async function AdminSettingsPage() {

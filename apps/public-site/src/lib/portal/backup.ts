@@ -1,5 +1,6 @@
-import { mkdir, readFile, writeFile, readdir, stat } from 'fs/promises';
+import { mkdir, readFile, writeFile, readdir, stat, unlink } from 'fs/promises';
 import { join } from 'path';
+import { put, list, del } from '@vercel/blob';
 import { prisma } from './db';
 
 // No pg_dump/pg_restore/psql binary exists in this environment (checked
@@ -40,7 +41,17 @@ function delegate(client: typeof prisma, model: ModelName): AnyDelegate {
   return (client as unknown as Record<ModelName, AnyDelegate>)[model];
 }
 
-const BACKUP_ROOT = join(process.cwd(), 'storage', 'backups');
+// Same two-backend choice as storage.ts, and for the exact same reason
+// (its comment applies verbatim here): a serverless function's local
+// filesystem is ephemeral and reset between invocations, so a backup
+// written to local disk in production could vanish — sometimes before
+// the very next request that tries to list or restore it. This file
+// previously always used local disk regardless of environment; on
+// Vercel that meant Create/Restore likely never worked at all, which is
+// also almost certainly why this page had no link pointing to it yet.
+const BACKUP_ROOT = join(process.cwd(), 'storage', 'backups'); // local-dev fallback only
+const BACKUP_PREFIX = 'backups/';
+const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 export interface BackupManifest {
   createdAt: string;
@@ -54,7 +65,18 @@ export interface BackupFile {
   createdAt: Date;
 }
 
+export function isUsingBlobStorage(): boolean {
+  return useBlob;
+}
+
 export async function listBackups(): Promise<BackupFile[]> {
+  if (useBlob) {
+    const { blobs } = await list({ prefix: BACKUP_PREFIX });
+    return blobs
+      .filter((b) => b.pathname.endsWith('.json'))
+      .map((b) => ({ fileName: b.pathname.slice(BACKUP_PREFIX.length), sizeBytes: b.size, createdAt: b.uploadedAt }))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
   await mkdir(BACKUP_ROOT, { recursive: true });
   const files = await readdir(BACKUP_ROOT);
   const backups = await Promise.all(
@@ -69,8 +91,6 @@ export async function listBackups(): Promise<BackupFile[]> {
 }
 
 export async function createBackup(): Promise<BackupFile> {
-  await mkdir(BACKUP_ROOT, { recursive: true });
-
   const data: Record<string, unknown[]> = {};
   for (const model of MODEL_ORDER) {
     data[model] = await delegate(prisma, model).findMany();
@@ -83,11 +103,33 @@ export async function createBackup(): Promise<BackupFile> {
   };
 
   const fileName = `backup-${manifest.createdAt.replace(/[:.]/g, '-')}.json`;
-  const filePath = join(BACKUP_ROOT, fileName);
-  await writeFile(filePath, JSON.stringify({ manifest, data }, null, 0));
+  const json = JSON.stringify({ manifest, data }, null, 0);
 
+  if (useBlob) {
+    await put(`${BACKUP_PREFIX}${fileName}`, json, { access: 'public', addRandomSuffix: false, contentType: 'application/json' });
+    return { fileName, sizeBytes: Buffer.byteLength(json), createdAt: new Date() };
+  }
+  await mkdir(BACKUP_ROOT, { recursive: true });
+  const filePath = join(BACKUP_ROOT, fileName);
+  await writeFile(filePath, json);
   const stats = await stat(filePath);
   return { fileName, sizeBytes: stats.size, createdAt: stats.mtime };
+}
+
+// Backups have no database row of their own (see MODEL_ORDER's comment —
+// they live entirely in the store), so unlike storage.ts's saveFile
+// there's no column to persist Blob's real URL in. Resolved by exact
+// pathname match on every read/delete instead — fileName always comes
+// from this app's own listBackups()/createBackup(), never a client-
+// supplied path (see resolveBackupPath's same defense-in-depth note).
+async function resolveBackupBlobUrl(fileName: string): Promise<string> {
+  const pathname = `${BACKUP_PREFIX}${fileName}`;
+  const { blobs } = await list({ prefix: pathname });
+  const match = blobs.find((b) => b.pathname === pathname);
+  if (!match) {
+    throw new Error(`Backup "${fileName}" was not found.`);
+  }
+  return match.url;
 }
 
 export interface BackupValidation {
@@ -98,7 +140,7 @@ export interface BackupValidation {
 
 export async function validateBackup(fileName: string): Promise<BackupValidation> {
   try {
-    const raw = await readFile(resolveBackupPath(fileName), 'utf8');
+    const raw = await readBackupJson(fileName);
     const parsed = JSON.parse(raw) as { manifest?: BackupManifest; data?: Record<string, unknown[]> };
     if (!parsed.manifest || !parsed.data) {
       return { ok: false, error: 'Missing manifest or data section.' };
@@ -125,8 +167,42 @@ function resolveBackupPath(fileName: string): string {
   return join(BACKUP_ROOT, fileName);
 }
 
-export function readBackupFile(fileName: string): Promise<Buffer> {
+// Centralizes the read so validateBackup/restoreBackup/readBackupFile
+// don't each re-implement the Blob-vs-local branch.
+async function readBackupJson(fileName: string): Promise<string> {
+  if (useBlob) {
+    const url = await resolveBackupBlobUrl(fileName);
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Blob storage read failed for "${fileName}": ${res.status} ${res.statusText}`);
+    }
+    return res.text();
+  }
+  return readFile(resolveBackupPath(fileName), 'utf8');
+}
+
+export async function readBackupFile(fileName: string): Promise<Buffer> {
+  if (useBlob) {
+    const url = await resolveBackupBlobUrl(fileName);
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Blob storage read failed for "${fileName}": ${res.status} ${res.statusText}`);
+    }
+    return Buffer.from(await res.arrayBuffer());
+  }
   return readFile(resolveBackupPath(fileName));
+}
+
+// Gated to SUPER_ADMIN in the action layer, same as every other backup
+// operation — deletes the stored file only, no database rows to clean
+// up (backups aren't tracked in a table, see MODEL_ORDER's comment).
+export async function deleteBackup(fileName: string): Promise<void> {
+  if (useBlob) {
+    const url = await resolveBackupBlobUrl(fileName);
+    await del(url);
+    return;
+  }
+  await unlink(resolveBackupPath(fileName));
 }
 
 // Restores every table from the backup in one transaction — if anything
@@ -141,7 +217,7 @@ export async function restoreBackup(fileName: string): Promise<void> {
   if (!validation.ok) {
     throw new Error(`Refusing to restore an invalid backup: ${validation.error}`);
   }
-  const raw = await readFile(resolveBackupPath(fileName), 'utf8');
+  const raw = await readBackupJson(fileName);
   const parsed = JSON.parse(raw) as { data: Record<string, Record<string, unknown>[]> };
 
   await prisma.$transaction(

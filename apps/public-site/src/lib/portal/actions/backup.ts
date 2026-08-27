@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { requireSession, requireRole } from '../auth-guard';
 import { SUPER_ADMIN_ONLY } from '../roles';
 import { recordActivity } from '../audit';
-import { createBackup, restoreBackup, validateBackup } from '../backup';
+import { createBackup, restoreBackup, validateBackup, deleteBackup } from '../backup';
 import type { ActionState } from '../../../components/portal/ActionForm';
 
 export async function createBackupAction(_prevState: ActionState, _formData: FormData): Promise<ActionState> {
@@ -57,4 +57,16 @@ export async function restoreBackupAction(_prevState: ActionState, formData: For
   await recordActivity({ actorId: principal.userId, action: 'admin.backup_restored', metadata: { fileName: parsed.data.fileName } });
   revalidatePath('/admin');
   return { success: `Restored from ${parsed.data.fileName}.` };
+}
+
+export async function deleteBackupAction(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, SUPER_ADMIN_ONLY);
+  const parsed = fileSchema.safeParse({ fileName: formData.get('fileName') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  await deleteBackup(parsed.data.fileName);
+  await recordActivity({ actorId: principal.userId, action: 'admin.backup_deleted', metadata: { fileName: parsed.data.fileName } });
+  revalidatePath('/admin/settings/backup');
+  return { success: `Deleted ${parsed.data.fileName}.` };
 }
