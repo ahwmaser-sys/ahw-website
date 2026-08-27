@@ -7,7 +7,21 @@ import styles from '../../../../components/portal/portal-ui.module.css';
 
 export default async function AdminBackupPage() {
   const principal = await requireSuperAdminPage();
-  const [backups, usingBlob] = await Promise.all([listBackups(), Promise.resolve(isUsingBlobStorage())]);
+  const usingBlob = isUsingBlobStorage();
+
+  // Without Blob configured, this falls back to local disk — which
+  // doesn't exist to write to at all on Vercel's read-only deployment
+  // filesystem (confirmed live: mkdir ENOENT on /var/task/...). Caught
+  // here so a misconfigured environment shows the warning below instead
+  // of a hard 500; the underlying functions still throw for any other
+  // (real) error, which is what CreateBackupForm's error message needs.
+  let backups: Awaited<ReturnType<typeof listBackups>> = [];
+  let listError: string | null = null;
+  try {
+    backups = await listBackups();
+  } catch (error) {
+    listError = error instanceof Error ? error.message : 'Could not read backup storage.';
+  }
 
   return (
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
@@ -20,8 +34,13 @@ export default async function AdminBackupPage() {
       </p>
       {!usingBlob && (
         <p className={styles.errorMessage} role="alert">
-          BLOB_READ_WRITE_TOKEN isn&apos;t set in this environment — backups created here will not survive between requests. Connect Vercel Blob storage to this project before relying on backups.
+          BLOB_READ_WRITE_TOKEN isn&apos;t set in this environment. On Vercel, that means Create/Restore cannot work at
+          all (there is no writable local disk to fall back to) — connect a Blob store to this project from the
+          Vercel dashboard&apos;s Storage tab first, which sets this automatically.
         </p>
+      )}
+      {listError && (
+        <p className={styles.errorMessage} role="alert">{listError}</p>
       )}
 
       <div className={styles.section}>
@@ -42,7 +61,7 @@ export default async function AdminBackupPage() {
               </tr>
             </thead>
             <tbody>
-              {backups.length === 0 && (
+              {backups.length === 0 && !listError && (
                 <tr className={styles.emptyRow}>
                   <td colSpan={4}>No backups yet.</td>
                 </tr>

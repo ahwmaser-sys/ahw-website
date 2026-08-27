@@ -12,7 +12,12 @@ export async function createBackupAction(_prevState: ActionState, _formData: For
   const principal = await requireSession();
   requireRole(principal, SUPER_ADMIN_ONLY);
 
-  const backup = await createBackup();
+  let backup;
+  try {
+    backup = await createBackup();
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Could not write the backup — is a storage backend connected?' };
+  }
   await recordActivity({ actorId: principal.userId, action: 'admin.backup_created', metadata: { fileName: backup.fileName, sizeBytes: backup.sizeBytes } });
   revalidatePath('/admin/settings/backup');
   return { success: `Backup created: ${backup.fileName} (${(backup.sizeBytes / 1024).toFixed(0)} KB).` };
@@ -65,7 +70,11 @@ export async function deleteBackupAction(_prevState: ActionState, formData: Form
   const parsed = fileSchema.safeParse({ fileName: formData.get('fileName') });
   if (!parsed.success) return { error: 'Invalid request.' };
 
-  await deleteBackup(parsed.data.fileName);
+  try {
+    await deleteBackup(parsed.data.fileName);
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Could not delete that backup.' };
+  }
   await recordActivity({ actorId: principal.userId, action: 'admin.backup_deleted', metadata: { fileName: parsed.data.fileName } });
   revalidatePath('/admin/settings/backup');
   return { success: `Deleted ${parsed.data.fileName}.` };
