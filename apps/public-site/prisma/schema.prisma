@@ -33,7 +33,13 @@ model Enquiry {
 
   ipAddress String?
   userAgent String?
-  status    String  @default("New") // New, Contacted, Closed
+  status    String  @default("New") // New, Contacted, Closed — sales-pipeline stage, independent of archivedAt below
+  // Separate from `status` on purpose (same reasoning as Client.archivedAt):
+  // a "Closed" lead is still a real pipeline outcome someone may want to
+  // review, while archiving is purely a housekeeping/visibility toggle for
+  // the admin list. Conflating the two into one field would mean closing a
+  // lead also hides it, or archiving one silently changes its pipeline stage.
+  archivedAt DateTime?
 
   // Raw attribution signal only — website's job stops at capturing where a
   // submission came from, never scoring/qualifying it. Lead pipeline and
