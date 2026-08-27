@@ -30,6 +30,15 @@ import Script from 'next/script';
  * whole chat widget silently never loaded. A plain cross-origin <script
  * src> load doesn't need CORS at all — Tawk's own embed snippet never
  * sets this attribute either.
+ *
+ * The script loads from /api/tawk-widget (this app's own route, which
+ * fetches and re-serves Tawk's script) rather than embed.tawk.to
+ * directly — Tawk's CDN serves the script with the legacy
+ * `application/x-javascript` Content-Type, which Chrome's Opaque
+ * Response Blocking rejects for this exact no-crossorigin cross-origin
+ * load (confirmed live: net::ERR_BLOCKED_BY_ORB on every real-Chrome
+ * navigation, meaning the widget never actually loaded). Same-origin
+ * sidesteps ORB entirely; see api/tawk-widget/route.ts.
  */
 export function TawkChat() {
   return (
@@ -51,7 +60,7 @@ export function TawkChat() {
         (function(){
           var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
           s1.async = true;
-          s1.src = 'https://embed.tawk.to/6a6f0595055f021d4ace1bdb/1jv0qrk1v';
+          s1.src = '/api/tawk-widget';
           s1.charset = 'UTF-8';
           s0.parentNode.insertBefore(s1, s0);
         })();
