@@ -5,24 +5,34 @@ import { put, del } from '@vercel/blob';
 // Shaped like packages/application's ObjectStoragePort — see
 // /PORTAL-PLAN.md §6/§9.
 //
-// Two backends, chosen automatically by whether BLOB_READ_WRITE_TOKEN is
-// set (Vercel provisions this env var automatically once a Blob store is
-// connected to the project — see the deployment guide):
+// Two backends, chosen automatically by whether a Blob store is
+// connected (Vercel provisions credentials automatically once one is
+// connected to the project from the dashboard's Storage tab):
 //
-//   - Local filesystem — used in local dev (no token). Never viable in
-//     production on Vercel: serverless function filesystems are
-//     ephemeral and reset between invocations, so anything written here
-//     would vanish, sometimes before the very next request reads it back.
+//   - Local filesystem — used in local dev (no credentials). Never
+//     viable in production on Vercel: serverless function filesystems
+//     are ephemeral and reset between invocations, so anything written
+//     here would vanish, sometimes before the very next request reads
+//     it back.
 //   - Vercel Blob — used in production. `saveFile` returns the *real*
 //     key every caller must persist as `storageKey` (a full https URL
 //     in Blob mode, the same relative path as before in local mode) —
 //     callers must use that return value, not re-derive their own key,
 //     since only Blob's own `put()` response reveals the real URL.
 //
+// @vercel/blob authenticates with the classic BLOB_READ_WRITE_TOKEN *or*
+// OIDC (VERCEL_OIDC_TOKEN + BLOB_STORE_ID) — confirmed directly in its
+// own source. Connecting a store from the dashboard now sets up OIDC by
+// default (BLOB_STORE_ID + BLOB_WEBHOOK_PUBLIC_KEY, no
+// BLOB_READ_WRITE_TOKEN at all), so checking only the classic token
+// here meant a correctly-connected store was invisible to this file —
+// confirmed live: this project's store was connected via OIDC only,
+// and every write before this fix silently took the local-disk path.
+//
 // Every caller goes through saveFile/readFileByKey/deleteFile — this is
 // the one file a real storage swap touches.
 const STORAGE_ROOT = join(process.cwd(), 'storage', 'portal');
-const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 
 function resolveLocalPath(key: string): string {
   const filePath = normalize(join(STORAGE_ROOT, key));

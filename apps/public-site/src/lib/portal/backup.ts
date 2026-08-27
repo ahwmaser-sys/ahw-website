@@ -51,7 +51,14 @@ function delegate(client: typeof prisma, model: ModelName): AnyDelegate {
 // also almost certainly why this page had no link pointing to it yet.
 const BACKUP_ROOT = join(process.cwd(), 'storage', 'backups'); // local-dev fallback only
 const BACKUP_PREFIX = 'backups/';
-const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+// @vercel/blob authenticates with the classic BLOB_READ_WRITE_TOKEN *or*
+// OIDC (VERCEL_OIDC_TOKEN + BLOB_STORE_ID) — confirmed directly in its
+// own source (dist/chunk-CIIQSN42.js's credential resolution checks both
+// paths). Connecting a store from the dashboard's Storage tab now sets
+// up OIDC by default (BLOB_STORE_ID + BLOB_WEBHOOK_PUBLIC_KEY, no
+// BLOB_READ_WRITE_TOKEN at all) — checking only the classic token here
+// meant a correctly-connected store was still invisible to this file.
+const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 
 export interface BackupManifest {
   createdAt: string;
