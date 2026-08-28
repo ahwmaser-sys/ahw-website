@@ -90,7 +90,7 @@ export default async function DesignBuildPage() {
         title="Design & Build"
         heroImage="/images/expertise/ahw_act3_built.jpg"
         heroStatement="We do not just hand over drawings. We take full accountability for the physical realization of the project."
-        intro="A singular point of responsibility from concept to completion. Our construction management and turnkey project delivery model means we manage the grit of the construction site to protect the purity of the design, overseeing timeline, budget, and complex logistics for clients across Egypt and Kuwait."
+        intro="A singular point of responsibility from concept to completion. Our construction management and turnkey project delivery model means we manage the grit of the construction site to protect the purity of the design, overseeing timeline, budget, and complex logistics for clients across Egypt and Kuwait. In practice, this is what clients searching for a design-build contractor, interior contractor, or turnkey contractor are looking for — one construction company accountable for design, procurement, and site execution together, rather than separate hires."
         services={[
           { number: '08', name: 'Design & Build', proposition: 'A singular point of responsibility from concept to completion, delivered as turnkey projects.' },
           { number: '09', name: 'Project Management', proposition: 'Rigorous oversight of timeline, budget, and complex logistics.' },

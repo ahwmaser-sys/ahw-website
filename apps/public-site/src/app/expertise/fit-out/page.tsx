@@ -90,7 +90,7 @@ export default async function FitOutPage() {
         title="Fit-Out"
         heroImage="/images/expertise/ahw_act4_built_dubai.jpg"
         heroStatement="The final layer of refinement. Where raw space becomes a premium, fully operational environment."
-        intro="Whether it is a five-star hospitality design venue, a flagship retail design space, or a commercial design fit-out, our teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space — in Cairo, Kuwait City, or across the Gulf."
+        intro="Whether it is a five-star hospitality design venue, a flagship retail design space, a commercial design fit-out, or a private residence, our teams execute with absolute precision. We handle authority approvals and complex installations, ensuring you step into a flawless space — in Cairo, Kuwait City, or across the Gulf. It is the same interior contractor and fit-out contractor scope clients look for under a turnkey delivery model, carried out by the same team that designed the space."
         services={[
           { number: '13', name: 'Interior Fit-Out', proposition: 'Premium, turnkey interior completions built to the highest standards.' },
           { number: '14', name: 'Authority Approvals', proposition: 'Navigating regulatory frameworks to ensure compliant, seamless handover.' },

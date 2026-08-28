@@ -6,6 +6,7 @@ import styles from './home.module.css';
 import type { SelectedWorkItem } from '../lib/homepageAssets';
 import { ClientReviewsSection } from './ClientReviewsSection';
 import { CapabilitiesSection } from './CapabilitiesSection';
+import { DesignLeadershipSection } from './DesignLeadershipSection';
 
 export interface HomeContentProps {
   /** Curated hero background rotation, loaded from
@@ -227,12 +228,17 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
         {/* 4. CAPABILITIES - Award Winning Interactive List */}
         <CapabilitiesSection />
 
-        {/* 5. CLIENT REVIEWS — server-rendered from our own database only
+        {/* 5. DESIGN LEADERSHIP — the homepage's "Why AHW / Differentiation"
+            beat, ahead of Client Trust per the go-live brief's preferred
+            flow. Verified leadership data only (aboutData), never invented. */}
+        <DesignLeadershipSection />
+
+        {/* 6. CLIENT REVIEWS — server-rendered from our own database only
             (see app/page.tsx), never a live Google API call. Renders
             nothing if there's no featured+published review yet. */}
         <ClientReviewsSection reviews={reviews} aggregate={reviewsAggregate} googleUrl={reviewsGoogleUrl} showCount={reviewsShowCount} />
 
-        {/* 6. CLOSING CTA */}
+        {/* 7. CLOSING CTA */}
         <section className={styles.homeCtaSection}>
           <div className={styles.container}>
             <h2 className={styles.homeCtaTitle}>Your Project Belongs Here Next.</h2>

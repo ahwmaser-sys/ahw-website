@@ -41,23 +41,51 @@
   text-wrap: balance;
 }
 
-.ratingRow {
+/* Trust hierarchy, left to right: Google attribution first (this is
+   sourced, real, third-party proof), then the rating, then optional count,
+   then the secondary CTA — none of them competing with the review cards
+   below, which stay the section's actual visual subject. */
+.trustRow {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.googleAttribution {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+}
+
+.googleMark {
+  flex: none;
+}
+
+.trustDivider {
+  color: var(--color-brand-stone);
+  opacity: 0.5;
+  font-size: var(--font-size-xs);
 }
 
 .ratingStars {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-sm);
   color: var(--color-brand-accent);
   letter-spacing: 0.1em;
+  opacity: 0.9;
 }
 
 .ratingText {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--color-brand-stone);
 }
 
@@ -94,11 +122,37 @@
 }
 
 .card {
+  position: relative;
   padding-top: var(--space-6);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
+}
+
+/* One wider card per grid (see ClientReviewsSection.tsx's useFeaturedLayout)
+   breaks up an otherwise uniform 3-column testimonial wall — a spacing/
+   typography distinction, not a color or shadow one, so it stays inside
+   the section's existing restrained visual language. */
+@media (min-width: 1024px) {
+  .cardFeatured {
+    grid-column: span 2;
+  }
+
+  .cardFeatured .cardText {
+    font-size: var(--font-size-xl);
+    max-width: 44ch;
+  }
+}
+
+.quoteMark {
+  font-family: var(--font-family-secondary);
+  font-size: 2.75rem;
+  line-height: 1;
+  color: var(--color-brand-accent);
+  opacity: 0.35;
+  font-style: italic;
+  margin-bottom: -8px;
 }
 
 .cardStars {
@@ -106,6 +160,7 @@
   font-size: var(--font-size-sm);
   color: var(--color-brand-accent);
   letter-spacing: 0.1em;
+  opacity: 0.9;
 }
 
 .cardText {
@@ -148,11 +203,11 @@
 }
 
 .reviewerInitial {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  color: var(--color-brand-paper);
+  color: var(--color-brand-stone);
   display: flex;
   align-items: center;
   justify-content: center;
