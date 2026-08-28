@@ -194,21 +194,28 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ['@agp/ui-components', '@agp/design-tokens'],
-  // sharp ships a native binary (libvips) per platform — without this,
-  // Next.js's output-file-tracing can fail to carry that binary into the
-  // deployed serverless function (it isn't reachable via static import
-  // analysis, only dlopen'd at runtime), producing exactly the production
-  // error this fixes: "Could not load the sharp module using the
-  // linux-x64 runtime... libvips-cpp.so.8.18.3: cannot open shared object
-  // file". serverExternalPackages tells Next.js to leave sharp
-  // unbundled and load it directly from node_modules instead, where its
-  // native binary is intact. Every server action importing lib/portal/
-  // media/pipeline.ts (which imports sharp) was failing at module-
-  // evaluation time because of this — not just uploads, but every other
-  // action co-located in the same file (e.g. category/tag management in
-  // lib/portal/actions/media.ts), since one throwing top-level import
-  // breaks the whole module.
+  // sharp ships a native binary (libvips) per platform. serverExternalPackages
+  // alone was NOT sufficient to fix the production error this targets
+  // ("Could not load the sharp module using the linux-x64 runtime...
+  // libvips-cpp.so.8.18.3: cannot open shared object file") — confirmed by
+  // testing it in isolation first, including against a genuinely fresh,
+  // uncached `pnpm install` (ruling out a stale build-cache explanation).
+  // serverExternalPackages keeps sharp's own require() calls unbundled,
+  // but libvips-cpp.so itself is dlopen'd from inside sharp's compiled
+  // .node addon — invisible to Next.js's output-file-tracing (@vercel/nft),
+  // which only follows statically/dynamically analyzable JS require()/
+  // import calls. outputFileTracingIncludes below is what actually forces
+  // sharp's full directory (all platform binaries, since @img/sharp-* are
+  // separate optional packages) into the deployed function's file set.
+  // Every server action importing lib/portal/media/pipeline.ts (which
+  // imports sharp) was failing at module-evaluation time — not just
+  // uploads, but every other action co-located in the same file (e.g.
+  // category/tag management in lib/portal/actions/media.ts), since one
+  // throwing top-level import breaks the whole module.
   serverExternalPackages: ['sharp'],
+  outputFileTracingIncludes: {
+    '/admin/**': ['./node_modules/sharp/**/*', './node_modules/@img/**/*'],
+  },
   experimental: {
     // Default is 4 static-generation workers, each opening its own Prisma
     // connection pool (see lib/portal/db.ts's max: 5) against the local
