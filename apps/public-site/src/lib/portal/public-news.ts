@@ -21,6 +21,11 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
     content: post.body,
     date: (post.publishedAt ?? post.createdAt).toISOString(),
     slug: post.slug,
+    // /api/media/[assetId] is the public-facing route built specifically
+    // for this — it re-checks isPubliclyVisible() on every request rather
+    // than trusting URL obscurity, so a stable path here stays safe even
+    // if the post is later unpublished.
+    ...(post.featuredImageId ? { coverImage: `/api/media/${post.featuredImageId}` } : {}),
   }));
 
   return [...dbItems, ...staticNewsItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

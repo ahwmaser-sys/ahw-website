@@ -88,7 +88,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
           <MediaThumbnail assetId={post.featuredImage.id} alt={post.title} dominantColors={post.featuredImage.dominantColors} />
         )}
         <div className={styles.formSpacer}>
-          <FeaturedImageForm postId={post.id} featuredImageId={post.featuredImageId} ogImageId={post.ogImageId} options={imageAssets} />
+          <FeaturedImageForm key={post.updatedAt.toISOString()} postId={post.id} featuredImageId={post.featuredImageId} ogImageId={post.ogImageId} options={imageAssets} />
         </div>
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Gallery</h3>
