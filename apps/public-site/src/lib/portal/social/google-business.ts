@@ -2,6 +2,7 @@ import type { SocialAdapter, SocialPostSource, FormattedSocialContent, PublishRe
 import { canonicalNewsUrl } from './types';
 import { getIntegrationCredential } from '../integrations/store';
 import { fetchGoogleBusinessApi } from '../integrations/google-business-http';
+import { getFreshGoogleBusinessAccessToken } from '../integrations/google-business-token';
 
 // Google Business Profile API access requires a Google-approved access
 // request and a verified Business Profile — restricted significantly
@@ -44,27 +45,42 @@ export const googleBusinessAdapter: SocialAdapter = {
   },
 
   async publish(content: FormattedSocialContent, officeId: string): Promise<PublishResult> {
-    const cred = await getIntegrationCredential<GoogleBusinessCredential>('GOOGLE_BUSINESS', officeId);
-    if (!cred) {
-      throw new Error('Google Business Profile adapter is not configured — this should never be called while isConfigured() is false.');
+    const token = await getFreshGoogleBusinessAccessToken(officeId);
+    if (!token.ok) {
+      throw new Error(token.error);
     }
 
     // A 429 here unambiguously means Google rejected the request before
     // any server-side effect (no post was created) — safe for the
     // shared retry wrapper to reissue the same POST body.
-    const res = await fetchGoogleBusinessApi(`${API}/${cred.locationId}/localPosts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${cred.accessToken}`,
-      },
-      body: JSON.stringify({
-        languageCode: 'en',
-        summary: content.caption,
-        topicType: 'STANDARD',
-        ...(content.imageUrl ? { media: [{ mediaFormat: 'PHOTO', sourceUrl: content.imageUrl }] } : {}),
-      }),
-    });
+    const doPost = (accessToken: string) =>
+      fetchGoogleBusinessApi(`${API}/${token.locationId}/localPosts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          languageCode: 'en',
+          summary: content.caption,
+          topicType: 'STANDARD',
+          ...(content.imageUrl ? { media: [{ mediaFormat: 'PHOTO', sourceUrl: content.imageUrl }] } : {}),
+        }),
+      });
+
+    let res = await doPost(token.accessToken);
+
+    // Cached expiry said this token was still good but Google disagrees —
+    // force exactly one refresh-and-retry, same pattern the Reviews API
+    // caller already uses (lib/portal/reviews/google-api.ts).
+    if (res.status === 401) {
+      const refreshed = await getFreshGoogleBusinessAccessToken(officeId, { force: true });
+      if (!refreshed.ok) {
+        throw new Error(refreshed.error);
+      }
+      res = await doPost(refreshed.accessToken);
+    }
+
     const body: unknown = await res.json();
     if (!res.ok || typeof body !== 'object' || body === null) {
       throw new Error(`Google Business Profile post failed: ${JSON.stringify(body)}`);
