@@ -281,6 +281,18 @@ const nextConfig = {
     // Accept header automatically; this only adds format options; it
     // never lowers the quality values set above.
     formats: ['image/avif', 'image/webp'],
+    // Explicit because Next 16 defaults an unset localPatterns to
+    // [{ pathname: '**', search: '' }] — any local image is fine, but a
+    // query string on one isn't (confirmed live: broke the build the
+    // moment public-news.ts started requesting /api/media/[id]?variant=
+    // for article covers). First entry keeps every existing no-query
+    // local image (public/ assets, etc.) working exactly as before;
+    // second explicitly allows /api/media/** with any query string, so
+    // adding a new ?variant= value later never needs a config change.
+    localPatterns: [
+      { pathname: '**', search: '' },
+      { pathname: '/api/media/**' },
+    ],
   },
 };
 
