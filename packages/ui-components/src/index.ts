@@ -37,6 +37,7 @@ export * from './data/projectOrder';
 export * from './data/publications';
 export * from './data/news';
 export * from './data/faq';
+export * from './data/residentialExperience';
 export * from './lib/whatsapp';
 export * from './lib/tel';
 export * from './lib/getContactHubActions';

@@ -186,7 +186,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                 <h2 className={styles.featuredMainTitle}>Selected Work</h2>
                 <div className={styles.featuredLinksGroup}>
                   <Link href="/projects" className={styles.featuredViewAll}>View All Projects →</Link>
-                  <Link href="/projects?sector=residential" className={styles.featuredViewAllSecondary}>Explore Residential Projects →</Link>
+                  <Link href="/residential" className={styles.featuredViewAllSecondary}>Explore Residential Projects →</Link>
                 </div>
               </div>
 

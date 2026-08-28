@@ -14,7 +14,7 @@ const sectorIds = ['commercial', 'residential', 'hospitality', 'office-fitout'];
 // a link that wouldn't actually help a reader (same restraint as
 // about-us's PILLAR_LINKS).
 const STRENGTH_LINKS: Record<string, string> = {
-  residential: '/projects?sector=residential',
+  residential: '/residential',
   'integrated-aec': '/expertise/design-build',
 };
 

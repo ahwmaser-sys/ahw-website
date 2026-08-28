@@ -1,0 +1,356 @@
+.main {
+  background: var(--color-brand-ink);
+}
+
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* 1. Hero */
+.hero {
+  padding: var(--space-32) 0 var(--space-16);
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+.title {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-6);
+  max-width: 20ch;
+  text-wrap: balance;
+}
+
+.subtitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-stone);
+  max-width: 60ch;
+  margin: 0;
+}
+
+/* 2. Capability */
+.capability {
+  padding: var(--space-12) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.capabilityText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-stone);
+  max-width: 72ch;
+  margin: 0;
+}
+
+.capabilityText a {
+  color: var(--color-brand-paper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.capabilityText a:hover {
+  opacity: 0.8;
+}
+
+/* Shared section header pattern (title + "view all" link) */
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+  margin-bottom: var(--space-10);
+}
+
+.sectionTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0;
+}
+
+.viewAll {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.viewAll:hover {
+  color: var(--color-brand-paper);
+}
+
+/* 3. Selected Residential Projects */
+.projectsSection {
+  padding: var(--space-24) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+@media (max-width: 1023px) {
+  .projectsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .projectsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.projectCard {
+  display: block;
+  text-decoration: none;
+}
+
+.projectImageWrapper {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.projectImage {
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.projectCard:hover .projectImage {
+  transform: scale(1.03);
+}
+
+.projectMeta {
+  margin-top: var(--space-4);
+}
+
+.projectTitle {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-1);
+}
+
+.projectLocation {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+}
+
+/* 4. Selected Residential Experience — editorial list, deliberately not
+   a card grid or badge wall: these are text references to professional
+   experience, not delivered case studies, and should never look like
+   the project cards above. */
+.experienceSection {
+  padding: var(--space-24) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.experienceIntro {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-stone);
+  max-width: 64ch;
+  margin: var(--space-4) 0 var(--space-12);
+}
+
+.experienceGroups {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-16);
+}
+
+@media (max-width: 767px) {
+  .experienceGroups {
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+  }
+}
+
+.experienceRegion {
+  display: block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.experienceList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.experienceItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.experienceName {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-base);
+  color: var(--color-brand-paper);
+}
+
+.experienceDeveloper {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-stone);
+  opacity: 0.7;
+}
+
+.experienceWording {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+/* 5. FAQ excerpt */
+.faqSection {
+  padding: var(--space-24) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.faqItem {
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.faqQuestion {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-3);
+}
+
+.faqAnswer {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-stone);
+  margin: 0;
+  max-width: 72ch;
+}
+
+/* 6. Closing CTA */
+.ctaSection {
+  padding: var(--space-24) 0 var(--space-32);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.ctaTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-4);
+}
+
+.ctaText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-brand-stone);
+  max-width: 56ch;
+  margin: 0 auto var(--space-8);
+}
+
+.ctaButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.primaryButton {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-ink);
+  background: var(--color-brand-paper);
+  padding: var(--space-4) var(--space-8);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.primaryButton:hover {
+  opacity: 0.85;
+}
+
+.secondaryButton {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-paper);
+  border: 1px solid var(--color-border-strong);
+  padding: var(--space-4) var(--space-8);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.secondaryButton:hover {
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projectImage,
+  .viewAll,
+  .capabilityText a,
+  .primaryButton,
+  .secondaryButton {
+    transition: none;
+  }
+}
