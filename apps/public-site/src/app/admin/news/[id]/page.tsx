@@ -20,6 +20,7 @@ import {
   SeoForm,
   FeaturedImageForm,
   AddGalleryImageForm,
+  RemoveGalleryImageForm,
   TaxonomyForm,
   GenerateAIPackageForm,
   ApplyAISeoForm,
@@ -96,7 +97,9 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
             {post.gallery.length === 0 && <p className={styles.cardMeta}>No gallery images yet.</p>}
             {post.gallery.map((g) => (
               <div key={g.id} className={styles.card}>
+                <MediaThumbnail assetId={g.asset.id} alt={g.asset.fileName} dominantColors={g.asset.dominantColors} />
                 <span className={styles.cardMeta}>{g.asset.fileName}</span>
+                <RemoveGalleryImageForm postId={post.id} galleryImageId={g.id} />
               </div>
             ))}
           </div>

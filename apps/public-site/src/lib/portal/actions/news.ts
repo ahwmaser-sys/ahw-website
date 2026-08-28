@@ -376,6 +376,26 @@ export async function addNewsGalleryImage(_prevState: ActionState, formData: For
   return { success: 'Added to gallery.' };
 }
 
+const removeGalleryImageSchema = z.object({ postId: z.string().min(1), galleryImageId: z.string().min(1) });
+
+export async function removeNewsGalleryImage(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = removeGalleryImageSchema.safeParse({
+    postId: formData.get('postId'),
+    galleryImageId: formData.get('galleryImageId'),
+  });
+  if (!parsed.success) {
+    return { error: 'Invalid request.' };
+  }
+
+  await prisma.newsPostGalleryImage.delete({ where: { id: parsed.data.galleryImageId, newsPostId: parsed.data.postId } });
+
+  revalidatePath(`/admin/news/${parsed.data.postId}`);
+  return { success: 'Removed from gallery.' };
+}
+
 const taxonomySchema = z.object({ postId: z.string().min(1), tags: z.string().optional() });
 
 function parseCsv(raw: FormDataEntryValue | undefined): string[] {

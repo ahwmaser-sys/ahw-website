@@ -11,6 +11,7 @@ import {
   updateNewsSeo,
   updateNewsFeaturedImage,
   addNewsGalleryImage,
+  removeNewsGalleryImage,
   updateNewsTaxonomy,
 } from '../../../../lib/portal/actions/news';
 import { retrySocialPost, deleteSocialPost } from '../../../../lib/portal/actions/social';
@@ -248,6 +249,15 @@ export function AddGalleryImageForm({ postId, options }: { postId: string; optio
           <option key={o.id} value={o.id}>{o.fileName}</option>
         ))}
       </select>
+    </ActionForm>
+  );
+}
+
+export function RemoveGalleryImageForm({ postId, galleryImageId }: { postId: string; galleryImageId: string }) {
+  return (
+    <ActionForm action={removeNewsGalleryImage} submitLabel="Remove" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
+      <input type="hidden" name="postId" value={postId} />
+      <input type="hidden" name="galleryImageId" value={galleryImageId} />
     </ActionForm>
   );
 }
