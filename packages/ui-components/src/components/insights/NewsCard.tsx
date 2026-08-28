@@ -11,11 +11,11 @@ export interface NewsCardProps {
 export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   return (
     <article className={styles.card}>
-      {news.coverImage && (
+      {(news.thumbnailImage ?? news.coverImage) && (
         <div className={styles.imageWrapper}>
           <Link href={`/insights/news/${news.slug}`}>
             <Image
-              src={news.coverImage}
+              src={news.thumbnailImage ?? news.coverImage!}
               alt={news.title}
               fill
               sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

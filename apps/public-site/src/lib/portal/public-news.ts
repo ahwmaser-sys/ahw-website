@@ -8,12 +8,19 @@ import { prisma } from './db';
 // replacing it, so nothing about the existing (currently empty) news
 // system changes shape, and adding a real static entry later still
 // works exactly as before.
-// Smart-cropped, pre-sized 1920x1080 JPEG the upload pipeline already
-// generates for every IMAGE-kind asset (see media/output-targets.ts) —
-// using it here instead of the raw original avoids serving a multi-MB
-// source file as a page banner. Falls back to the raw asset for the rare
-// image uploaded before variant generation existed.
+// Smart-cropped, pre-sized JPEGs the upload pipeline already generates
+// for every IMAGE-kind asset (see media/output-targets.ts), each cut for
+// a specific aspect ratio — using the raw original everywhere serves a
+// multi-MB source file as a page banner, and using ONE variant for both
+// the wide article banner and the narrower list-card slot forces the
+// browser to crop an already-cropped image a second time (confirmed
+// live: cut off the top of the subject on the 4:3 card because the
+// source was the 16:9 hero variant). COVER_VARIANT matches the article
+// page's 16:9 banner slot; THUMBNAIL_VARIANT matches NewsCard's 4:3
+// slot. Falls back to the raw asset for the rare image uploaded before
+// variant generation existed.
 const COVER_VARIANT = 'website-hero';
+const THUMBNAIL_VARIANT = 'website-thumbnail';
 
 export async function getPublicNewsItems(): Promise<NewsItem[]> {
   const posts = await prisma.newsPost.findMany({
@@ -22,13 +29,13 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
   });
 
   const featuredImageIds = posts.map((p) => p.featuredImageId).filter((id): id is string => Boolean(id));
-  const heroVariants = featuredImageIds.length
+  const variants = featuredImageIds.length
     ? await prisma.mediaAssetVariant.findMany({
-        where: { assetId: { in: featuredImageIds }, purpose: COVER_VARIANT },
-        select: { assetId: true },
+        where: { assetId: { in: featuredImageIds }, purpose: { in: [COVER_VARIANT, THUMBNAIL_VARIANT] } },
+        select: { assetId: true, purpose: true },
       })
     : [];
-  const hasHeroVariant = new Set(heroVariants.map((v) => v.assetId));
+  const hasVariant = new Set(variants.map((v) => `${v.assetId}:${v.purpose}`));
 
   const dbItems: NewsItem[] = posts.map((post) => ({
     id: post.id,
@@ -43,8 +50,11 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
     // if the post is later unpublished.
     ...(post.featuredImageId
       ? {
-          coverImage: hasHeroVariant.has(post.featuredImageId)
+          coverImage: hasVariant.has(`${post.featuredImageId}:${COVER_VARIANT}`)
             ? `/api/media/${post.featuredImageId}?variant=${COVER_VARIANT}`
+            : `/api/media/${post.featuredImageId}`,
+          thumbnailImage: hasVariant.has(`${post.featuredImageId}:${THUMBNAIL_VARIANT}`)
+            ? `/api/media/${post.featuredImageId}?variant=${THUMBNAIL_VARIANT}`
             : `/api/media/${post.featuredImageId}`,
         }
       : {}),
