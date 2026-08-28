@@ -90,6 +90,15 @@
   margin-bottom: var(--space-32);
 }
 
+/* Clearfix — without this, a gallery image floated on the last block
+   collapses out of .content's height entirely (floats don't contribute
+   to a normal-flow parent's height on their own). */
+.content::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
 .textContent {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-lg);
@@ -107,6 +116,48 @@
   color: var(--color-brand-paper);
   letter-spacing: var(--tracking-wide);
   margin: var(--space-12) 0 var(--space-4) 0;
+  /* Never let a heading wrap in the narrow column beside a floated
+     gallery image — always starts on its own clear line. */
+  clear: both;
+}
+
+.galleryFloatLeft,
+.galleryFloatRight {
+  margin-bottom: var(--space-6);
+}
+
+.galleryFloatLeft {
+  float: left;
+  margin-right: var(--space-8);
+}
+
+.galleryFloatRight {
+  float: right;
+  margin-left: var(--space-8);
+}
+
+.galleryImageWrapper {
+  position: relative;
+  width: clamp(220px, 38vw, 340px);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--color-brand-stone);
+}
+
+.galleryImage {
+  object-fit: cover;
+}
+
+@media (max-width: 640px) {
+  .galleryFloatLeft,
+  .galleryFloatRight {
+    float: none;
+    margin: 0 0 var(--space-8) 0;
+  }
+
+  .galleryImageWrapper {
+    width: 100%;
+  }
 }
 
 .relatedSection {

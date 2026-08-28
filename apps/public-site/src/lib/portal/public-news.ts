@@ -21,17 +21,29 @@ import { prisma } from './db';
 // variant generation existed.
 const COVER_VARIANT = 'website-hero';
 const THUMBNAIL_VARIANT = 'website-thumbnail';
+// Square crop reads well floated at ~40% width beside a few lines of
+// running text (the magazine-style layout on the article page) — too
+// tall and it dwarfs a short paragraph, too wide and it barely leaves
+// room to wrap.
+const GALLERY_VARIANT = 'instagram-square';
+
+function resolveMediaUrl(assetId: string, variantPurpose: string, hasVariant: Set<string>): string {
+  return hasVariant.has(`${assetId}:${variantPurpose}`) ? `/api/media/${assetId}?variant=${variantPurpose}` : `/api/media/${assetId}`;
+}
 
 export async function getPublicNewsItems(): Promise<NewsItem[]> {
   const posts = await prisma.newsPost.findMany({
     where: { status: 'PUBLISHED', publishedAt: { lte: new Date() } },
     orderBy: { publishedAt: 'desc' },
+    include: { gallery: { include: { asset: true }, orderBy: { sortOrder: 'asc' } } },
   });
 
   const featuredImageIds = posts.map((p) => p.featuredImageId).filter((id): id is string => Boolean(id));
-  const variants = featuredImageIds.length
+  const galleryImageIds = posts.flatMap((p) => p.gallery.map((g) => g.assetId));
+  const allImageIds = [...new Set([...featuredImageIds, ...galleryImageIds])];
+  const variants = allImageIds.length
     ? await prisma.mediaAssetVariant.findMany({
-        where: { assetId: { in: featuredImageIds }, purpose: { in: [COVER_VARIANT, THUMBNAIL_VARIANT] } },
+        where: { assetId: { in: allImageIds }, purpose: { in: [COVER_VARIANT, THUMBNAIL_VARIANT, GALLERY_VARIANT] } },
         select: { assetId: true, purpose: true },
       })
     : [];
@@ -50,12 +62,17 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
     // if the post is later unpublished.
     ...(post.featuredImageId
       ? {
-          coverImage: hasVariant.has(`${post.featuredImageId}:${COVER_VARIANT}`)
-            ? `/api/media/${post.featuredImageId}?variant=${COVER_VARIANT}`
-            : `/api/media/${post.featuredImageId}`,
-          thumbnailImage: hasVariant.has(`${post.featuredImageId}:${THUMBNAIL_VARIANT}`)
-            ? `/api/media/${post.featuredImageId}?variant=${THUMBNAIL_VARIANT}`
-            : `/api/media/${post.featuredImageId}`,
+          coverImage: resolveMediaUrl(post.featuredImageId, COVER_VARIANT, hasVariant),
+          thumbnailImage: resolveMediaUrl(post.featuredImageId, THUMBNAIL_VARIANT, hasVariant),
+        }
+      : {}),
+    ...(post.gallery.length > 0
+      ? {
+          galleryImages: post.gallery.map((g) => ({
+            id: g.assetId,
+            url: resolveMediaUrl(g.assetId, GALLERY_VARIANT, hasVariant),
+            alt: g.asset.altText ?? post.title,
+          })),
         }
       : {}),
   }));

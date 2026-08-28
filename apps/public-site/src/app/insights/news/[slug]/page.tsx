@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { projects, publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, PublicationCard, SocialShare } from '@agp/ui-components';
+import { projects, publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, PublicationCard, SocialShare, ScrollReveal } from '@agp/ui-components';
 import { getPublicNewsItems } from '../../../../lib/portal/public-news';
 import { recordPageView } from '../../../../lib/portal/analytics/track';
 import { getSiteUrl } from '../../../../lib/site-config';
@@ -25,18 +26,78 @@ function isHeadingLine(block: string): boolean {
   return !block.includes('\n') && block.length <= 100 && /[A-Za-z]/.test(block) && block === block.toUpperCase();
 }
 
-function renderArticleBody(content: string, styles: Record<string, string>) {
-  return content
+// Magazine-style layout: gallery photos float alternating left/right
+// through the running text (CSS float — text wraps around each image
+// natively, no fixed pairing between a specific paragraph and image),
+// inserted every other paragraph so they're spread through the article
+// rather than clumped. Any gallery images left over once the text runs
+// out still render, alternating sides, after the last paragraph — an
+// editor who added five photos to a three-paragraph note should still
+// see all five, not have two silently dropped.
+const GALLERY_INSERT_INTERVAL = 2;
+
+function renderArticleBody(
+  content: string,
+  galleryImages: { id: string; url: string; alt: string }[],
+  styles: Record<string, string>,
+) {
+  const blocks = content
     .split(/\n\s*\n/)
     .map((block) => block.trim())
-    .filter(Boolean)
-    .map((block, i) =>
-      isHeadingLine(block) ? (
-        <h2 key={i} className={styles.sectionHeading}>{block}</h2>
-      ) : (
-        <p key={i} className={styles.textContent}>{block}</p>
-      ),
+    .filter(Boolean);
+
+  const galleryElement = (image: { id: string; url: string; alt: string }, index: number) => {
+    const isLeft = index % 2 === 0;
+    return (
+      <ScrollReveal
+        key={`gallery-${image.id}`}
+        direction={isLeft ? 'left' : 'right'}
+        width="fit-content"
+        className={isLeft ? styles.galleryFloatLeft : styles.galleryFloatRight}
+      >
+        <div className={styles.galleryImageWrapper}>
+          <Image src={image.url} alt={image.alt} fill sizes="(max-width: 640px) 100vw, 340px" className={styles.galleryImage} loading="lazy" />
+        </div>
+      </ScrollReveal>
     );
+  };
+
+  const elements: ReactNode[] = [];
+  let paragraphCount = 0;
+  let galleryIndex = 0;
+
+  blocks.forEach((block, i) => {
+    if (isHeadingLine(block)) {
+      elements.push(
+        <ScrollReveal key={`heading-${i}`} direction="up">
+          <h2 className={styles.sectionHeading}>{block}</h2>
+        </ScrollReveal>,
+      );
+      return;
+    }
+
+    elements.push(
+      <ScrollReveal key={`para-${i}`} direction="up">
+        <p className={styles.textContent}>{block}</p>
+      </ScrollReveal>,
+    );
+    paragraphCount += 1;
+
+    const nextImage = galleryImages[galleryIndex];
+    if (nextImage && paragraphCount % GALLERY_INSERT_INTERVAL === 0) {
+      elements.push(galleryElement(nextImage, galleryIndex));
+      galleryIndex += 1;
+    }
+  });
+
+  let remainingImage = galleryImages[galleryIndex];
+  while (remainingImage) {
+    elements.push(galleryElement(remainingImage, galleryIndex));
+    galleryIndex += 1;
+    remainingImage = galleryImages[galleryIndex];
+  }
+
+  return elements;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -150,24 +211,26 @@ export default async function NewsDetailPage({ params }: Props) {
 
         {/* Cover Image */}
         {news.coverImage && (
-          <div className={styles.coverImageWrapper}>
-            <Image
-              src={news.coverImage}
-              alt={news.title}
-              fill
-              sizes="(min-width: 800px) 800px, 100vw"
-              className={styles.coverImage}
-              priority
-              fetchPriority="high"
-            />
-          </div>
+          <ScrollReveal direction="none" duration={0.8}>
+            <div className={styles.coverImageWrapper}>
+              <Image
+                src={news.coverImage}
+                alt={news.title}
+                fill
+                sizes="(min-width: 800px) 800px, 100vw"
+                className={styles.coverImage}
+                priority
+                fetchPriority="high"
+              />
+            </div>
+          </ScrollReveal>
         )}
 
         {/* Content */}
         <div className={styles.container}>
           <div className={styles.contentWrapper}>
             <div className={styles.content}>
-              {renderArticleBody(news.content || news.excerpt, styles)}
+              {renderArticleBody(news.content || news.excerpt, news.galleryImages ?? [], styles)}
             </div>
             <SocialShare url={`${siteUrl}/insights/news/${news.slug}`} title={news.title} />
           </div>

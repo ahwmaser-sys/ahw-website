@@ -7,6 +7,7 @@ export interface NewsItem {
   slug: string;
   coverImage?: string;
   thumbnailImage?: string;
+  galleryImages?: { id: string; url: string; alt: string }[];
   relatedProjectSlugs?: string[];
   relatedPublicationId?: string;
   tags?: string[];
