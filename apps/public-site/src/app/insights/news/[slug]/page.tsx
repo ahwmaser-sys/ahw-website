@@ -48,17 +48,21 @@ function renderArticleBody(
 
   const galleryElement = (image: { id: string; url: string; alt: string }, index: number) => {
     const isLeft = index % 2 === 0;
+    // The float + real width live on this plain div, not on ScrollReveal
+    // itself — ScrollReveal's own wrapper only ever offers 'fit-content'
+    // or '100%' as an inline width, and 'fit-content' here collapsed to
+    // 0x0 (confirmed live) because every element inside it also sizes
+    // itself as a percentage, with nothing concrete to resolve against.
+    // '100%' resolves cleanly here because *this* div's width is a real,
+    // self-contained value (clamp(), not a percentage of anything).
     return (
-      <ScrollReveal
-        key={`gallery-${image.id}`}
-        direction={isLeft ? 'left' : 'right'}
-        width="fit-content"
-        className={isLeft ? styles.galleryFloatLeft : styles.galleryFloatRight}
-      >
-        <div className={styles.galleryImageWrapper}>
-          <Image src={image.url} alt={image.alt} fill sizes="(max-width: 640px) 100vw, 340px" className={styles.galleryImage} loading="lazy" />
-        </div>
-      </ScrollReveal>
+      <div key={`gallery-${image.id}`} className={isLeft ? styles.galleryFloatLeft : styles.galleryFloatRight}>
+        <ScrollReveal direction={isLeft ? 'left' : 'right'}>
+          <div className={styles.galleryImageWrapper}>
+            <Image src={image.url} alt={image.alt} fill sizes="(max-width: 640px) 100vw, 340px" className={styles.galleryImage} loading="lazy" />
+          </div>
+        </ScrollReveal>
+      </div>
     );
   };
 

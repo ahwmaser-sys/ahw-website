@@ -121,8 +121,12 @@
   clear: both;
 }
 
+/* Real, self-contained width lives here (not on ScrollReveal's own
+   wrapper, and not as a percentage anywhere below this) — everything
+   inside just inherits 100% of this div's actual size. */
 .galleryFloatLeft,
 .galleryFloatRight {
+  width: clamp(220px, 38vw, 340px);
   margin-bottom: var(--space-6);
 }
 
@@ -138,7 +142,7 @@
 
 .galleryImageWrapper {
   position: relative;
-  width: clamp(220px, 38vw, 340px);
+  width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background-color: var(--color-brand-stone);
@@ -152,11 +156,8 @@
   .galleryFloatLeft,
   .galleryFloatRight {
     float: none;
-    margin: 0 0 var(--space-8) 0;
-  }
-
-  .galleryImageWrapper {
     width: 100%;
+    margin: 0 0 var(--space-8) 0;
   }
 }
 
