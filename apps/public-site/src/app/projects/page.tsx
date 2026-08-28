@@ -25,24 +25,49 @@ const BASE_BREADCRUMBS = [
 const PROJECTS_TITLE = 'Architecture & Design-Build Projects | AHW Architects';
 const PROJECTS_DESCRIPTION = '20 architecture and interior design projects across Egypt and Kuwait: residential homes, retail and office fit-out, hospitality interiors, concept to turnkey.';
 
-export const metadata: Metadata = {
-  title: 'Architecture & Design-Build Projects',
-  description: PROJECTS_DESCRIPTION,
-  alternates: {
-    canonical: '/projects',
-  },
-  openGraph: {
-    title: PROJECTS_TITLE,
-    description: PROJECTS_DESCRIPTION,
-    url: '/projects',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: PROJECTS_TITLE,
-    description: PROJECTS_DESCRIPTION,
+// Sector-specific <title>/description only — the canonical stays a single,
+// fixed '/projects' regardless of sector (see the alternates.canonical
+// below), so this never creates a second indexable URL or duplicate-
+// content risk. Only 'residential' has a dedicated pair for now (the
+// confirmed, evidence-based gap from the Phase 3 audit); other sectors
+// keep the general PROJECTS_TITLE/DESCRIPTION until a similar gap is
+// found for them.
+const SECTOR_METADATA: Record<string, { title: string; description: string }> = {
+  residential: {
+    title: 'Residential Architecture & Interior Design Projects | AHW Architects',
+    description: 'Private residences, villas, and apartments across Egypt and Kuwait — architecture, interior design, and turnkey construction for premium residential clients.',
   },
 };
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ sector?: string }> }): Promise<Metadata> {
+  const { sector } = await searchParams;
+  const sectorMeta = sector ? SECTOR_METADATA[sector.toLowerCase()] : undefined;
+  const title = sectorMeta?.title ?? PROJECTS_TITLE;
+  const description = sectorMeta?.description ?? PROJECTS_DESCRIPTION;
+
+  return {
+    title: sectorMeta ? sectorMeta.title.replace(' | AHW Architects', '') : 'Architecture & Design-Build Projects',
+    description,
+    alternates: {
+      // Deliberately always '/projects', never '/projects?sector=...' —
+      // the filtered view is the same page with different visible copy,
+      // not a distinct indexable document (see the go-live brief's
+      // explicit "do not create a second canonical URL" instruction).
+      canonical: '/projects',
+    },
+    openGraph: {
+      title,
+      description,
+      url: '/projects',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 const SECTOR_COPY: Record<string, { title: React.ReactNode, desc: string, breadcrumbLabel?: string }> = {
   all: {
@@ -192,12 +217,6 @@ export default async function ProjectsPage({
         </Link>
         <Link href="/documents/ahw-company-profile.pdf" target="_blank" className={styles.secondaryAction}>
           Download company profile (PDF)
-        </Link>
-        {/* Closes the one gap in the Homepage → Expertise → Projects
-            internal-link chain: this page previously had no link back to
-            /expertise at all. */}
-        <Link href="/expertise" className={styles.secondaryAction}>
-          Explore our expertise: architecture, interior design & fit-out →
         </Link>
       </section>
     </main>

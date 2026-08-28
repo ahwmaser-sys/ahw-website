@@ -15,6 +15,16 @@ const breadcrumbs = [
   { label: 'Our Story & Leadership' },
 ];
 
+// Only the two pillars with an unambiguous, single matching discipline
+// page get linked — the other four (Timeless Architecture, Transparent
+// Delivery, Quality Without Compromise, Long-Term Partnership) don't map
+// cleanly to one page, so they stay plain text rather than being forced
+// into a link that wouldn't actually help a reader.
+const PILLAR_LINKS: Record<string, string> = {
+  'integrated-design-build': '/expertise/design-build',
+  'precision-engineering': '/expertise/engineering-project-management',
+};
+
 export const metadata: Metadata = {
   title: 'Our Story & Leadership',
   description: 'The story behind AHW Architects, our multidisciplinary Design & Build process, and the visionary leadership driving our success.',
@@ -120,6 +130,7 @@ export default async function AboutUsPage() {
             <NativeReveal behavior="draw" className={styles.hairlineRule} />
             <p className={styles.paragraph}>{aboutData.textContent.storyParagraph1}</p>
             <p className={styles.paragraph}>{aboutData.textContent.storyParagraph2}</p>
+            <Link href="/faq" className={styles.leaderLink}>How the Design & Build model works — FAQ</Link>
 
             <div className={styles.statsRow}>
               <div className={styles.statBlock}>
@@ -167,7 +178,11 @@ export default async function AboutUsPage() {
             <span className={styles.mvvLabel}>Values</span>
             <div className={styles.valuesTags}>
               {aboutData.whyAhwPillars.map((pillar) => (
-                <span key={pillar.id} className={styles.valueTag}>{pillar.title}</span>
+                PILLAR_LINKS[pillar.id] ? (
+                  <Link key={pillar.id} href={PILLAR_LINKS[pillar.id]!} className={styles.valueTag}>{pillar.title}</Link>
+                ) : (
+                  <span key={pillar.id} className={styles.valueTag}>{pillar.title}</span>
+                )
               ))}
             </div>
           </div>
@@ -214,6 +229,11 @@ export default async function AboutUsPage() {
                   {leader.id === 'mahmoud-al-wardany' && (
                     <Link href="/contact/egypt" className={styles.leaderLink}>
                       Contact AHW Architects Masr — Cairo office
+                    </Link>
+                  )}
+                  {leader.id === 'ahmed-al-wardany' && (
+                    <Link href="/expertise/architecture" className={styles.leaderLink}>
+                      Explore AHW&rsquo;s Architecture discipline
                     </Link>
                   )}
                 </div>

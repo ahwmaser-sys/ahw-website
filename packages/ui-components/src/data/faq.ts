@@ -61,4 +61,10 @@ export const faqItems: FaqItem[] = [
     answer:
       'Yes. Design & Build is one of AHW Architects\' four core disciplines, meaning the same firm can take a project from initial concept and architectural drawings through to on-site construction and final handover, rather than handing off between separate design and construction firms.',
   },
+  {
+    id: 'villa-private-residence',
+    question: 'Can AHW design and build my villa or private residence?',
+    answer:
+      'Yes. Private villas, chalets, and apartment buildings are one of the sectors AHW works in most often — see the Residential projects on the Projects page for completed and in-progress examples. A residential project draws on the same integrated model as any other: Interior Design and Architecture for the space itself, Engineering for the structural and MEP work behind it, and Design & Build or Fit-Out to carry it through construction, authority approvals, and handover — all under the one team responsible for the design.',
+  },
 ];

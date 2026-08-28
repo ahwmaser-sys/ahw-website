@@ -8,6 +8,13 @@ export interface ImageRotatorProps {
   /** Curated image list — the rotation shows exactly these, in this order. */
   images: string[];
   alt?: string;
+  /** Per-image alt text, matched by index to `images` — falls back to the
+   *  shared `alt` for any index it doesn't cover. Optional: a rotation
+   *  behind fixed overlay text (Hero) is genuinely one visual idea and a
+   *  single shared alt is correct there; a standalone content rotation
+   *  showing distinct real subjects (e.g. different projects) should pass
+   *  this instead of forcing one generic string onto every image. */
+  alts?: string[];
   /** Milliseconds between crossfades. Kept slow and deliberate by default. */
   intervalMs?: number;
   /** Opacity of the visible slide. Hero uses ~0.7 so scrims can darken it for
@@ -34,6 +41,7 @@ export interface ImageRotatorProps {
 export function ImageRotator({
   images,
   alt = '',
+  alts,
   intervalMs = 6500,
   activeOpacity = 1,
   sizes = '100vw',
@@ -84,7 +92,7 @@ export function ImageRotator({
         <Image
           key={src}
           src={src}
-          alt={alt}
+          alt={alts?.[index] ?? alt}
           fill
           sizes={sizes}
           quality={quality}

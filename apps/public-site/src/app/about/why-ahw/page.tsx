@@ -9,6 +9,34 @@ import styles from './page.module.css';
 const trackRecordIds = ['years-exp', 'integrated-aec', 'turnkey', 'project-management', 'quality-standards'];
 const sectorIds = ['commercial', 'residential', 'hospitality', 'office-fitout'];
 
+// Only the two strength cards with one unambiguous matching destination
+// link through — the rest stay plain cards rather than being forced into
+// a link that wouldn't actually help a reader (same restraint as
+// about-us's PILLAR_LINKS).
+const STRENGTH_LINKS: Record<string, string> = {
+  residential: '/projects?sector=residential',
+  'integrated-aec': '/expertise/design-build',
+};
+
+function StrengthCard({ strength }: { strength: { id: string; title: string; description: string } }) {
+  const href = STRENGTH_LINKS[strength.id];
+  const content = (
+    <>
+      <div className={styles.strengthIcon}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" strokeLinejoin="miter">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </div>
+      <h3 className={styles.strengthTitle}>{strength.title}</h3>
+      <p className={styles.strengthDescription}>{strength.description}</p>
+    </>
+  );
+  return href
+    ? <Link href={href} className={styles.strengthCard}>{content}</Link>
+    : <div className={styles.strengthCard}>{content}</div>;
+}
+
 const breadcrumbs = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
@@ -137,16 +165,7 @@ export default async function WhyAhwPage() {
           <div className={styles.strengthsGrid}>
             {aboutData.whyAhwStrengths.filter((s) => trackRecordIds.includes(s.id)).map((strength, index) => (
               <ScrollReveal key={strength.id} delay={index * 0.05} direction="up" className={styles.revealWrapper}>
-                <div className={styles.strengthCard}>
-                  <div className={styles.strengthIcon}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" strokeLinejoin="miter">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </div>
-                  <h3 className={styles.strengthTitle}>{strength.title}</h3>
-                  <p className={styles.strengthDescription}>{strength.description}</p>
-                </div>
+                <StrengthCard strength={strength} />
               </ScrollReveal>
             ))}
           </div>
@@ -157,16 +176,7 @@ export default async function WhyAhwPage() {
           <div className={styles.strengthsGrid}>
             {aboutData.whyAhwStrengths.filter((s) => sectorIds.includes(s.id)).map((strength, index) => (
               <ScrollReveal key={strength.id} delay={index * 0.05} direction="up" className={styles.revealWrapper}>
-                <div className={styles.strengthCard}>
-                  <div className={styles.strengthIcon}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" strokeLinejoin="miter">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                  </div>
-                  <h3 className={styles.strengthTitle}>{strength.title}</h3>
-                  <p className={styles.strengthDescription}>{strength.description}</p>
-                </div>
+                <StrengthCard strength={strength} />
               </ScrollReveal>
             ))}
           </div>

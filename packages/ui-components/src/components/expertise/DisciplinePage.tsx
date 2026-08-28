@@ -75,7 +75,7 @@ export const DisciplinePage: React.FC<DisciplinePageProps> = ({
       {/* HERO */}
       <section className={styles.heroSection}>
         <div className={styles.heroBackground}>
-          <Image src={heroImage} alt={title} fill sizes="100vw" priority fetchPriority="high" className={styles.heroImage} />
+          <Image src={heroImage} alt={`AHW Architects — ${title} discipline`} fill sizes="100vw" priority fetchPriority="high" className={styles.heroImage} />
         </div>
         <div className={styles.heroContent}>
           {breadcrumbs && <Breadcrumbs items={breadcrumbs} variant="onDark" />}

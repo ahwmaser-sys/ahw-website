@@ -38,6 +38,18 @@ export interface HomeContentProps {
   companyStats: { yearsOfExperience: string; totalProjects: string; globalOffices: string };
 }
 
+// Derives real, verifiable alt text from the curated filename itself
+// (e.g. "01-jabria-apartment-interior-detail.png" -> "Jabria Apartment
+// Interior Detail") rather than inventing a description of image content
+// no code here can actually see. The numeric ordering prefix these files
+// already use (see lib/homepageAssets.ts) is stripped along with the
+// extension; every other word is kept and title-cased.
+function altFromFilename(path: string): string {
+  const filename = path.split('/').pop() ?? path;
+  const words = filename.replace(/\.[a-zA-Z0-9]+$/, '').replace(/^\d+-/, '').split('-');
+  return words.map((w) => (w.length > 0 ? w[0]!.toUpperCase() + w.slice(1) : w)).join(' ');
+}
+
 export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl, reviewsShowCount, companyStats }: HomeContentProps) {
   // This node shares its @id with the root Organization in layout.tsx, so
   // its single `address` field is what external tools reading "the"
@@ -126,13 +138,14 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                   <ImageRotator
                     images={precisionImages}
                     alt="AHW Architects — design and construction precision"
+                    alts={precisionImages.map((src) => `AHW Architects — ${altFromFilename(src)}`)}
                     sizes="(max-width: 1023px) 100vw, 50vw"
                     priority={false}
                   />
                 ) : (
                   <Image
                     src={precisionImages[0] || '/ahw-projects-assets/19-beit-al-watan-building/design/beit-al-watan-design-02.png'}
-                    alt="AHW Architects — design and construction precision"
+                    alt={precisionImages[0] ? `AHW Architects — ${altFromFilename(precisionImages[0])}` : 'AHW Architects — design and construction precision'}
                     fill
                     sizes="(max-width: 1023px) 100vw, 50vw"
                     className={styles.introVisualImage}
@@ -171,7 +184,10 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
             <div className={styles.container}>
               <div className={styles.featuredHeader}>
                 <h2 className={styles.featuredMainTitle}>Selected Work</h2>
-                <Link href="/projects" className={styles.featuredViewAll}>View All Projects →</Link>
+                <div className={styles.featuredLinksGroup}>
+                  <Link href="/projects" className={styles.featuredViewAll}>View All Projects →</Link>
+                  <Link href="/projects?sector=residential" className={styles.featuredViewAllSecondary}>Explore Residential Projects →</Link>
+                </div>
               </div>
 
               <div className={styles.featuredGrid}>
@@ -180,7 +196,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                     <div className={styles.featuredImageWrapper}>
                       <Image
                         src={project.image}
-                        alt={project.title}
+                        alt={`${project.title} — ${project.sector} project in ${project.city}, ${project.market}`}
                         fill
                         sizes="(max-width: 1023px) 100vw, 50vw"
                         className={styles.featuredImage}
