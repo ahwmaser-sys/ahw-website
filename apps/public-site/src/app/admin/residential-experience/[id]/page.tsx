@@ -32,7 +32,15 @@ export default async function ResidentialExperienceDetailPage({ params }: { para
       </div>
 
       <div className={styles.section}>
-        <ResidentialExperienceForm entry={entry} />
+        {/* key forces a full remount whenever the row actually changes
+            server-side (updatedAt only advances on a real write) — without
+            it, React 19 resets this form's uncontrolled inputs/selects back
+            to whatever defaultValue was at the page's ORIGINAL load after a
+            successful save, which visually looks exactly like "my change
+            didn't save" even though the database write succeeded. Keying on
+            updatedAt makes the form re-mount with the true post-save values
+            instead of snapping back to the stale ones. */}
+        <ResidentialExperienceForm key={entry.updatedAt.toISOString()} entry={entry} />
       </div>
 
       <div className={styles.section}>
