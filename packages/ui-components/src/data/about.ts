@@ -108,7 +108,7 @@ export const aboutData: AboutData = {
       name: 'Mahmoud Al Wardany',
       role: 'Managing Partner | Egypt CEO',
       title: 'Design & Execution Expert',
-      description: 'Mahmoud Al Wardany leads AHW\'s Egypt operations as Managing Partner and Egypt CEO. His path into the firm ran through years of hands-on fit-out and construction delivery at a previous firm — including a Starbucks drive-thru in Lebanon and the Sultan Center hypermarket in Al Kout, Kuwait, shown below under Professional Experience — before he co-founded AHW to bring design and execution under one accountable team. He applies that same site-level discipline to AHW\'s own projects today, from the firm\'s Egypt headquarters build-out to Sultan Center\'s later Hawally renovation.'
+      description: 'Mahmoud Al Wardany is a Managing Partner at AHW, leading design and delivery for the firm\'s Egypt practice — including its residential, interior, and fit-out work in Cairo — with the same principal-level authority Ahmed holds across AHW\'s other markets. His own path into the practice ran through years of hands-on fit-out and construction delivery at a previous firm — including a Starbucks drive-thru in Lebanon and the Sultan Center hypermarket in Al Kout, Kuwait, shown below under Professional Experience — direct, on-site work that shapes how closely he stays involved with a design once construction begins. He co-founded AHW to keep that connection intact under one accountable team, and applies the same site-level discipline to AHW\'s own projects today, from the firm\'s Egypt headquarters build-out to Sultan Center\'s later Hawally renovation.'
     }
   ],
   whyAhwPillars: [

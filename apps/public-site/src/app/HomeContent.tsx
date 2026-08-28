@@ -32,7 +32,7 @@ export interface HomeContentProps {
   /** Admin-controlled (Settings -> Reviews) — see shouldShowReviewCount in
    *  lib/portal/reviews/queries.ts. Computed by app/page.tsx, never here. */
   reviewsShowCount: boolean;
-  /** Trust-stat block ("22+ Years of Excellence", "250+ Projects
+  /** Trust-stat block ("22+ Years of Combined Experience", "250+ Projects
    *  Delivered", "4 Global Offices") — admin-editable via Settings ->
    *  Brand -> Company Information, fetched by app/page.tsx. */
   companyStats: { yearsOfExperience: string; totalProjects: string; globalOffices: string };
@@ -161,7 +161,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                 <div className={styles.trustGrid}>
                   <div className={styles.statItem}>
                     <span className={styles.statNumber}>{companyStats.yearsOfExperience}</span>
-                    <span className={styles.statLabel}>Years of Excellence</span>
+                    <span className={styles.statLabel}>Years of Combined Experience</span>
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statNumber}>{companyStats.totalProjects}</span>

@@ -72,11 +72,11 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 const SECTOR_COPY: Record<string, { title: React.ReactNode, desc: string, breadcrumbLabel?: string }> = {
   all: {
     title: <>Vision.<br/>Realized.</>,
-    desc: 'An uncompromising portfolio of architecture and interior design. From profound concepts to immaculate execution, delivering award-winning spaces across Egypt and the Gulf.'
+    desc: 'An uncompromising portfolio of architecture and interior design. From profound concepts to immaculate execution, delivering meticulously crafted spaces across Egypt and the Gulf.'
   },
   residential: {
     title: <>Luxury Living.<br/>Realized.</>,
-    desc: 'Crafting bespoke private residences and premium living spaces. Award-winning residential architecture that balances profound privacy with seamless natural connectivity.',
+    desc: 'Crafting bespoke private residences and premium living spaces. Residential architecture that balances profound privacy with seamless natural connectivity.',
     breadcrumbLabel: 'Residential',
   },
   // Aggregate of Retail + Workplace + Hospitality (see
@@ -189,7 +189,7 @@ export default async function ProjectsPage({
             {currentCopy.desc}
           </NativeReveal>
           <NativeReveal behavior="fade" delay={0.3} className={styles.metrics}>
-            <span className={styles.metricItem}>{totalProjects}+ delivered projects</span>
+            <span className={styles.metricItem}>{totalProjects} selected projects</span>
             <span className={styles.metricItem}>{totalArea.toLocaleString()} m² fitted out</span>
             <span className={styles.metricItem}>{totalMarkets} markets</span>
           </NativeReveal>
