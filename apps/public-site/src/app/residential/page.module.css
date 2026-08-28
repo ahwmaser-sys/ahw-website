@@ -232,6 +232,18 @@
   color: var(--color-brand-paper);
 }
 
+.experienceName a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.experienceName a:hover {
+  text-decoration-color: currentColor;
+}
+
 .experienceDeveloper {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-xs);
@@ -349,6 +361,7 @@
   .projectImage,
   .viewAll,
   .capabilityText a,
+  .experienceName a,
   .primaryButton,
   .secondaryButton {
     transition: none;

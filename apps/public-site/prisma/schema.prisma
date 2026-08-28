@@ -1415,3 +1415,73 @@ model ActivityLog {
   @@index([action])
   @@index([actorId])
 }
+
+// ── Residential Experience (Admin-managed) ──
+// Replaces the static packages/ui-components/src/data/residentialExperience.ts
+// array as the source of truth for the public /residential page's
+// "Selected Residential Experience" section. That static file is kept as
+// a read-only fallback (see lib/portal/residential-experience.ts) if this
+// table is ever unreachable — never a second, competing source an admin
+// might accidentally edit instead of this one.
+enum ExperienceCategory {
+  CURRENT_AHW_PROJECT
+  PREVIOUS_AHW_EXPERIENCE
+  TEAM_PROFESSIONAL_EXPERIENCE
+  COLLABORATIVE_INVOLVEMENT
+  // Never eligible for public display regardless of status/publicDisplay
+  // — see getPublicResidentialExperience()'s explicit filter. A community
+  // identified as commercially valuable but with no verified AHW/team
+  // experience there yet.
+  TARGET_COMMUNITY
+}
+
+enum ExperienceStatus {
+  VERIFIED
+  REVIEW_REQUIRED
+  // Same public-display exclusion as the TARGET_COMMUNITY category —
+  // the two are expected to move together, but both are checked
+  // independently (defense in depth, same pattern as Office.vatRegistered
+  // gating Office.vatRegistrationNumber).
+  TARGET
+}
+
+model ResidentialExperience {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name               String
+  // Free text, not a client-supplied real relationship — see the
+  // developer-display safety notes on the query/action layer. Shown
+  // publicly only when developerVerified is also true.
+  developerName      String?
+  developerVerified  Boolean            @default(false)
+  country            String             @default("Egypt")
+  city               String?
+  // Free text, not an enum — new regions (e.g. a future market) must
+  // never require a code deploy to introduce. The public page groups
+  // entries by this field directly, in display-order.
+  region             String?
+  projectType        String?
+  experienceCategory ExperienceCategory
+  scope              String?
+  experiencePeriod   String?
+  // The exact, pre-approved public-facing sentence — never generated or
+  // paraphrased at render time (same invariant the static dataset
+  // documented).
+  publicWording      String
+  // A real Project's slug (packages/ui-components/src/data/projects.ts),
+  // validated at query time — never rendered as a link if the slug
+  // doesn't resolve to a real project, so a typo or a since-removed
+  // project can't produce a broken/fake link.
+  linkedProjectSlug  String?
+  // Internal-only — never read by any public-facing query/component.
+  internalNotes      String?            @db.Text
+  confidence         String?
+  status             ExperienceStatus   @default(REVIEW_REQUIRED)
+  publicDisplay      Boolean            @default(false)
+  displayOrder       Int                @default(0)
+  archivedAt         DateTime?
+
+  @@index([status, publicDisplay])
+}

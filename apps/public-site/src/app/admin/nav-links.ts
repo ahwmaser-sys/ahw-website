@@ -23,6 +23,7 @@ export const ADMIN_NAV_LINKS = [
   { href: '/admin/projects', label: 'Projects' },
   { href: '/admin/news', label: 'Articles' },
   { href: '/admin/reviews', label: 'Reviews' },
+  { href: '/admin/residential-experience', label: 'Residential Experience' },
   { href: '/admin/campaigns', label: 'Content Campaigns' },
   { href: '/admin/landing-pages', label: 'Landing Pages' },
   { href: '/admin/ads', label: 'Ads' },

@@ -4,14 +4,13 @@ import Image from 'next/image';
 import {
   projects,
   sortByDisplayOrder,
-  residentialExperience,
   faqItems,
   StructuredData,
   Breadcrumbs,
   buildBreadcrumbJsonLd,
-  type ResidentialExperienceEntry,
 } from '@agp/ui-components';
 import { getSiteUrl } from '../../lib/site-config';
+import { getPublicResidentialExperience, type PublicResidentialExperienceEntry } from '../../lib/portal/residential-experience';
 import styles from './page.module.css';
 
 const breadcrumbs = [
@@ -46,14 +45,21 @@ export const metadata: Metadata = {
 // more robust to reordering in faq.ts than an index-based slice.
 const RESIDENTIAL_FAQ_IDS = ['villa-private-residence', 'services-offered', 'design-and-construction-together'];
 
-// Fixed display order rather than incidental data-array insertion order —
-// keeps region grouping stable and deliberate as entries are added/edited.
-const REGION_ORDER: ResidentialExperienceEntry['region'][] = ['New Cairo', 'West Cairo / 6th of October', 'North Coast'];
-
-function groupByRegion(entries: ResidentialExperienceEntry[]): [string, ResidentialExperienceEntry[]][] {
-  return REGION_ORDER
-    .map((region) => [region, entries.filter((e) => e.region === region)] as [string, ResidentialExperienceEntry[]])
-    .filter(([, group]) => group.length > 0);
+// Groups preserve each entry's Admin-set displayOrder — the region a
+// group appears under is decided entirely by the data (first entry with
+// that region, in order), never a hardcoded region list here. Adding a
+// new region in Admin needs no frontend change.
+function groupByRegion(entries: PublicResidentialExperienceEntry[]): [string, PublicResidentialExperienceEntry[]][] {
+  const order: string[] = [];
+  const byRegion = new Map<string, PublicResidentialExperienceEntry[]>();
+  for (const entry of entries) {
+    if (!byRegion.has(entry.region)) {
+      order.push(entry.region);
+      byRegion.set(entry.region, []);
+    }
+    byRegion.get(entry.region)!.push(entry);
+  }
+  return order.map((region) => [region, byRegion.get(region)!]);
 }
 
 export default async function ResidentialPage() {
@@ -61,8 +67,10 @@ export default async function ResidentialPage() {
   const pageUrl = `${siteUrl}/residential`;
 
   const residentialProjects = sortByDisplayOrder(projects.filter((p) => p.sector === 'Residential')).slice(0, 6);
+  const residentialExperience = await getPublicResidentialExperience();
   const experienceGroups = groupByRegion(residentialExperience);
   const residentialFaq = RESIDENTIAL_FAQ_IDS.map((id) => faqItems.find((f) => f.id === id)).filter((f): f is NonNullable<typeof f> => Boolean(f));
+  const projectBySlug = new Map(projects.map((p) => [p.slug, p]));
 
   const webPageJsonLd = {
     '@context': 'https://schema.org',
@@ -164,33 +172,38 @@ export default async function ResidentialPage() {
       {/* 4. Selected Residential Experience — professional experience, not
           case studies; kept visually and structurally distinct from the
           project cards above so the difference is never ambiguous. */}
-      <section className={styles.experienceSection}>
-        <div className={styles.container}>
-          <h2 className={styles.sectionTitle}>Selected Residential Experience</h2>
-          <p className={styles.experienceIntro}>
-            Beyond the delivered projects above, AHW&rsquo;s principals and team carry professional experience across a
-            number of established residential communities in Egypt.
-          </p>
-          <div className={styles.experienceGroups}>
-            {experienceGroups.map(([region, entries]) => (
-              <div key={region} className={styles.experienceGroup}>
-                <span className={styles.experienceRegion}>{region}</span>
-                <ul className={styles.experienceList}>
-                  {entries.map((entry) => (
-                    <li key={entry.id} className={styles.experienceItem}>
-                      <span className={styles.experienceName}>
-                        {entry.name}
-                        {entry.developer && <span className={styles.experienceDeveloper}>Developer: {entry.developer}</span>}
-                      </span>
-                      <span className={styles.experienceWording}>{entry.publicWording}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      {residentialExperience.length > 0 && (
+        <section className={styles.experienceSection}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Selected Residential Experience</h2>
+            <p className={styles.experienceIntro}>
+              Beyond the delivered projects above, AHW&rsquo;s principals and team carry professional experience across a
+              number of established residential communities in Egypt.
+            </p>
+            <div className={styles.experienceGroups}>
+              {experienceGroups.map(([region, entries]) => (
+                <div key={region} className={styles.experienceGroup}>
+                  <span className={styles.experienceRegion}>{region}</span>
+                  <ul className={styles.experienceList}>
+                    {entries.map((entry) => {
+                      const linkedProject = entry.linkedProjectSlug ? projectBySlug.get(entry.linkedProjectSlug) : undefined;
+                      return (
+                        <li key={entry.id} className={styles.experienceItem}>
+                          <span className={styles.experienceName}>
+                            {linkedProject ? <Link href={`/projects/${linkedProject.slug}`}>{entry.name}</Link> : entry.name}
+                            {entry.developer && <span className={styles.experienceDeveloper}>Developer: {entry.developer}</span>}
+                          </span>
+                          <span className={styles.experienceWording}>{entry.publicWording}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 5. FAQ excerpt */}
       {residentialFaq.length > 0 && (
