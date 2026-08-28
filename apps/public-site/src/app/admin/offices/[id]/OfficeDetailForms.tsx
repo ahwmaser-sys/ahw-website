@@ -1,6 +1,6 @@
 'use client';
 
-import { updateOffice, archiveOffice, restoreOffice, deleteOffice } from '../../../../lib/portal/actions/offices';
+import { updateOffice, archiveOffice, restoreOffice, deleteOffice, updateOfficeLegalInfo } from '../../../../lib/portal/actions/offices';
 import { ActionForm } from '../../../../components/portal/ActionForm';
 import styles from '../../../../components/portal/portal-ui.module.css';
 import type { Office } from '@prisma/client';
@@ -161,6 +161,66 @@ export function UpdateOfficeForm({ office }: { office: Office }) {
           <label className={styles.label} htmlFor="qrCodeAssetId">QR code asset ID (optional)</label>
           <input className={styles.input} id="qrCodeAssetId" name="qrCodeAssetId" defaultValue={office.qrCodeAssetId ?? ''} />
         </div>
+      </div>
+    </ActionForm>
+  );
+}
+
+// Optional, backward-compatible — every field starts empty/false for any
+// office created before this existed, and nothing here is required.
+// Displayed publicly (Footer, per-office contact areas) only when
+// "Display legal information publicly" is checked AND the specific field
+// has a value — see toLegacyOfficeShape/buildLegalInfo in
+// lib/portal/offices.ts, the one place that gate is enforced.
+export function LegalInfoForm({ office }: { office: Office }) {
+  return (
+    <ActionForm action={updateOfficeLegalInfo} submitLabel="Save legal information">
+      <input type="hidden" name="officeId" value={office.id} />
+
+      <div className={styles.formRow}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="legalEntityName">Legal entity name</label>
+          <input className={styles.input} id="legalEntityName" name="legalEntityName" defaultValue={office.legalEntityName ?? ''} placeholder="e.g. AHW Architects Masr for Engineering Consultancy" />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="licenseNumber">License / registration number (optional)</label>
+          <input className={styles.input} id="licenseNumber" name="licenseNumber" defaultValue={office.licenseNumber ?? ''} />
+        </div>
+      </div>
+
+      <div className={styles.formRow}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="commercialRegistrationNumber">Commercial registration number</label>
+          <input className={styles.input} id="commercialRegistrationNumber" name="commercialRegistrationNumber" defaultValue={office.commercialRegistrationNumber ?? ''} />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="taxRegistrationNumber">Tax registration number</label>
+          <input className={styles.input} id="taxRegistrationNumber" name="taxRegistrationNumber" defaultValue={office.taxRegistrationNumber ?? ''} />
+        </div>
+      </div>
+
+      <div className={styles.checkboxRow}>
+        <input type="checkbox" id="vatRegistered" name="vatRegistered" defaultChecked={office.vatRegistered} />
+        <label htmlFor="vatRegistered">This entity is VAT registered</label>
+      </div>
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="vatRegistrationNumber">VAT registration number</label>
+        <input className={styles.input} id="vatRegistrationNumber" name="vatRegistrationNumber" defaultValue={office.vatRegistrationNumber ?? ''} placeholder="Only shown publicly if VAT registered is checked" />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="otherRegistrationIdentifier">Other registration identifier (optional)</label>
+        <input className={styles.input} id="otherRegistrationIdentifier" name="otherRegistrationIdentifier" defaultValue={office.otherRegistrationIdentifier ?? ''} placeholder="For an identifier type not covered above" />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="regulatoryNotes">Regulatory notes (internal only, never displayed publicly)</label>
+        <textarea className={styles.textarea} id="regulatoryNotes" name="regulatoryNotes" defaultValue={office.regulatoryNotes ?? ''} />
+      </div>
+
+      <div className={styles.checkboxRow}>
+        <input type="checkbox" id="displayLegalInfo" name="displayLegalInfo" defaultChecked={office.displayLegalInfo} />
+        <label htmlFor="displayLegalInfo">Display legal information publicly (Footer)</label>
       </div>
     </ActionForm>
   );

@@ -9,6 +9,10 @@ export interface ClientReviewsSectionProps {
   reviews: Review[];
   aggregate: { averageRating: number; totalCount: number } | null;
   googleUrl: string | null;
+  // Admin-controlled (Settings → Reviews) — gates only the "N Google
+  // reviews" text below, never the rating, attribution, or cards
+  // themselves. See shouldShowReviewCount in lib/portal/reviews/queries.ts.
+  showCount: boolean;
 }
 
 function stars(rating: number): string {
@@ -61,7 +65,7 @@ function ReviewCard({ review }: { review: Review }) {
 // call. Empty state (no featured+published reviews yet) renders nothing
 // rather than a placeholder, so an unconfigured/not-yet-curated section
 // doesn't show a half-built block on a live site.
-export function ClientReviewsSection({ reviews, aggregate, googleUrl }: ClientReviewsSectionProps) {
+export function ClientReviewsSection({ reviews, aggregate, googleUrl, showCount }: ClientReviewsSectionProps) {
   if (reviews.length === 0) return null;
 
   return (
@@ -74,7 +78,9 @@ export function ClientReviewsSection({ reviews, aggregate, googleUrl }: ClientRe
             <div className={styles.ratingRow}>
               <span className={styles.ratingStars} aria-hidden="true">{stars(aggregate.averageRating)}</span>
               <span className={styles.ratingText}>
-                {aggregate.averageRating.toFixed(1)} out of 5 — based on {aggregate.totalCount} Google review{aggregate.totalCount === 1 ? '' : 's'}
+                {showCount
+                  ? `${aggregate.averageRating.toFixed(1)} out of 5 — based on ${aggregate.totalCount} Google review${aggregate.totalCount === 1 ? '' : 's'}`
+                  : `${aggregate.averageRating.toFixed(1)}/5 · Google`}
               </span>
               {googleUrl && (
                 <a href={googleUrl} target="_blank" rel="noopener noreferrer" className={styles.ratingLink}>

@@ -221,6 +221,24 @@ model Office {
   logoOverrideId String?
   qrCodeAssetId  String?
 
+  // Optional legal/registration identity for this office's legal entity.
+  // Every field is nullable and independently displayable — no country is
+  // assumed to have any of these (e.g. Kuwait has no VAT regime; a future
+  // office may need an identifier type not listed here, in which case
+  // otherRegistrationIdentifier/regulatoryNotes cover it without a schema
+  // change). Never rendered unless displayLegalInfo is true AND the
+  // specific field has a value — see getDisplayableLegalInfo() in
+  // lib/portal/offices.ts, the one place this gating logic lives.
+  legalEntityName              String?
+  commercialRegistrationNumber String?
+  taxRegistrationNumber        String?
+  vatRegistrationNumber        String?
+  vatRegistered                Boolean @default(false)
+  licenseNumber                String?
+  otherRegistrationIdentifier  String?
+  regulatoryNotes              String? @db.Text
+  displayLegalInfo             Boolean @default(false)
+
   clients                Client[]
   projects               Project[]
   integrationConfigs     IntegrationConfig[]
@@ -983,6 +1001,13 @@ model BrandKit {
   brandVoice      String?  @db.Text
   emailSignature  String?  @db.Text
   footerSettings  Json? // { copyrightText, showLegalLinks }
+  // Public display control for the homepage Google Reviews section's
+  // review-count text (e.g. "based on 9 Google reviews") — never gates
+  // the rating/attribution/review cards themselves, and never alters the
+  // underlying verified count synced from Google (see Office.reviews /
+  // getGoogleReviewsAggregate). { countDisplayMode: 'ALWAYS_HIDE' |
+  // 'ALWAYS_SHOW' | 'THRESHOLD', countThreshold: number }
+  reviewSettings  Json?
 }
 
 // ── Marketing Studio: Social Template Engine ──

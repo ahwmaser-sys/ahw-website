@@ -3,8 +3,8 @@ import { HomeContent } from './HomeContent';
 import { getRotationImages, getSelectedWork } from '../lib/homepageAssets';
 import { getActiveOfficesForDisplay, getOfficeBySlug } from '../lib/portal/offices';
 import { getSiteUrl } from '../lib/site-config';
-import { getPublishedFeaturedReviews, getGoogleReviewsAggregate } from '../lib/portal/reviews/queries';
-import { getActiveBrandKit, getCompanyInfo } from '../lib/portal/brand-kit';
+import { getPublishedFeaturedReviews, getGoogleReviewsAggregate, shouldShowReviewCount } from '../lib/portal/reviews/queries';
+import { getActiveBrandKit, getCompanyInfo, getReviewSettings } from '../lib/portal/brand-kit';
 
 export const metadata: Metadata = {
   // Unlike every other route, the homepage's own page.tsx lives in the
@@ -43,6 +43,7 @@ export default async function HomePage() {
   const [reviews, reviewsAggregate] = egyptOffice
     ? await Promise.all([getPublishedFeaturedReviews(egyptOffice.id), getGoogleReviewsAggregate(egyptOffice.id)])
     : [[], null];
+  const reviewsShowCount = reviewsAggregate ? shouldShowReviewCount(getReviewSettings(brandKit), reviewsAggregate.totalCount) : false;
 
   return (
     <HomeContent
@@ -54,6 +55,7 @@ export default async function HomePage() {
       reviews={reviews}
       reviewsAggregate={reviewsAggregate}
       reviewsGoogleUrl={egyptOffice?.googleBusinessProfileUrl ?? null}
+      reviewsShowCount={reviewsShowCount}
       companyStats={{ yearsOfExperience, totalProjects, globalOffices }}
     />
   );

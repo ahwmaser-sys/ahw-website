@@ -82,6 +82,21 @@ export interface BrandFooterSettings {
   showLegalLinks: boolean;
 }
 
+// Controls whether the homepage Google Reviews section's review-count text
+// (e.g. "9 Google reviews") is shown — never the rating, attribution, or
+// review cards themselves, and never the underlying verified count itself
+// (that always comes from getGoogleReviewsAggregate, synced from Google).
+// 'THRESHOLD' compares countThreshold against the real verified Google
+// review total for that office, not the number of reviews an admin has
+// selected/featured on the site — those are different counts and must not
+// be confused (see shouldShowReviewCount in lib/portal/reviews/queries.ts).
+export type ReviewCountDisplayMode = 'ALWAYS_HIDE' | 'ALWAYS_SHOW' | 'THRESHOLD';
+
+export interface BrandReviewSettings {
+  countDisplayMode: ReviewCountDisplayMode;
+  countThreshold: number;
+}
+
 // Seeded from the real values in packages/design-tokens/src/styles/tokens.css
 // — the same deep monochromatic palette the public site already uses, kept
 // in sync by hand (Satori/the template engine can't read CSS custom
@@ -127,6 +142,14 @@ const DEFAULT_FOOTER_SETTINGS: BrandFooterSettings = {
   showLegalLinks: true,
 };
 
+// Default = threshold mode at 20: today's real count (9, per the last
+// Google sync) stays hidden until it's actually substantial, without an
+// admin having to make any decision on day one.
+const DEFAULT_REVIEW_SETTINGS: BrandReviewSettings = {
+  countDisplayMode: 'THRESHOLD',
+  countThreshold: 20,
+};
+
 // Lazily creates the one active BrandKit row on first read, seeded from
 // real data (design tokens for colors/typography), so every consumer
 // (template engine, QR generator, future features) has something real to
@@ -150,6 +173,14 @@ const DEFAULT_FOOTER_SETTINGS: BrandFooterSettings = {
 // rather than every call site doing its own ad-hoc cast.
 export function getCompanyInfo(kit: { companyInfo: unknown }): BrandCompanyInfo {
   return { ...DEFAULT_COMPANY_INFO, ...(kit.companyInfo as Partial<BrandCompanyInfo> | null ?? {}) };
+}
+
+// Same merge-with-defaults pattern as getCompanyInfo above, for the same
+// reason: reviewSettings is untyped Json, so a row saved before this field
+// existed (or missing just countThreshold) still reads back a complete,
+// valid shape.
+export function getReviewSettings(kit: { reviewSettings: unknown }): BrandReviewSettings {
+  return { ...DEFAULT_REVIEW_SETTINGS, ...(kit.reviewSettings as Partial<BrandReviewSettings> | null ?? {}) };
 }
 
 export const getActiveBrandKit = cache(async () => {

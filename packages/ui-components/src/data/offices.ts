@@ -42,4 +42,19 @@ export interface Office {
 
   workingHours: string;
   timezone: string;
+
+  // Optional legal/registration identity — present only when an admin has
+  // entered a value AND enabled display for it (see toLegacyOfficeShape in
+  // apps/public-site/src/lib/portal/offices.ts, the only place that builds
+  // this object). Absent (not merely empty-string) is the "don't render
+  // this row" signal Footer relies on — never render a label for a field
+  // that wasn't supplied.
+  legal?: {
+    legalEntityName?: string;
+    commercialRegistrationNumber?: string;
+    taxRegistrationNumber?: string;
+    vatRegistrationNumber?: string;
+    licenseNumber?: string;
+    otherRegistrationIdentifier?: string;
+  };
 }

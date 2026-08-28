@@ -6,7 +6,7 @@ import { prisma } from '../../../../lib/portal/db';
 import { PortalShell } from '../../../../components/portal/PortalShell';
 import { getSiteUrl } from '../../../../lib/site-config';
 import { ADMIN_NAV_LINKS } from '../../nav-links';
-import { UpdateOfficeForm, ArchiveOfficeForm, RestoreOfficeForm, DeleteOfficeForm } from './OfficeDetailForms';
+import { UpdateOfficeForm, LegalInfoForm, ArchiveOfficeForm, RestoreOfficeForm, DeleteOfficeForm } from './OfficeDetailForms';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -41,6 +41,15 @@ export default async function AdminOfficeDetailPage({ params }: { params: Promis
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Office details</h2>
         <UpdateOfficeForm office={office} />
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Legal &amp; registration information</h2>
+        <p className={styles.cardMeta}>
+          Optional, per-entity. Only shown publicly (in the Footer) when &quot;Display legal information publicly&quot; is
+          checked and a given field has a value — leave everything blank to keep this office exactly as it is today.
+        </p>
+        <LegalInfoForm office={office} />
       </div>
 
       <div className={styles.section}>

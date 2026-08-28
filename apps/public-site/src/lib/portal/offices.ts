@@ -50,8 +50,27 @@ export function officeSocialLinks(office: PrismaOffice): OfficeSocialLinks {
 // where their data comes from changed. `id` intentionally carries the
 // office's slug (not its cuid), preserving the exact stable keys
 // ('kuwait', 'egypt') those components historically matched against.
+// Only field-level presence gates each line (see LegacyOfficeShape's
+// comment) — vatRegistrationNumber is additionally gated on
+// vatRegistered, per the go-live brief's explicit rule that VAT Registered
+// = false must never show a VAT number even if one is stored (e.g. a
+// number entered while setting VAT status up, then later deregistered).
+function buildLegalInfo(office: PrismaOffice): LegacyOfficeShape['legal'] {
+  if (!office.displayLegalInfo) return undefined;
+  const legal: NonNullable<LegacyOfficeShape['legal']> = {
+    ...(office.legalEntityName ? { legalEntityName: office.legalEntityName } : {}),
+    ...(office.commercialRegistrationNumber ? { commercialRegistrationNumber: office.commercialRegistrationNumber } : {}),
+    ...(office.taxRegistrationNumber ? { taxRegistrationNumber: office.taxRegistrationNumber } : {}),
+    ...(office.vatRegistered && office.vatRegistrationNumber ? { vatRegistrationNumber: office.vatRegistrationNumber } : {}),
+    ...(office.licenseNumber ? { licenseNumber: office.licenseNumber } : {}),
+    ...(office.otherRegistrationIdentifier ? { otherRegistrationIdentifier: office.otherRegistrationIdentifier } : {}),
+  };
+  return Object.keys(legal).length > 0 ? legal : undefined;
+}
+
 export function toLegacyOfficeShape(office: PrismaOffice): LegacyOfficeShape {
   const social = officeSocialLinks(office);
+  const legal = buildLegalInfo(office);
   return {
     id: office.slug,
     name: office.name,
@@ -79,6 +98,7 @@ export function toLegacyOfficeShape(office: PrismaOffice): LegacyOfficeShape {
     },
     workingHours: office.workingHours ?? '',
     timezone: office.timezone ?? '',
+    ...(legal ? { legal } : {}),
   };
 }
 

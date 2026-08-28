@@ -28,13 +28,16 @@ export interface HomeContentProps {
   reviews: Review[];
   reviewsAggregate: { averageRating: number; totalCount: number } | null;
   reviewsGoogleUrl: string | null;
+  /** Admin-controlled (Settings -> Reviews) — see shouldShowReviewCount in
+   *  lib/portal/reviews/queries.ts. Computed by app/page.tsx, never here. */
+  reviewsShowCount: boolean;
   /** Trust-stat block ("22+ Years of Excellence", "250+ Projects
    *  Delivered", "4 Global Offices") — admin-editable via Settings ->
    *  Brand -> Company Information, fetched by app/page.tsx. */
   companyStats: { yearsOfExperience: string; totalProjects: string; globalOffices: string };
 }
 
-export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl, companyStats }: HomeContentProps) {
+export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl, reviewsShowCount, companyStats }: HomeContentProps) {
   // This node shares its @id with the root Organization in layout.tsx, so
   // its single `address` field is what external tools reading "the"
   // business address for that merged entity pick up — deliberately the
@@ -227,7 +230,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
         {/* 5. CLIENT REVIEWS — server-rendered from our own database only
             (see app/page.tsx), never a live Google API call. Renders
             nothing if there's no featured+published review yet. */}
-        <ClientReviewsSection reviews={reviews} aggregate={reviewsAggregate} googleUrl={reviewsGoogleUrl} />
+        <ClientReviewsSection reviews={reviews} aggregate={reviewsAggregate} googleUrl={reviewsGoogleUrl} showCount={reviewsShowCount} />
 
         {/* 6. CLOSING CTA */}
         <section className={styles.homeCtaSection}>

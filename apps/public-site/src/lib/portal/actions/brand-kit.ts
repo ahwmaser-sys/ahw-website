@@ -356,3 +356,25 @@ export async function updateFooterSettings(_prevState: ActionState, formData: Fo
   revalidatePath('/admin/brand-kit');
   return { success: 'Footer settings updated.' };
 }
+
+const reviewSettingsSchema = z.object({
+  countDisplayMode: z.enum(['ALWAYS_HIDE', 'ALWAYS_SHOW', 'THRESHOLD']),
+  countThreshold: z.coerce.number().int().min(1, 'Enter a whole number of at least 1.'),
+});
+
+export async function updateReviewSettings(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, SUPER_ADMIN_ONLY);
+  const parsed = reviewSettingsSchema.safeParse({
+    countDisplayMode: formData.get('countDisplayMode'),
+    countThreshold: formData.get('countThreshold'),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
+
+  const kit = await getActiveBrandKit();
+  await prisma.brandKit.update({ where: { id: kit.id }, data: { reviewSettings: toJsonValue(parsed.data) } });
+  await recordActivity({ actorId: principal.userId, action: 'admin.brand_kit_review_settings_updated', entityType: 'BrandKit', entityId: kit.id, metadata: parsed.data });
+  revalidatePath('/admin/reviews');
+  revalidatePath('/');
+  return { success: 'Review display settings updated.' };
+}

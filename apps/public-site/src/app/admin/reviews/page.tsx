@@ -2,12 +2,14 @@ import Link from 'next/link';
 import { requireAdminPage } from '../../../lib/portal/page-guard';
 import { getAllOffices } from '../../../lib/portal/offices';
 import { getIntegrationStatus } from '../../../lib/portal/integrations/store';
-import { listReviews, getReviewCounts } from '../../../lib/portal/reviews/queries';
+import { listReviews, getReviewCounts, getGoogleReviewsAggregate } from '../../../lib/portal/reviews/queries';
+import { getActiveBrandKit, getReviewSettings } from '../../../lib/portal/brand-kit';
 import { PortalShell } from '../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../nav-links';
 import { ReviewRowActions } from './ReviewRowActions';
 import { SyncReviewsForm } from './SyncReviewsForm';
 import { TestConnectionForm } from './TestConnectionForm';
+import { ReviewSettingsForm } from './ReviewSettingsForm';
 import styles from '../../../components/portal/portal-ui.module.css';
 
 function formatDate(date: Date): string {
@@ -68,6 +70,9 @@ export default async function AdminReviewsPage({ searchParams }: { searchParams:
   const reviewsLastTestError = typeof reviewsMetadata.reviewsLastTestError === 'string' ? reviewsMetadata.reviewsLastTestError : null;
 
   const counts = selectedOfficeId ? await getReviewCounts(selectedOfficeId) : { total: 0, published: 0 };
+  const verifiedAggregate = selectedOfficeId ? await getGoogleReviewsAggregate(selectedOfficeId) : null;
+  const brandKit = await getActiveBrandKit();
+  const reviewSettings = getReviewSettings(brandKit);
 
   const reviews = await listReviews({
     officeId: selectedOfficeId,
@@ -134,6 +139,32 @@ export default async function AdminReviewsPage({ searchParams }: { searchParams:
             <Link href="/admin/settings/integrations">Settings → Integrations</Link> before testing or syncing.
           </p>
         )}
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Homepage Display Settings</h2>
+        <p className={styles.cardMeta}>
+          Controls only the &quot;N Google reviews&quot; count text on the homepage — the rating, Google attribution, and review
+          cards always stay visible. This is a global setting, not per-office. It never changes the verified count itself,
+          only whether it&apos;s shown.
+        </p>
+        {verifiedAggregate && (
+          <p className={styles.cardMeta}>
+            {selectedOffice?.displayName ?? 'This office'}&apos;s verified Google total is currently <strong>{verifiedAggregate.totalCount}</strong> —
+            the count is currently{' '}
+            <span className={`${styles.badge} ${verifiedAggregate.totalCount >= reviewSettings.countThreshold || reviewSettings.countDisplayMode === 'ALWAYS_SHOW' ? styles.badgeActive : styles.badgeMuted}`}>
+              {reviewSettings.countDisplayMode === 'ALWAYS_HIDE'
+                ? 'hidden'
+                : reviewSettings.countDisplayMode === 'ALWAYS_SHOW'
+                  ? 'shown'
+                  : verifiedAggregate.totalCount >= reviewSettings.countThreshold
+                    ? 'shown (threshold reached)'
+                    : 'hidden (below threshold)'}
+            </span>{' '}
+            on the homepage.
+          </p>
+        )}
+        <ReviewSettingsForm settings={reviewSettings} />
       </div>
 
       <div className={styles.section}>

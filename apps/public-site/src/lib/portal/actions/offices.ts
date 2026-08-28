@@ -222,6 +222,66 @@ export async function updateOffice(_prevState: ActionState, formData: FormData):
   return { success: 'Office updated.' };
 }
 
+// Legal/registration identity — kept as its own action, schema, and form
+// (see OfficeDetailForms.tsx's LegalInfoForm) rather than folded into
+// updateOffice/readOfficeForm above, since it's a functionally distinct,
+// optional concern (see schema.prisma's Office comment) gated to a
+// stricter role than ordinary office-contact edits.
+const officeLegalInfoSchema = z.object({
+  officeId: z.string().min(1),
+  legalEntityName: z.string().trim().optional(),
+  commercialRegistrationNumber: z.string().trim().optional(),
+  taxRegistrationNumber: z.string().trim().optional(),
+  vatRegistrationNumber: z.string().trim().optional(),
+  vatRegistered: z.boolean(),
+  licenseNumber: z.string().trim().optional(),
+  otherRegistrationIdentifier: z.string().trim().optional(),
+  regulatoryNotes: z.string().trim().optional(),
+  displayLegalInfo: z.boolean(),
+});
+
+export async function updateOfficeLegalInfo(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, SUPER_ADMIN_ONLY);
+
+  const parsed = officeLegalInfoSchema.safeParse({
+    officeId: formData.get('officeId'),
+    legalEntityName: formData.get('legalEntityName') || '',
+    commercialRegistrationNumber: formData.get('commercialRegistrationNumber') || '',
+    taxRegistrationNumber: formData.get('taxRegistrationNumber') || '',
+    vatRegistrationNumber: formData.get('vatRegistrationNumber') || '',
+    vatRegistered: formData.get('vatRegistered') === 'on',
+    licenseNumber: formData.get('licenseNumber') || '',
+    otherRegistrationIdentifier: formData.get('otherRegistrationIdentifier') || '',
+    regulatoryNotes: formData.get('regulatoryNotes') || '',
+    displayLegalInfo: formData.get('displayLegalInfo') === 'on',
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
+  const data = parsed.data;
+
+  await prisma.office.update({
+    where: { id: data.officeId },
+    data: {
+      legalEntityName: data.legalEntityName || null,
+      commercialRegistrationNumber: data.commercialRegistrationNumber || null,
+      taxRegistrationNumber: data.taxRegistrationNumber || null,
+      vatRegistrationNumber: data.vatRegistrationNumber || null,
+      vatRegistered: data.vatRegistered,
+      licenseNumber: data.licenseNumber || null,
+      otherRegistrationIdentifier: data.otherRegistrationIdentifier || null,
+      regulatoryNotes: data.regulatoryNotes || null,
+      displayLegalInfo: data.displayLegalInfo,
+    },
+  });
+
+  await recordActivity({ actorId: principal.userId, action: 'admin.office_legal_info_updated', entityType: 'Office', entityId: data.officeId });
+
+  revalidatePath('/admin/offices');
+  revalidatePath(`/admin/offices/${data.officeId}`);
+  revalidatePath('/', 'layout');
+  return { success: 'Legal information updated.' };
+}
+
 export async function archiveOffice(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
   requireRole(principal, STAFF_ROLES);

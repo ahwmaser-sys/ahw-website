@@ -62,6 +62,16 @@ export function Footer({ offices, copyrightText }: FooterProps) {
                     {office.contact.primaryEmail}
                   </a>
                 </div>
+                {office.legal && (
+                  <div className={styles.officeLegal}>
+                    {office.legal.legalEntityName && <span>{office.legal.legalEntityName}</span>}
+                    {office.legal.commercialRegistrationNumber && <span>Commercial Registration: {office.legal.commercialRegistrationNumber}</span>}
+                    {office.legal.taxRegistrationNumber && <span>Tax Registration: {office.legal.taxRegistrationNumber}</span>}
+                    {office.legal.vatRegistrationNumber && <span>VAT Registration: {office.legal.vatRegistrationNumber}</span>}
+                    {office.legal.licenseNumber && <span>License: {office.legal.licenseNumber}</span>}
+                    {office.legal.otherRegistrationIdentifier && <span>{office.legal.otherRegistrationIdentifier}</span>}
+                  </div>
+                )}
               </div>
             ))}
           </div>

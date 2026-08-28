@@ -1,5 +1,6 @@
 import { prisma } from '../db';
 import type { Prisma, ReviewSource } from '@prisma/client';
+import type { BrandReviewSettings } from '../brand-kit';
 
 export interface ReviewFilters {
   officeId?: string | undefined;
@@ -65,4 +66,21 @@ export async function getGoogleReviewsAggregate(officeId: string): Promise<{ ave
     totalCount: metadata.reviewsTotalCount,
     lastSyncedAt: typeof metadata.reviewsLastSyncedAt === 'string' ? metadata.reviewsLastSyncedAt : '',
   };
+}
+
+// Gates only the "based on N Google reviews" text on the homepage — never
+// the rating, Google attribution, or review cards, and never the stored
+// count itself. `totalCount` here must always be the real, verified
+// Google-reported total (getGoogleReviewsAggregate's return value, never
+// the number of reviews an admin has featured/published) — that is the
+// exact distinction section 16 of the go-live brief calls out.
+export function shouldShowReviewCount(settings: BrandReviewSettings, totalCount: number): boolean {
+  switch (settings.countDisplayMode) {
+    case 'ALWAYS_HIDE':
+      return false;
+    case 'ALWAYS_SHOW':
+      return true;
+    case 'THRESHOLD':
+      return totalCount >= settings.countThreshold;
+  }
 }
