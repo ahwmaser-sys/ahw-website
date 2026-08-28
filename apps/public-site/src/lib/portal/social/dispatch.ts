@@ -3,6 +3,20 @@ import { socialAdapters } from './adapter';
 import { isPubliclyVisible } from '../media/public-visibility';
 import { recordIntegrationPublish } from '../integrations/store';
 import { getSiteUrl } from '../../site-config';
+import type { SocialAdapter } from './types';
+
+// Each platform gets the smart-cropped variant the upload pipeline
+// already generates for it (media/output-targets.ts) instead of the raw
+// original — sending the same uncropped photo to every platform is what
+// produced the letterboxed Google Business post (a 1200x900 slot fed a
+// differently-proportioned source image, which Google then pads with
+// black bars rather than cropping itself).
+export const PLATFORM_VARIANT: Record<SocialAdapter['platform'], string> = {
+  FACEBOOK: 'facebook',
+  LINKEDIN: 'linkedin',
+  GOOGLE_BUSINESS: 'google-business',
+  INSTAGRAM: 'instagram-square',
+};
 
 // Called once a NewsPost is actually published on the site — "push not
 // pull, site first" (Stage D's explicit direction). Multi-office: a
@@ -29,8 +43,14 @@ export async function queueSocialPostsForNewsPost(newsPostId: string): Promise<v
   // isPubliclyVisible check the route itself uses).
   const siteUrl = await getSiteUrl();
   let imageUrl: string | undefined;
+  let imageVariants = new Set<string>();
   if (post.featuredImageId && (await isPubliclyVisible(post.featuredImageId))) {
     imageUrl = `${siteUrl}/api/media/${post.featuredImageId}`;
+    const variants = await prisma.mediaAssetVariant.findMany({
+      where: { assetId: post.featuredImageId, purpose: { in: Object.values(PLATFORM_VARIANT) } },
+      select: { purpose: true },
+    });
+    imageVariants = new Set(variants.map((v) => v.purpose));
   }
 
   // Data-driven participation: a PublishingDestination row with
@@ -46,7 +66,10 @@ export async function queueSocialPostsForNewsPost(newsPostId: string): Promise<v
     for (const adapter of socialAdapters) {
       if (disabled.has(`${office.id}:${adapter.platform}`)) continue;
 
-      const content = adapter.formatContent({ title: post.title, excerpt: post.excerpt, slug: post.slug, imageUrl, siteUrl });
+      const variantPurpose = PLATFORM_VARIANT[adapter.platform];
+      const platformImageUrl =
+        imageUrl && imageVariants.has(variantPurpose) ? `${siteUrl}/api/media/${post.featuredImageId}?variant=${variantPurpose}` : imageUrl;
+      const content = adapter.formatContent({ title: post.title, excerpt: post.excerpt, slug: post.slug, imageUrl: platformImageUrl, siteUrl });
       const configured = await adapter.isConfigured(office.id);
 
       const existing = await prisma.socialPost.findUnique({

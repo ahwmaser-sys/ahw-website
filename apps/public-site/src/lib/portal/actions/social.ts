@@ -6,6 +6,7 @@ import { requireSession, requireRole } from '../auth-guard';
 import { STAFF_ROLES } from '../roles';
 import { prisma } from '../db';
 import { socialAdapters } from '../social/adapter';
+import { PLATFORM_VARIANT } from '../social/dispatch';
 import { isPubliclyVisible } from '../media/public-visibility';
 import { recordActivity } from '../audit';
 import { getSiteUrl } from '../../site-config';
@@ -41,6 +42,16 @@ export async function retrySocialPost(_prevState: ActionState, formData: FormDat
   let imageUrl: string | undefined;
   if (socialPost.newsPost.featuredImageId && (await isPubliclyVisible(socialPost.newsPost.featuredImageId))) {
     imageUrl = `${siteUrl}/api/media/${socialPost.newsPost.featuredImageId}`;
+    // Same smart-cropped-variant preference as queueSocialPostsForNewsPost
+    // (social/dispatch.ts) — retrying used the raw original here, which is
+    // what produced the letterboxed Google Business post image.
+    const variantPurpose = PLATFORM_VARIANT[adapter.platform];
+    const variant = await prisma.mediaAssetVariant.findUnique({
+      where: { assetId_purpose: { assetId: socialPost.newsPost.featuredImageId, purpose: variantPurpose } },
+    });
+    if (variant) {
+      imageUrl = `${siteUrl}/api/media/${socialPost.newsPost.featuredImageId}?variant=${variantPurpose}`;
+    }
   }
 
   const content = adapter.formatContent({
