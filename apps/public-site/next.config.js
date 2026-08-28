@@ -194,6 +194,21 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ['@agp/ui-components', '@agp/design-tokens'],
+  // sharp ships a native binary (libvips) per platform — without this,
+  // Next.js's output-file-tracing can fail to carry that binary into the
+  // deployed serverless function (it isn't reachable via static import
+  // analysis, only dlopen'd at runtime), producing exactly the production
+  // error this fixes: "Could not load the sharp module using the
+  // linux-x64 runtime... libvips-cpp.so.8.18.3: cannot open shared object
+  // file". serverExternalPackages tells Next.js to leave sharp
+  // unbundled and load it directly from node_modules instead, where its
+  // native binary is intact. Every server action importing lib/portal/
+  // media/pipeline.ts (which imports sharp) was failing at module-
+  // evaluation time because of this — not just uploads, but every other
+  // action co-located in the same file (e.g. category/tag management in
+  // lib/portal/actions/media.ts), since one throwing top-level import
+  // breaks the whole module.
+  serverExternalPackages: ['sharp'],
   experimental: {
     // Default is 4 static-generation workers, each opening its own Prisma
     // connection pool (see lib/portal/db.ts's max: 5) against the local
@@ -204,6 +219,14 @@ const nextConfig = {
     // local-build mitigation; a real production Postgres behind a real
     // build environment doesn't need this.
     cpus: 2,
+    // Next.js's Server Action body limit defaults to 1MB — far below this
+    // app's own declared image/document caps (lib/portal/media/validate.ts's
+    // MAX_BYTES: 25MB for IMAGE and DOCUMENT), so every real photo upload
+    // was rejected by the framework before validateMediaFile ever got a
+    // chance to apply the app's actual limit. Matches that 25MB ceiling
+    // exactly rather than picking an arbitrary larger number — the app's
+    // own validator remains the real authority on what's actually allowed.
+    serverActions: { bodySizeLimit: '25mb' },
   },
   images: {
     // Allow quality=100 for high-fidelity project photography
