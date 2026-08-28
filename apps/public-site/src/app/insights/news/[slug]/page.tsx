@@ -14,6 +14,31 @@ interface Props {
   }>;
 }
 
+// Article body is authored as plain text (no rich-text/markdown editor
+// exists yet), so it arrives as one long string with blank-line-separated
+// paragraphs and, by convention, an ALL-CAPS line marking a subheading
+// (e.g. "DESIGN THAT UNDERSTANDS DELIVERY") — previously rendered as one
+// undifferentiated <p>, which is why a subheading looked identical to
+// body text. Splits on blank lines and promotes a short all-caps single
+// line to a real subheading instead.
+function isHeadingLine(block: string): boolean {
+  return !block.includes('\n') && block.length <= 100 && /[A-Za-z]/.test(block) && block === block.toUpperCase();
+}
+
+function renderArticleBody(content: string, styles: Record<string, string>) {
+  return content
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block, i) =>
+      isHeadingLine(block) ? (
+        <h2 key={i} className={styles.sectionHeading}>{block}</h2>
+      ) : (
+        <p key={i} className={styles.textContent}>{block}</p>
+      ),
+    );
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [resolvedParams, newsItems, siteUrl] = await Promise.all([params, getPublicNewsItems(), getSiteUrl()]);
   const news = newsItems.find((n) => n.slug === resolvedParams.slug);
@@ -142,11 +167,7 @@ export default async function NewsDetailPage({ params }: Props) {
         <div className={styles.container}>
           <div className={styles.contentWrapper}>
             <div className={styles.content}>
-              {news.content ? (
-                <p className={styles.textContent}>{news.content}</p>
-              ) : (
-                <p className={styles.textContent}>{news.excerpt}</p>
-              )}
+              {renderArticleBody(news.content || news.excerpt, styles)}
             </div>
             <SocialShare url={`${siteUrl}/insights/news/${news.slug}`} title={news.title} />
           </div>

@@ -96,6 +96,17 @@
   line-height: var(--line-height-loose);
   color: var(--color-brand-stone);
   white-space: pre-line;
+  margin: 0 0 var(--space-8) 0;
+}
+
+.sectionHeading {
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  color: var(--color-brand-paper);
+  letter-spacing: var(--tracking-wide);
+  margin: var(--space-12) 0 var(--space-4) 0;
 }
 
 .relatedSection {
