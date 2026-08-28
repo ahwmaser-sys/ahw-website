@@ -213,8 +213,37 @@ const nextConfig = {
   // category/tag management in lib/portal/actions/media.ts), since one
   // throwing top-level import breaks the whole module.
   serverExternalPackages: ['sharp'],
+  // A second attempt at this glob (matching against node_modules/sharp and
+  // node_modules/@img directly) also failed to fix the "libvips-cpp.so...
+  // cannot open shared object file" error in production. Root cause,
+  // confirmed by inspecting this project's own pnpm structure: pnpm never
+  // installs a package as a real directory at the top of node_modules —
+  // `node_modules/sharp` is itself a symlink into node_modules/.pnpm's
+  // flat virtual store, and sharp's own dependency on the *separate*
+  // @img/sharp-libvips-linux-x64 package (confirmed present in
+  // pnpm-lock.yaml — this is the package that actually ships
+  // libvips-cpp.so, distinct from @img/sharp-linux-x64's JS bindings) is
+  // itself another symlink one level deeper. A glob rooted at
+  // node_modules/sharp/**/* only resolves what the FIRST symlink points
+  // to; it does not reliably re-resolve a second, nested symlink to a
+  // completely different location in the same store. Pointing directly at
+  // the real .pnpm store paths (version-wildcarded, so a future sharp/
+  // libvips bump doesn't silently stop matching) sidesteps symlink
+  // traversal entirely.
+  // Listed relative to both the app directory and the monorepo root
+  // (../../) since it's genuinely ambiguous which one Next.js's automatic
+  // monorepo trace-root detection resolves these against, and a glob that
+  // doesn't match anything real is harmless — cheaper than a fourth failed
+  // production round-trip to find out empirically which one is correct.
   outputFileTracingIncludes: {
-    '/admin/**': ['./node_modules/sharp/**/*', './node_modules/@img/**/*'],
+    '/admin/**': [
+      './node_modules/.pnpm/sharp@*/node_modules/sharp/**/*',
+      './node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*',
+      './node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*',
+      '../../node_modules/.pnpm/sharp@*/node_modules/sharp/**/*',
+      '../../node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*',
+      '../../node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*',
+    ],
   },
   experimental: {
     // Default is 4 static-generation workers, each opening its own Prisma
