@@ -18,6 +18,7 @@ import { retrySocialPost, deleteSocialPost } from '../../../../lib/portal/action
 import { linkArticleToCampaign } from '../../../../lib/portal/actions/campaigns';
 import { generateArticleAIPackage, applyAISeoSuggestions } from '../../../../lib/portal/actions/ai-content';
 import { ActionForm } from '../../../../components/portal/ActionForm';
+import { ArticleBodyEditor, type GalleryOption } from './ArticleBodyEditor';
 import styles from '../../../../components/portal/portal-ui.module.css';
 import type { Office } from '@prisma/client';
 
@@ -28,6 +29,7 @@ export function EditNewsForm({
   body,
   publishToOfficeIds,
   offices,
+  galleryOptions,
 }: {
   postId: string;
   title: string;
@@ -35,6 +37,7 @@ export function EditNewsForm({
   body: string;
   publishToOfficeIds: string[];
   offices: readonly Office[];
+  galleryOptions: GalleryOption[];
 }) {
   const allOffices = publishToOfficeIds.length === 0;
   return (
@@ -49,8 +52,8 @@ export function EditNewsForm({
         <input className={styles.input} id="excerpt" name="excerpt" defaultValue={excerpt} required />
       </div>
       <div className={styles.field}>
-        <label className={styles.label} htmlFor="body">Body</label>
-        <textarea className={styles.textarea} id="body" name="body" defaultValue={body} required />
+        <span className={styles.label}>Body</span>
+        <ArticleBodyEditor initialBody={body} galleryOptions={galleryOptions} />
       </div>
       <div className={styles.field}>
         <span className={styles.label}>Publish to</span>

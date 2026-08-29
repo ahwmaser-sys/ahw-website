@@ -108,6 +108,15 @@
   margin: 0 0 var(--space-8) 0;
 }
 
+.articleList {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-loose);
+  color: var(--color-brand-stone);
+  margin: 0 0 var(--space-8) 0;
+  padding-left: var(--space-8);
+}
+
 .sectionHeading {
   font-family: var(--font-family-secondary);
   font-size: var(--font-size-xl);

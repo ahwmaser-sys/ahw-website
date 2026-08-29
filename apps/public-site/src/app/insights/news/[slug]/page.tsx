@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { projects, publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, PublicationCard, SocialShare, ScrollReveal } from '@agp/ui-components';
@@ -100,6 +100,102 @@ function renderArticleBody(
     galleryIndex += 1;
     remainingImage = galleryImages[galleryIndex];
   }
+
+  return elements;
+}
+
+// Articles written with the rich-text editor (Admin → News → an
+// article's Body field) store TipTap's own JSON document instead of
+// plain text — this renders that format directly, in place of the
+// plain-text parser above, which stays only as the fallback for
+// articles written before the editor existed. Images are wherever the
+// editor placed them (no auto-insertion-by-paragraph-count needed
+// anymore), still alternating float sides for the same visual rhythm.
+interface TiptapMark {
+  type: string;
+}
+interface TiptapNode {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: TiptapNode[];
+  text?: string;
+  marks?: TiptapMark[];
+}
+
+function parseTiptapDoc(raw: string): TiptapNode | null {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && (parsed as TiptapNode).type === 'doc') {
+      return parsed as TiptapNode;
+    }
+  } catch {
+    // Not JSON — a legacy plain-text body, handled by renderArticleBody.
+  }
+  return null;
+}
+
+function renderInlineNode(node: TiptapNode, key: number): ReactNode {
+  if (node.type !== 'text' || !node.text) return null;
+  let content: ReactNode = node.text;
+  for (const mark of node.marks ?? []) {
+    if (mark.type === 'bold') content = <strong>{content}</strong>;
+    else if (mark.type === 'italic') content = <em>{content}</em>;
+    else if (mark.type === 'strike') content = <s>{content}</s>;
+    else if (mark.type === 'code') content = <code>{content}</code>;
+  }
+  return <Fragment key={key}>{content}</Fragment>;
+}
+
+function renderDocBody(doc: TiptapNode, fallbackAlt: string, styles: Record<string, string>) {
+  const elements: ReactNode[] = [];
+  let imageIndex = 0;
+
+  (doc.content ?? []).forEach((node, i) => {
+    if (node.type === 'heading') {
+      const text = (node.content ?? []).map((c) => c.text ?? '').join('');
+      if (!text.trim()) return;
+      elements.push(
+        <ScrollReveal key={`heading-${i}`} direction="up">
+          <h2 className={styles.sectionHeading}>{(node.content ?? []).map((c, ci) => renderInlineNode(c, ci))}</h2>
+        </ScrollReveal>,
+      );
+    } else if (node.type === 'paragraph') {
+      if (!node.content || node.content.length === 0) return;
+      elements.push(
+        <ScrollReveal key={`para-${i}`} direction="up">
+          <p className={styles.textContent}>{node.content.map((c, ci) => renderInlineNode(c, ci))}</p>
+        </ScrollReveal>,
+      );
+    } else if (node.type === 'bulletList' || node.type === 'orderedList') {
+      const ListTag = node.type === 'bulletList' ? 'ul' : 'ol';
+      elements.push(
+        <ScrollReveal key={`list-${i}`} direction="up">
+          <ListTag className={styles.articleList}>
+            {(node.content ?? []).map((item, itemIndex) => (
+              <li key={itemIndex}>
+                {(item.content ?? []).flatMap((p) => p.content ?? []).map((c, ci) => renderInlineNode(c, ci))}
+              </li>
+            ))}
+          </ListTag>
+        </ScrollReveal>,
+      );
+    } else if (node.type === 'image') {
+      const src = node.attrs?.src;
+      if (typeof src !== 'string' || !src) return;
+      const alt = typeof node.attrs?.alt === 'string' && node.attrs.alt ? node.attrs.alt : fallbackAlt;
+      const isLeft = imageIndex % 2 === 0;
+      imageIndex += 1;
+      elements.push(
+        <div key={`image-${i}`} className={isLeft ? styles.galleryFloatLeft : styles.galleryFloatRight}>
+          <ScrollReveal direction={isLeft ? 'left' : 'right'}>
+            <div className={styles.galleryImageWrapper}>
+              <Image src={src} alt={alt} fill sizes="(max-width: 640px) 100vw, 340px" className={styles.galleryImage} loading="lazy" />
+            </div>
+          </ScrollReveal>
+        </div>,
+      );
+    }
+  });
 
   return elements;
 }
@@ -234,7 +330,12 @@ export default async function NewsDetailPage({ params }: Props) {
         <div className={styles.container}>
           <div className={styles.contentWrapper}>
             <div className={styles.content}>
-              {renderArticleBody(news.content || news.excerpt, news.galleryImages ?? [], styles)}
+              {(() => {
+                const doc = parseTiptapDoc(news.content ?? '');
+                return doc
+                  ? renderDocBody(doc, news.title, styles)
+                  : renderArticleBody(news.content || news.excerpt, news.galleryImages ?? [], styles);
+              })()}
             </div>
             <SocialShare url={`${siteUrl}/insights/news/${news.slug}`} title={news.title} />
           </div>

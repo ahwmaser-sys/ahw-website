@@ -61,6 +61,25 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
     getAllOffices(),
   ]);
 
+  // Same variant this article's own gallery uses on the public page
+  // (see lib/portal/public-news.ts) — the "Insert image" picker in the
+  // body editor should place the same cropped image an actual reader
+  // will see, not the raw original.
+  const GALLERY_VARIANT = 'instagram-square';
+  const galleryAssetIds = post.gallery.map((g) => g.assetId);
+  const galleryVariantRows = galleryAssetIds.length
+    ? await prisma.mediaAssetVariant.findMany({
+        where: { assetId: { in: galleryAssetIds }, purpose: GALLERY_VARIANT },
+        select: { assetId: true },
+      })
+    : [];
+  const hasGalleryVariant = new Set(galleryVariantRows.map((v) => v.assetId));
+  const galleryOptions = post.gallery.map((g) => ({
+    id: g.assetId,
+    url: hasGalleryVariant.has(g.assetId) ? `/api/media/${g.assetId}?variant=${GALLERY_VARIANT}` : `/api/media/${g.assetId}`,
+    alt: g.asset.altText ?? g.asset.fileName,
+  }));
+
   return (
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
       <Link href="/admin/news" className={styles.backLink}>← All articles</Link>
@@ -80,7 +99,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Content</h2>
-        <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} offices={offices} />
+        <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} offices={offices} galleryOptions={galleryOptions} />
       </div>
 
       <div className={styles.section}>
