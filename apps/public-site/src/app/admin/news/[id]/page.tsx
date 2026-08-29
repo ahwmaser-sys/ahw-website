@@ -44,7 +44,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
   const post = await prisma.newsPost.findUnique({
     where: { id },
     include: {
-      socialPosts: { orderBy: { platform: 'asc' } },
+      socialPosts: { orderBy: [{ platform: 'asc' }, { officeId: 'asc' }], include: { office: { select: { name: true } } } },
       categories: { include: { category: true } },
       tags: { include: { tag: true } },
       gallery: { include: { asset: true }, orderBy: { sortOrder: 'asc' } },
@@ -196,7 +196,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
           {post.socialPosts.map((sp) => (
             <div key={sp.id} className={styles.card}>
               <div className={styles.cardHeader}>
-                <strong>{sp.platform}</strong>
+                <strong>{sp.platform} — {sp.office.name}</strong>
                 <span className={`${styles.badge} ${styles[SOCIAL_STATUS_BADGE[sp.status] ?? 'badgeMuted']}`}>{sp.status} · {sp.mode}</span>
               </div>
               {sp.caption && <p className={styles.captionText}>{sp.caption}</p>}
