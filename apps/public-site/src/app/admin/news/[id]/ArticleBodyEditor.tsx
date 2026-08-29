@@ -8,9 +8,38 @@ import styles from '../../../../components/portal/portal-ui.module.css';
 
 export interface GalleryOption {
   id: string;
-  url: string;
   alt: string;
+  squareUrl: string;
+  bannerUrl: string;
 }
+
+type Placement = 'left' | 'right' | 'banner';
+
+const PLACEMENT_OPTIONS: { value: Placement; label: string }[] = [
+  { value: 'left', label: 'Float left' },
+  { value: 'right', label: 'Float right' },
+  { value: 'banner', label: 'Full-width banner' },
+];
+
+// Adds a "display" attribute (left / right / banner) on top of the
+// stock Image node, round-tripping through getJSON()/setContent() like
+// any other attribute — the public article page reads it to decide
+// whether to float the image beside text or render it full-width. Not
+// exposed by the stock setImage command (its options are fixed to
+// src/alt/title), so images are inserted via insertContent() instead,
+// which accepts any attrs this extended schema defines.
+const ArticleImage = TiptapImage.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      display: {
+        default: 'left',
+        parseHTML: (element: HTMLElement) => element.getAttribute('data-display') || 'left',
+        renderHTML: (attributes: { display?: string }) => ({ 'data-display': attributes.display }),
+      },
+    };
+  },
+});
 
 // Every article published before this editor existed has its body
 // stored as plain text — blank line between paragraphs, a short
@@ -55,13 +84,23 @@ function parseInitialContent(raw: string) {
 
 export function ArticleBodyEditor({ initialBody, galleryOptions }: { initialBody: string; galleryOptions: GalleryOption[] }) {
   const [json, setJson] = useState(() => JSON.stringify(parseInitialContent(initialBody)));
+  const [selectedImageId, setSelectedImageId] = useState('');
+  const [placement, setPlacement] = useState<Placement>('left');
 
   const editor = useEditor({
-    extensions: [StarterKit, TiptapImage.configure({ inline: false })],
+    extensions: [StarterKit, ArticleImage.configure({ inline: false })],
     content: parseInitialContent(initialBody),
     immediatelyRender: false,
     onUpdate: ({ editor: e }) => setJson(JSON.stringify(e.getJSON())),
   });
+
+  const insertSelectedImage = () => {
+    const chosen = galleryOptions.find((g) => g.id === selectedImageId);
+    if (!chosen || !editor) return;
+    const src = placement === 'banner' ? chosen.bannerUrl : chosen.squareUrl;
+    editor.chain().focus().insertContent({ type: 'image', attrs: { src, alt: chosen.alt, display: placement } }).run();
+    setSelectedImageId('');
+  };
 
   return (
     <div>
@@ -95,23 +134,25 @@ export function ArticleBodyEditor({ initialBody, galleryOptions }: { initialBody
         >
           List
         </button>
-        {galleryOptions.length > 0 && (
-          <select
-            className={styles.select}
-            defaultValue=""
-            onChange={(e) => {
-              const chosen = galleryOptions.find((g) => g.id === e.target.value);
-              if (chosen) editor?.chain().focus().setImage({ src: chosen.url, alt: chosen.alt }).run();
-              e.currentTarget.value = '';
-            }}
-          >
-            <option value="" disabled>Insert image from gallery…</option>
+      </div>
+      {galleryOptions.length > 0 && (
+        <div className={styles.editorToolbar}>
+          <select className={styles.select} value={selectedImageId} onChange={(e) => setSelectedImageId(e.target.value)}>
+            <option value="" disabled>Choose a gallery photo…</option>
             {galleryOptions.map((g) => (
               <option key={g.id} value={g.id}>{g.alt}</option>
             ))}
           </select>
-        )}
-      </div>
+          <select className={styles.select} value={placement} onChange={(e) => setPlacement(e.target.value as Placement)}>
+            {PLACEMENT_OPTIONS.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
+          <button type="button" onClick={insertSelectedImage} disabled={!selectedImageId} className={styles.toolbarButton}>
+            Insert at cursor
+          </button>
+        </div>
+      )}
       <EditorContent editor={editor} className={styles.editorContent} />
       {galleryOptions.length === 0 && (
         <p className={styles.hint}>Add photos to the Gallery above first, then come back here to place them in the text.</p>

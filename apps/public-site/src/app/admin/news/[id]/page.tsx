@@ -61,23 +61,26 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
     getAllOffices(),
   ]);
 
-  // Same variant this article's own gallery uses on the public page
-  // (see lib/portal/public-news.ts) — the "Insert image" picker in the
-  // body editor should place the same cropped image an actual reader
-  // will see, not the raw original.
-  const GALLERY_VARIANT = 'instagram-square';
+  // Same variants the public page already resolves for this article
+  // (see lib/portal/public-news.ts) — the "Insert image" picker needs
+  // both a square crop (for a left/right floated placement) and a wide
+  // crop (for a full-width inline banner), so whichever placement the
+  // editor picks matches what a reader will actually see.
+  const SQUARE_VARIANT = 'instagram-square';
+  const BANNER_VARIANT = 'website-hero';
   const galleryAssetIds = post.gallery.map((g) => g.assetId);
   const galleryVariantRows = galleryAssetIds.length
     ? await prisma.mediaAssetVariant.findMany({
-        where: { assetId: { in: galleryAssetIds }, purpose: GALLERY_VARIANT },
-        select: { assetId: true },
+        where: { assetId: { in: galleryAssetIds }, purpose: { in: [SQUARE_VARIANT, BANNER_VARIANT] } },
+        select: { assetId: true, purpose: true },
       })
     : [];
-  const hasGalleryVariant = new Set(galleryVariantRows.map((v) => v.assetId));
+  const hasVariant = new Set(galleryVariantRows.map((v) => `${v.assetId}:${v.purpose}`));
   const galleryOptions = post.gallery.map((g) => ({
     id: g.assetId,
-    url: hasGalleryVariant.has(g.assetId) ? `/api/media/${g.assetId}?variant=${GALLERY_VARIANT}` : `/api/media/${g.assetId}`,
     alt: g.asset.altText ?? g.asset.fileName,
+    squareUrl: hasVariant.has(`${g.assetId}:${SQUARE_VARIANT}`) ? `/api/media/${g.assetId}?variant=${SQUARE_VARIANT}` : `/api/media/${g.assetId}`,
+    bannerUrl: hasVariant.has(`${g.assetId}:${BANNER_VARIANT}`) ? `/api/media/${g.assetId}?variant=${BANNER_VARIANT}` : `/api/media/${g.assetId}`,
   }));
 
   return (

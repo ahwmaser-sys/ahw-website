@@ -183,7 +183,23 @@ function renderDocBody(doc: TiptapNode, fallbackAlt: string, styles: Record<stri
       const src = node.attrs?.src;
       if (typeof src !== 'string' || !src) return;
       const alt = typeof node.attrs?.alt === 'string' && node.attrs.alt ? node.attrs.alt : fallbackAlt;
-      const isLeft = imageIndex % 2 === 0;
+      const display = node.attrs?.display;
+
+      if (display === 'banner') {
+        elements.push(
+          <ScrollReveal key={`image-${i}`} direction="up">
+            <div className={styles.inlineBannerWrapper}>
+              <Image src={src} alt={alt} fill sizes="800px" className={styles.coverImage} loading="lazy" />
+            </div>
+          </ScrollReveal>,
+        );
+        return;
+      }
+
+      // No explicit side chosen (or content from before this control
+      // existed) — keep the old alternating behavior rather than
+      // defaulting everything to one side.
+      const isLeft = display === 'left' || (display !== 'right' && imageIndex % 2 === 0);
       imageIndex += 1;
       elements.push(
         <div key={`image-${i}`} className={isLeft ? styles.galleryFloatLeft : styles.galleryFloatRight}>

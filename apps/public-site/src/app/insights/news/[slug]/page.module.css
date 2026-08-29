@@ -81,6 +81,16 @@
   object-fit: cover;
 }
 
+.inlineBannerWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: var(--color-brand-stone);
+  margin: var(--space-8) 0;
+  clear: both;
+}
+
 .contentWrapper {
   max-width: 800px;
   margin: 0 auto;

@@ -281,6 +281,11 @@
   margin: var(--space-4) 0;
 }
 
+.editorContent :global(.ProseMirror img[data-display='banner']) {
+  max-width: 100%;
+  width: 100%;
+}
+
 .checkboxRow {
   display: flex;
   align-items: center;
