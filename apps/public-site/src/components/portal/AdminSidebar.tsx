@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './PortalShell.module.css';
 
 interface NavLink {
@@ -25,6 +25,7 @@ export function AdminSidebar({ groups }: { groups: readonly NavGroup[] }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     try {
@@ -33,6 +34,23 @@ export function AdminSidebar({ groups }: { groups: readonly NavGroup[] }) {
       // Ignore — defaults to expanded.
     }
   }, []);
+
+  // The scrim and nav links already close the drawer on click, but a
+  // keyboard user tabbed into the open drawer had no way to dismiss it
+  // short of tabbing all the way through — Escape is the expected
+  // control for any dismissible overlay. Refocuses the toggle button on
+  // close so keyboard focus doesn't silently land on <body>.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+        mobileToggleRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen]);
 
   const toggleCollapsed = () => {
     setCollapsed((prev) => {
@@ -51,6 +69,7 @@ export function AdminSidebar({ groups }: { groups: readonly NavGroup[] }) {
   return (
     <>
       <button
+        ref={mobileToggleRef}
         type="button"
         className={styles.mobileNavToggle}
         onClick={() => setMobileOpen((v) => !v)}

@@ -244,11 +244,15 @@
   text-decoration-color: currentColor;
 }
 
+/* Both opacities below were measured (axe-core) at 3.52:1 / 3.87:1
+   against the page background — under WCAG AA's 4.5:1 for this text
+   size. 0.85 clears it (4.65:1) with the same muted intent, just less
+   aggressive dimming. */
 .experienceDeveloper {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-xs);
   color: var(--color-brand-stone);
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .experienceWording {
@@ -257,7 +261,7 @@
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--color-brand-stone);
-  opacity: 0.75;
+  opacity: 0.85;
   white-space: nowrap;
 }
 
