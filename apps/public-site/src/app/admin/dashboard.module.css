@@ -18,6 +18,48 @@
   padding: var(--space-6);
   background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--color-border-strong);
+  text-decoration: none;
+  color: inherit;
+}
+
+a.statCard:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-brand-paper);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/* Applied alongside portal-ui.module.css's .sectionTitle (a separate
+   CSS module — a descendant selector here can't reach its hashed class
+   name, so this has to be its own class, combined on the element). */
+.sectionHeaderTitle {
+  margin-bottom: 0;
+}
+
+.healthGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.healthRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-strong);
+}
+
+.healthName {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
 }
 
 .statValue {

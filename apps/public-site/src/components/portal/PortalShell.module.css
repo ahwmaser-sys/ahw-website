@@ -8,11 +8,111 @@
      NavigationHeader.tsx), so cancel it out rather than leaving a blank
      gap above the portal's own header. */
   margin-top: calc(-1 * var(--header-height));
+  display: flex;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-border-strong);
+  padding: var(--space-6) var(--space-4);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  transition: width 0.2s ease;
+}
+
+.sidebarCollapsed {
+  width: 56px;
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.sidebarCollapsed .nav {
+  display: none;
+}
+
+.collapseToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-brand-paper);
+  border-radius: 2px;
+  min-height: 32px;
+  min-width: 32px;
+  cursor: pointer;
+  margin-bottom: var(--space-4);
+}
+
+.collapseToggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.navGroupLabel {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-brand-stone);
+  margin-bottom: var(--space-2);
+}
+
+.navLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: var(--color-brand-paper);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.navLinkActive {
+  color: var(--color-brand-paper);
+  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: var(--font-weight-medium);
+}
+
+.mobileNavToggle {
+  display: none;
+}
+
+.mobileNavScrim {
+  display: none;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
 }
 
 .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-8);
   padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--color-border-strong);
@@ -23,28 +123,6 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
   letter-spacing: var(--tracking-wide);
-}
-
-.nav {
-  display: flex;
-  gap: var(--space-6);
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 0;
-}
-
-.navLink {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  color: var(--color-brand-stone);
-  text-decoration: none;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.navLink:hover {
-  color: var(--color-brand-paper);
 }
 
 .userArea {
@@ -85,19 +163,79 @@
   margin: 0 auto;
 }
 
-/* Below this width the single-row flex layout wraps mid-row in a
-   confusing order (nav's own links wrapping between brand and the user
-   area) — stack brand / nav / user-area as three full-width rows
-   instead of relying on flex-wrap to sort it out. */
+/* Sidebar becomes an off-canvas drawer below this width — a persistent
+   240px rail plus real page content has no room to breathe on a phone
+   screen, so it hides by default and slides in over a scrim instead. */
 @media (max-width: 768px) {
+  .shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    background-color: var(--color-brand-ink);
+  }
+
+  .sidebarMobileOpen {
+    transform: translateX(0);
+  }
+
+  /* The desktop collapse state is irrelevant here — the Menu button
+     controls visibility instead — so always show full nav once open. */
+  .sidebarCollapsed {
+    width: 260px;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .sidebarCollapsed .nav {
+    display: flex;
+  }
+
+  .collapseToggle {
+    display: none;
+  }
+
+  .mobileNavToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    margin: var(--space-4) var(--space-6) 0 var(--space-6);
+    background: none;
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-brand-paper);
+    border-radius: 2px;
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+  }
+
+  .mobileNavScrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+
+  .main {
+    width: 100%;
+  }
+
   .header {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-4);
-  }
-
-  .nav {
-    flex: initial;
   }
 
   .userArea {
@@ -106,6 +244,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sidebar,
   .logoutButton {
     transition: none;
   }
