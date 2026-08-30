@@ -32,9 +32,14 @@ export interface HomeContentProps {
   /** Admin-controlled (Settings -> Reviews) — see shouldShowReviewCount in
    *  lib/portal/reviews/queries.ts. Computed by app/page.tsx, never here. */
   reviewsShowCount: boolean;
-  /** Trust-stat block ("22+ Years of Combined Experience", "250+ Projects
-   *  Delivered", "4 Global Offices") — admin-editable via Settings ->
-   *  Brand -> Company Information, fetched by app/page.tsx. */
+  /** Trust-stat block ("22+ Years of Combined Experience", "250+ Combined
+   *  Projects Delivered", "4 Global Offices") — admin-editable via
+   *  Settings -> Brand -> Company Information, fetched by app/page.tsx.
+   *  "Combined" on the projects stat (added alongside "Years of Combined
+   *  Experience" already using the same word) is deliberate: this is the
+   *  team's total/lifetime delivery experience, a different figure from
+   *  the curated "20 Selected Projects" shown on /projects — the word
+   *  is what keeps the two from reading as a contradiction. */
   companyStats: { yearsOfExperience: string; totalProjects: string; globalOffices: string };
 }
 
@@ -165,7 +170,7 @@ export function HomeContent({ heroImages, precisionImages, selectedWork, offices
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statNumber}>{companyStats.totalProjects}</span>
-                    <span className={styles.statLabel}>Projects Delivered</span>
+                    <span className={styles.statLabel}>Combined Projects Delivered</span>
                   </div>
                   <div className={styles.statItem}>
                     <span className={styles.statNumber}>{companyStats.globalOffices}</span>
