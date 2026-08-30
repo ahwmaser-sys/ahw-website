@@ -1367,21 +1367,21 @@ export const projects: Project[] = [
         href: '/expertise/interior-design'
       },
       narrative: {
-        heroHeadline: 'A Complete Home, Furnished, in 45 Days.',
-        heroSubtitle: "A private family in Shrouk City needed a fully furnished, turnkey residence delivered on a construction schedule most fit-outs would consider unrealistic — 45 days from start to finish, with Smart Home integration and custom woodwork included, not cut for time.",
+        heroHeadline: 'A Complete Home, Furnished, in 90 Days.',
+        heroSubtitle: "A private family in Shrouk City needed a fully furnished, turnkey residence delivered on a construction schedule most fit-outs would consider unrealistic — 90 days from start to finish, with the custom furniture and carpentry for the kitchen, dressing room, and bedrooms fabricated in 45 of those days, alongside Smart Home integration, not cut for time.",
         story: [
-          "A 45-day timeline for a complete interior fit-out — custom joinery, furnishing, and finishing all included — leaves almost no room for the usual back-and-forth of a residential project. Every decision had to be right close to the first time, because there wasn't a schedule buffer to absorb rework.",
-          "Custom woodwork and premium finishing materials were developed to work together as one cohesive interior language from the outset, rather than resolved room by room, while Smart Home systems were integrated in parallel with the finishing work rather than as a separate phase. The result was a fully furnished, move-in-ready home delivered in the 45 days promised."
+          "A 90-day timeline for a complete interior fit-out — custom joinery, furnishing, and finishing all included — leaves almost no room for the usual back-and-forth of a residential project. Every decision had to be right close to the first time, because there wasn't a schedule buffer to absorb rework.",
+          "Custom woodwork and premium finishing materials were developed to work together as one cohesive interior language from the outset, rather than resolved room by room, while Smart Home systems were integrated in parallel with the finishing work rather than as a separate phase. The custom furniture and carpentry for the kitchen, dressing room, and bedrooms were fabricated in 45 of the 90 days, running alongside the rest of the fit-out rather than adding to the schedule. The result was a fully furnished, move-in-ready home delivered in the 90 days promised."
         ],
         designPhilosophy: "Compressed timelines punish indecision — the woodwork, furnishings, and finishing materials were planned as one cohesive package from the start so execution could move in parallel across trades, rather than waiting on sequential design decisions.",
-        whyDifferent: "Most turnkey residential fit-outs run on a timeline measured in months. This one delivered the same full scope — custom carpentry, complete furnishing, Smart Home integration — in 45 days, without treating craftsmanship as the trade-off for speed.",
+        whyDifferent: "Most turnkey residential fit-outs run on a timeline measured in months. This one delivered the same full scope — custom carpentry, complete furnishing, Smart Home integration — in 90 days, without treating craftsmanship as the trade-off for speed.",
         clientExperience: [
-          'A complete, fully furnished residence delivered in 45 days',
-          'Custom woodwork and Smart Home integration executed in parallel, not sequentially',
+          'A complete, fully furnished residence delivered in 90 days',
+          'Custom furniture and carpentry for the kitchen, dressing room, and bedrooms fabricated in 45 of those days, running in parallel with Smart Home integration, not sequentially',
           'Move-in-ready handover with no deferred finishing work'
         ],
         faq: [
-          { question: 'How long did this project take?', answer: '45 days, covering complete interior design, fit-out, custom furniture, and Smart Home integration.' },
+          { question: 'How long did this project take?', answer: '90 days from start to finish, with the custom furniture and carpentry for the kitchen, dressing room, and bedrooms fabricated in 45 of those days, running in parallel with the rest of the interior fit-out and Smart Home integration.' },
           { question: 'What was included in the scope?', answer: 'Complete interior design, turnkey fit-out, custom furniture, and Smart Home integration, delivered as one project.' },
           { question: 'How big is the residence?', answer: '220 sqm, located in Shrouk City, Egypt.' }
         ],
@@ -1391,13 +1391,13 @@ export const projects: Project[] = [
         },
         seo: {
           title: 'Turnkey Residential Fit-Out — Shrouk City, Egypt | AHW Architects',
-          description: 'A 220 sqm fully furnished residence in Shrouk City, Egypt, delivered turnkey in 45 days with Smart Home integration. By AHW Architects.',
+          description: 'A 220 sqm fully furnished residence in Shrouk City, Egypt, delivered turnkey in 90 days with Smart Home integration. By AHW Architects.',
           focusKeyword: 'turnkey fit-out Egypt',
           secondaryKeywords: ['fast residential fit-out Cairo', 'Shrouk City interior design', 'custom furniture Egypt', 'smart home fit-out Egypt'],
-          ogTitle: 'A Fully Furnished Home, Delivered in 45 Days',
-          ogDescription: 'How AHW delivered a complete, move-in-ready 220 sqm residence in Shrouk City, Egypt, in just 45 days.',
-          twitterTitle: 'Shrouk City Residence: Turnkey in 45 Days',
-          twitterDescription: 'A fully furnished 220 sqm home in Shrouk City, Egypt, delivered turnkey by AHW Architects in 45 days.'
+          ogTitle: 'A Fully Furnished Home, Delivered in 90 Days',
+          ogDescription: 'How AHW delivered a complete, move-in-ready 220 sqm residence in Shrouk City, Egypt, in just 90 days.',
+          twitterTitle: 'Shrouk City Residence: Turnkey in 90 Days',
+          twitterDescription: 'A fully furnished 220 sqm home in Shrouk City, Egypt, delivered turnkey by AHW Architects in 90 days.'
         }
       }
     }
