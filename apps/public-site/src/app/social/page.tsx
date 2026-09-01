@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Breadcrumbs, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getLiveSocialFeed } from '../../lib/portal/social/live-feed';
+import { getActiveOffices, officeSocialLinks } from '../../lib/portal/offices';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
 
@@ -21,6 +22,16 @@ const PLATFORM_LABEL: Record<string, string> = {
   FACEBOOK: 'Facebook',
   INSTAGRAM: 'Instagram',
   GOOGLE_BUSINESS: 'Google Business Profile',
+};
+
+// Real brand colors, used sparingly as a small per-card accent dot —
+// not the page's own palette — so a scan down the grid tells platforms
+// apart at a glance.
+const PLATFORM_ACCENT: Record<string, string> = {
+  LINKEDIN: '#0A66C2',
+  FACEBOOK: '#1877F2',
+  INSTAGRAM: 'linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4)',
+  GOOGLE_BUSINESS: '#4285F4',
 };
 
 function formatDate(iso: string | null): string | null {
@@ -45,11 +56,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SocialPage() {
-  const [allPosts, siteUrl] = await Promise.all([getLiveSocialFeed(), getSiteUrl()]);
+  const [allPosts, siteUrl, offices] = await Promise.all([getLiveSocialFeed(), getSiteUrl(), getActiveOffices()]);
   // Hidden via Admin → Marketing → Social Feed (lib/portal/actions/
   // social.ts's hideSocialFeedPost) — real posts stay on the platform
   // itself, this just keeps them off this public page.
   const posts = allPosts.filter((post) => !post.hidden);
+
+  // Same admin-entered URLs the site footer already uses (Settings →
+  // Offices) — not derived from the OAuth connections above, since an
+  // office can have a public profile worth following even on a
+  // platform this app doesn't (yet) have publishing access to.
+  const followLinks = offices.flatMap((office) => {
+    const links = officeSocialLinks(office);
+    return (['instagram', 'facebook', 'linkedin'] as const)
+      .filter((platform) => links[platform])
+      .map((platform) => ({ platform, officeName: office.displayName, url: links[platform]! }));
+  });
 
   return (
     <main className={styles.main}>
@@ -79,7 +101,10 @@ export default async function SocialPage() {
                     )}
                     <div className={styles.cardBody}>
                       <div className={styles.cardMeta}>
-                        <span className={styles.platform}>{PLATFORM_LABEL[post.platform] ?? post.platform}</span>
+                        <span className={styles.platform}>
+                          <span className={styles.platformDot} style={{ background: PLATFORM_ACCENT[post.platform] }} aria-hidden="true" />
+                          {PLATFORM_LABEL[post.platform] ?? post.platform}
+                        </span>
                         <span className={styles.office}>{post.officeName}</span>
                       </div>
                       {post.caption && <p className={styles.caption}>{post.caption}</p>}
@@ -101,6 +126,23 @@ export default async function SocialPage() {
           )}
         </div>
       </section>
+
+      {followLinks.length > 0 && (
+        <section className={styles.followSection}>
+          <div className={styles.container}>
+            <h2 className={styles.followTitle}>Follow us for more</h2>
+            <p className={styles.followSubtitle}>This page shows recent highlights from the last couple of months — follow along on the platforms themselves for everything else.</p>
+            <div className={styles.followLinks}>
+              {followLinks.map((link) => (
+                <a key={`${link.platform}-${link.officeName}`} href={link.url} target="_blank" rel="noopener noreferrer" className={styles.followPill}>
+                  <span className={styles.platformDot} style={{ background: PLATFORM_ACCENT[link.platform.toUpperCase()] }} aria-hidden="true" />
+                  {PLATFORM_LABEL[link.platform.toUpperCase()] ?? link.platform} · {link.officeName}
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

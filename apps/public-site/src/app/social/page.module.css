@@ -52,12 +52,16 @@
   flex-direction: column;
   text-decoration: none;
   color: inherit;
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: border-color var(--transition-fast);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 a.card:hover {
   border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .imageWrapper {
@@ -65,10 +69,25 @@ a.card:hover {
   width: 100%;
   aspect-ratio: 4 / 3;
   background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
 }
 
 .image {
   object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+a.card:hover .image {
+  transform: scale(1.04);
+}
+
+.platformDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--space-2);
+  flex-shrink: 0;
 }
 
 .cardBody {
@@ -87,6 +106,8 @@ a.card:hover {
 }
 
 .platform {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-family-primary);
   font-size: var(--font-size-xs);
   letter-spacing: var(--tracking-wide);
@@ -118,4 +139,59 @@ a.card:hover {
   color: var(--color-brand-stone);
   opacity: 0.85;
   margin-top: auto;
+}
+
+.followSection {
+  padding: var(--space-16) 0 var(--space-32);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.followTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: var(--font-weight-light);
+  color: var(--color-brand-paper);
+  margin: 0 0 var(--space-3);
+}
+
+.followSubtitle {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--color-brand-stone);
+  max-width: 56ch;
+  margin: 0 auto var(--space-8);
+}
+
+.followLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.followPill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: var(--space-3) var(--space-5);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.followPill:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .image {
+    transition: none;
+  }
 }

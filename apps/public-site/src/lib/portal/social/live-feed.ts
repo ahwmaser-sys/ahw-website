@@ -39,6 +39,21 @@ const POSTS_PER_OFFICE = 6;
 // stream of site visitors never turns into a stream of Graph/LinkedIn
 // API calls — refreshed at most once every 30 minutes.
 const REVALIDATE_SECONDS = 1800;
+// Keeps the public page current rather than a scroll of years-old
+// posts — anything older is still on the platform itself, just not
+// duplicated here.
+const MAX_AGE_DAYS = 60;
+// AHW cross-posts the same caption to more than one platform (confirmed
+// live — several posts had byte-identical captions on Facebook and
+// Instagram the same day), which otherwise shows as two cards for one
+// real post. Fixed priority order for which platform's card wins when
+// captions match — arbitrary but stable, so which card survives doesn't
+// change from one render to the next.
+const DEDUP_PRIORITY: SocialAdapter['platform'][] = ['INSTAGRAM', 'FACEBOOK', 'LINKEDIN', 'GOOGLE_BUSINESS'];
+
+function normalizeCaption(caption: string | null): string {
+  return (caption ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
 
 interface FacebookCredential {
   pageAccessToken: string;
@@ -193,9 +208,30 @@ export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
       return [...facebook, ...instagram, ...linkedin, ...google];
     }),
   );
-  return perOffice
+  const cutoff = Date.now() - MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+  const withinWindow = perOffice
     .flat()
     .filter((post) => post.caption || post.imageUrl)
+    .filter((post) => !post.postedAt || new Date(post.postedAt).getTime() >= cutoff)
+    .sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
+
+  // Cross-posted duplicates: same office, same caption text (once
+  // normalized), posted the same calendar day. Only dedupes when there's
+  // real caption text to compare — an image-only post always keeps its
+  // own card rather than risk collapsing two genuinely different posts
+  // that both happen to have no caption.
+  const seen = new Map<string, LiveSocialPostSource>();
+  for (const post of withinWindow) {
+    const normalizedCaption = normalizeCaption(post.caption);
+    const dedupeKey = normalizedCaption ? `${post.officeId}:${(post.postedAt ?? '').slice(0, 10)}:${normalizedCaption}` : `id:${post.id}`;
+    const existing = seen.get(dedupeKey);
+    if (!existing || DEDUP_PRIORITY.indexOf(post.platform) < DEDUP_PRIORITY.indexOf(existing.platform)) {
+      seen.set(dedupeKey, post);
+    }
+  }
+
+  return [...seen.values()]
     .map((post) => ({ ...post, hidden: hiddenIds.has(post.id) }))
     .sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
 }
+
