@@ -66,6 +66,7 @@ export const ADMIN_NAV_LINKS: readonly AdminNavGroup[] = [
       { href: '/admin/landing-pages', label: 'Landing Pages' },
       { href: '/admin/ads', label: 'Ads' },
       { href: '/admin/ads/campaigns', label: 'Ad Campaigns' },
+      { href: '/admin/social-feed', label: 'Social Feed' },
       { href: '/admin/analytics', label: 'Analytics' },
     ],
   },

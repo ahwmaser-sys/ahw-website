@@ -101,6 +101,7 @@ model User {
   sentMessages       Message[]                @relation("MessageSender")
   notifications      Notification[]
   activityLogs       ActivityLog[]
+  hiddenSocialPosts  HiddenSocialPost[]
   sessions           Session[]
   passwordResets     PasswordResetToken[]
   emailVerifications EmailVerificationToken[]
@@ -607,6 +608,20 @@ model SocialPost {
   @@index([status])
   @@index([campaignId])
   @@index([officeId])
+}
+
+// Admin-controlled visibility for the public /social page (live-feed.ts)
+// — that page reads real posts straight from each platform's API, so
+// there's no local row to just delete; hiding one here is the only way
+// to keep an unwanted post (old, off-brand, a test) off the public
+// page without touching anything on the platform itself. id is the
+// exact same "PLATFORM:externalId" string live-feed.ts already builds
+// for each post, so a lookup is a single Set membership check.
+model HiddenSocialPost {
+  id       String   @id
+  hiddenAt DateTime @default(now())
+  hiddenById String?
+  hiddenBy User?    @relation(fields: [hiddenById], references: [id])
 }
 
 // ── Marketing Studio: Campaigns ──

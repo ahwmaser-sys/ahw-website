@@ -125,3 +125,42 @@ export async function deleteSocialPost(_prevState: ActionState, formData: FormDa
   revalidatePath(`/admin/news/${parsed.data.postId}`);
   return { success: 'Removed.' };
 }
+
+const hiddenFeedPostSchema = z.object({ id: z.string().min(1) });
+
+// Controls visibility on the public /social page (lib/portal/social/
+// live-feed.ts) for a real post pulled live from a platform's own API —
+// there's no local row to delete, so "removing" it from the site is
+// purely this admin-side hide flag, never anything on the platform
+// itself.
+export async function hideSocialFeedPost(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = hiddenFeedPostSchema.safeParse({ id: formData.get('id') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  await prisma.hiddenSocialPost.upsert({
+    where: { id: parsed.data.id },
+    create: { id: parsed.data.id, hiddenById: principal.userId },
+    update: {},
+  });
+  await recordActivity({ actorId: principal.userId, action: 'admin.social_feed_post_hidden', entityType: 'HiddenSocialPost', entityId: parsed.data.id });
+  revalidatePath('/social');
+  revalidatePath('/admin/social-feed');
+  return { success: 'Hidden from the public Social page.' };
+}
+
+export async function unhideSocialFeedPost(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = hiddenFeedPostSchema.safeParse({ id: formData.get('id') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  await prisma.hiddenSocialPost.deleteMany({ where: { id: parsed.data.id } });
+  await recordActivity({ actorId: principal.userId, action: 'admin.social_feed_post_unhidden', entityType: 'HiddenSocialPost', entityId: parsed.data.id });
+  revalidatePath('/social');
+  revalidatePath('/admin/social-feed');
+  return { success: 'Restored to the public Social page.' };
+}

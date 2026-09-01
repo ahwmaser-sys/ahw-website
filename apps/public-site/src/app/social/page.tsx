@@ -45,7 +45,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SocialPage() {
-  const [posts, siteUrl] = await Promise.all([getLiveSocialFeed(), getSiteUrl()]);
+  const [allPosts, siteUrl] = await Promise.all([getLiveSocialFeed(), getSiteUrl()]);
+  // Hidden via Admin → Marketing → Social Feed (lib/portal/actions/
+  // social.ts's hideSocialFeedPost) — real posts stay on the platform
+  // itself, this just keeps them off this public page.
+  const posts = allPosts.filter((post) => !post.hidden);
 
   return (
     <main className={styles.main}>

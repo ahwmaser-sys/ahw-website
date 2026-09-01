@@ -1,3 +1,4 @@
+import { prisma } from '../db';
 import { getIntegrationCredential } from '../integrations/store';
 import { getFreshGoogleBusinessAccessToken } from '../integrations/google-business-token';
 import { fetchGoogleBusinessApi } from '../integrations/google-business-http';
@@ -11,7 +12,7 @@ import type { SocialAdapter } from './types';
 // whole feed — a partial feed (or an empty one) is the honest result of
 // a real failure, never a fabricated placeholder post.
 
-export interface LiveSocialPost {
+interface LiveSocialPostSource {
   id: string;
   platform: SocialAdapter['platform'];
   officeId: string;
@@ -20,6 +21,13 @@ export interface LiveSocialPost {
   imageUrl: string | null;
   permalink: string | null;
   postedAt: string | null;
+}
+
+export interface LiveSocialPost extends LiveSocialPostSource {
+  // Admin-controlled (see HiddenSocialPost) — always computed, so the
+  // admin moderation page can show hidden posts (to unhide them) while
+  // the public page can filter them out, from the same one function.
+  hidden: boolean;
 }
 
 const GRAPH_API = 'https://graph.facebook.com/v21.0';
@@ -45,7 +53,7 @@ interface LinkedInCredential {
   organizationId: string;
 }
 
-async function fetchFacebookPosts(officeId: string, officeName: string): Promise<LiveSocialPost[]> {
+async function fetchFacebookPosts(officeId: string, officeName: string): Promise<LiveSocialPostSource[]> {
   const cred = await getIntegrationCredential<FacebookCredential>('FACEBOOK', officeId);
   if (!cred) return [];
   try {
@@ -72,7 +80,7 @@ async function fetchFacebookPosts(officeId: string, officeName: string): Promise
   }
 }
 
-async function fetchInstagramPosts(officeId: string, officeName: string): Promise<LiveSocialPost[]> {
+async function fetchInstagramPosts(officeId: string, officeName: string): Promise<LiveSocialPostSource[]> {
   const cred = await getIntegrationCredential<InstagramCredential>('INSTAGRAM', officeId);
   if (!cred) return [];
   try {
@@ -102,7 +110,7 @@ async function fetchInstagramPosts(officeId: string, officeName: string): Promis
   }
 }
 
-async function fetchLinkedInPosts(officeId: string, officeName: string): Promise<LiveSocialPost[]> {
+async function fetchLinkedInPosts(officeId: string, officeName: string): Promise<LiveSocialPostSource[]> {
   const cred = await getIntegrationCredential<LinkedInCredential>('LINKEDIN', officeId);
   if (!cred) return [];
   try {
@@ -140,7 +148,7 @@ async function fetchLinkedInPosts(officeId: string, officeName: string): Promise
   }
 }
 
-async function fetchGoogleBusinessPosts(officeId: string, officeName: string): Promise<LiveSocialPost[]> {
+async function fetchGoogleBusinessPosts(officeId: string, officeName: string): Promise<LiveSocialPostSource[]> {
   const token = await getFreshGoogleBusinessAccessToken(officeId);
   if (!token.ok) return [];
   try {
@@ -172,7 +180,8 @@ async function fetchGoogleBusinessPosts(officeId: string, officeName: string): P
 // discovery calls: this is a page-render path, not a burst import, and
 // four platforms already run in parallel per office.
 export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
-  const offices = await getActiveOffices();
+  const [offices, hiddenRows] = await Promise.all([getActiveOffices(), prisma.hiddenSocialPost.findMany({ select: { id: true } })]);
+  const hiddenIds = new Set(hiddenRows.map((row) => row.id));
   const perOffice = await Promise.all(
     offices.map(async (office) => {
       const [facebook, instagram, linkedin, google] = await Promise.all([
@@ -187,5 +196,6 @@ export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
   return perOffice
     .flat()
     .filter((post) => post.caption || post.imageUrl)
+    .map((post) => ({ ...post, hidden: hiddenIds.has(post.id) }))
     .sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
 }
