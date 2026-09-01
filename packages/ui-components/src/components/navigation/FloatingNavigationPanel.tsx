@@ -74,6 +74,7 @@ const navData = [
     subitems: [
       { label: 'Publications', path: '/insights/publications' },
       { label: 'News', path: '/insights/news' },
+      { label: 'Social', path: '/social' },
     ],
   },
   {
