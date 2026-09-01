@@ -1,0 +1,160 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.platformLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+/* Each mockup is a deliberately neutral light card regardless of the
+   admin's own dark theme — these represent how the post looks on that
+   platform's own (light) feed, not on this admin UI. */
+.linkedinCard,
+.facebookCard,
+.googleCard {
+  background: #ffffff;
+  color: #1d1d1f;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  padding: 0.75rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.linkedinHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1a2b4c;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.avatarGoogle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #4285f4;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.metaLine {
+  color: #767676;
+  font-size: 0.75rem;
+}
+
+.captionText {
+  margin: 0 0 0.5rem;
+  white-space: pre-wrap;
+  color: #1d1d1f;
+  word-break: break-word;
+}
+
+.linkPreview {
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.linkImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1200 / 627;
+  background: #e5e5e5;
+}
+
+.googleImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1200 / 900;
+  background: #e5e5e5;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.linkImage {
+  object-fit: cover;
+}
+
+.linkFooter {
+  padding: 0.625rem 0.75rem;
+  background: #f4f2ee;
+  border-top: 1px solid #d9d9d9;
+}
+
+.linkDomain {
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  color: #767676;
+  margin-bottom: 2px;
+}
+
+.linkTitle {
+  font-weight: 600;
+  color: #1d1d1f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.linkDescription {
+  margin-top: 2px;
+  color: #767676;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.noImageHint {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  color: #9a9a9a;
+  font-size: 0.75rem;
+  text-align: center;
+}

@@ -3,7 +3,8 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapImage from '@tiptap/extension-image';
-import { useState } from 'react';
+import Image from 'next/image';
+import { useMemo, useState } from 'react';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
 export interface GalleryOption {
@@ -82,6 +83,21 @@ function parseInitialContent(raw: string) {
   return plainTextToDoc(raw);
 }
 
+// Walks the TipTap document looking for every image node's src, so the
+// picker below can tell which gallery uploads are already placed in the
+// text versus sitting unused — the root cause of a real reported bug:
+// an image added to the Gallery but never explicitly inserted here
+// never appears anywhere on the public page, with no warning that it
+// was silently skipped.
+function collectImageSrcs(node: unknown, out: Set<string>): void {
+  if (!node || typeof node !== 'object') return;
+  const n = node as { type?: string; attrs?: { src?: string }; content?: unknown[] };
+  if (n.type === 'image' && n.attrs?.src) out.add(n.attrs.src);
+  if (Array.isArray(n.content)) {
+    for (const child of n.content) collectImageSrcs(child, out);
+  }
+}
+
 export function ArticleBodyEditor({ initialBody, galleryOptions }: { initialBody: string; galleryOptions: GalleryOption[] }) {
   const [json, setJson] = useState(() => JSON.stringify(parseInitialContent(initialBody)));
   const [selectedImageId, setSelectedImageId] = useState('');
@@ -93,6 +109,19 @@ export function ArticleBodyEditor({ initialBody, galleryOptions }: { initialBody
     immediatelyRender: false,
     onUpdate: ({ editor: e }) => setJson(JSON.stringify(e.getJSON())),
   });
+
+  const usedSrcs = useMemo(() => {
+    const out = new Set<string>();
+    try {
+      collectImageSrcs(JSON.parse(json), out);
+    } catch {
+      // json always comes from JSON.stringify above — this can't
+      // realistically fail, but an empty set just means "show every
+      // photo as unplaced," which is a safe fallback either way.
+    }
+    return out;
+  }, [json]);
+  const unplacedOptions = galleryOptions.filter((g) => !usedSrcs.has(g.squareUrl) && !usedSrcs.has(g.bannerUrl));
 
   const insertSelectedImage = () => {
     const chosen = galleryOptions.find((g) => g.id === selectedImageId);
@@ -136,21 +165,44 @@ export function ArticleBodyEditor({ initialBody, galleryOptions }: { initialBody
         </button>
       </div>
       {galleryOptions.length > 0 && (
-        <div className={styles.editorToolbar}>
-          <select className={styles.select} value={selectedImageId} onChange={(e) => setSelectedImageId(e.target.value)}>
-            <option value="" disabled>Choose a gallery photo…</option>
-            {galleryOptions.map((g) => (
-              <option key={g.id} value={g.id}>{g.alt}</option>
-            ))}
-          </select>
-          <select className={styles.select} value={placement} onChange={(e) => setPlacement(e.target.value as Placement)}>
-            {PLACEMENT_OPTIONS.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
-          <button type="button" onClick={insertSelectedImage} disabled={!selectedImageId} className={styles.toolbarButton}>
-            Insert at cursor
-          </button>
+        <div className={styles.imagePicker}>
+          <div className={styles.imagePickerGrid}>
+            {galleryOptions.map((g) => {
+              const isUnplaced = unplacedOptions.some((u) => u.id === g.id);
+              const isSelected = g.id === selectedImageId;
+              return (
+                <button
+                  type="button"
+                  key={g.id}
+                  onClick={() => setSelectedImageId(g.id)}
+                  className={isSelected ? styles.imagePickerThumbSelected : styles.imagePickerThumb}
+                  title={g.alt}
+                >
+                  <span className={styles.imagePickerThumbWrapper}>
+                    <Image src={g.squareUrl} alt={g.alt} fill sizes="80px" className={styles.imagePickerThumbImg} />
+                  </span>
+                  {isUnplaced && <span className={styles.imagePickerUnplacedBadge}>Not in article yet</span>}
+                </button>
+              );
+            })}
+          </div>
+          <div className={styles.editorToolbar}>
+            <select className={styles.select} value={placement} onChange={(e) => setPlacement(e.target.value as Placement)}>
+              {PLACEMENT_OPTIONS.map((p) => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
+            <button type="button" onClick={insertSelectedImage} disabled={!selectedImageId} className={styles.toolbarButton}>
+              Insert selected photo at cursor
+            </button>
+          </div>
+          {unplacedOptions.length > 0 && (
+            <p className={styles.imagePickerWarning}>
+              {unplacedOptions.length} photo{unplacedOptions.length > 1 ? 's are' : ' is'} in the Gallery but not placed
+              anywhere in this article yet — it will not appear on the published page until you select it above and click
+              &quot;Insert selected photo at cursor.&quot;
+            </p>
+          )}
         </div>
       )}
       <EditorContent editor={editor} className={styles.editorContent} />

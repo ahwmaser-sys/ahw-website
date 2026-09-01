@@ -211,7 +211,25 @@ interface AssetOption {
   fileName: string;
 }
 
-export function FeaturedImageForm({ postId, featuredImageId, ogImageId, options }: { postId: string; featuredImageId: string | null; ogImageId: string | null; options: AssetOption[] }) {
+interface PreviewUrls {
+  linkedin: string;
+  facebook: string;
+  google: string;
+}
+
+export function FeaturedImageForm({
+  postId,
+  featuredImageId,
+  ogImageId,
+  options,
+  previewUrlsByAsset,
+}: {
+  postId: string;
+  featuredImageId: string | null;
+  ogImageId: string | null;
+  options: AssetOption[];
+  previewUrlsByAsset?: Record<string, PreviewUrls>;
+}) {
   if (options.length === 0) {
     return <p className={styles.cardMeta}>Upload an IMAGE asset in the Media Library first.</p>;
   }
@@ -221,11 +239,26 @@ export function FeaturedImageForm({ postId, featuredImageId, ogImageId, options 
       <div className={styles.formRow}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="featuredImageId">Featured image</label>
+          {/* The Social Preview panel above reads these data attributes
+              off the selected option on "change" — lets it update the
+              per-platform mockups the instant a different photo is
+              picked, without a server round trip. */}
           <select className={styles.select} id="featuredImageId" name="featuredImageId" defaultValue={featuredImageId ?? ''}>
             <option value="">None</option>
-            {options.map((o) => (
-              <option key={o.id} value={o.id}>{o.fileName}</option>
-            ))}
+            {options.map((o) => {
+              const preview = previewUrlsByAsset?.[o.id];
+              return (
+                <option
+                  key={o.id}
+                  value={o.id}
+                  data-linkedin={preview?.linkedin ?? ''}
+                  data-facebook={preview?.facebook ?? ''}
+                  data-google={preview?.google ?? ''}
+                >
+                  {o.fileName}
+                </option>
+              );
+            })}
           </select>
         </div>
         <div className={styles.field}>

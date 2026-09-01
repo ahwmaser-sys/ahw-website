@@ -5,8 +5,10 @@ import { requireAdminPage } from '../../../../lib/portal/page-guard';
 import { prisma } from '../../../../lib/portal/db';
 import { PortalShell } from '../../../../components/portal/PortalShell';
 import { MediaThumbnail } from '../../../../components/portal/MediaThumbnail';
+import { SocialPreview } from '../../../../components/portal/SocialPreview';
 import { ADMIN_NAV_LINKS } from '../../nav-links';
 import { getAllOffices } from '../../../../lib/portal/offices';
+import { getSiteUrl } from '../../../../lib/site-config';
 import {
   EditNewsForm,
   PublishNowForm,
@@ -83,6 +85,37 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
     bannerUrl: hasVariant.has(`${g.assetId}:${BANNER_VARIANT}`) ? `/api/media/${g.assetId}?variant=${BANNER_VARIANT}` : `/api/media/${g.assetId}`,
   }));
 
+  // Same per-platform crops the real dispatch/publish path resolves
+  // (see social/dispatch.ts's PLATFORM_VARIANT) — the Social Preview
+  // panel and the Featured Image picker both need to know, for every
+  // candidate image, exactly which pre-cropped file each platform would
+  // actually send, not the raw original.
+  const PREVIEW_VARIANTS = { linkedin: 'linkedin', facebook: 'facebook', google: 'google-business' } as const;
+  const allAssetIds = imageAssets.map((a) => a.id);
+  const previewVariantRows = allAssetIds.length
+    ? await prisma.mediaAssetVariant.findMany({
+        where: { assetId: { in: allAssetIds }, purpose: { in: Object.values(PREVIEW_VARIANTS) } },
+        select: { assetId: true, purpose: true },
+      })
+    : [];
+  const hasPreviewVariant = new Set(previewVariantRows.map((v) => `${v.assetId}:${v.purpose}`));
+  const resolvePreviewUrl = (assetId: string, purpose: string) =>
+    hasPreviewVariant.has(`${assetId}:${purpose}`) ? `/api/media/${assetId}?variant=${purpose}` : `/api/media/${assetId}`;
+  const previewUrlsByAsset = new Map(
+    imageAssets.map((a) => [
+      a.id,
+      {
+        linkedin: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.linkedin),
+        facebook: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.facebook),
+        google: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.google),
+      },
+    ]),
+  );
+  const initialPreviewImages = post.featuredImageId
+    ? previewUrlsByAsset.get(post.featuredImageId)
+    : undefined;
+  const siteUrl = await getSiteUrl();
+
   return (
     <PortalShell brand="AHW Admin" navLinks={ADMIN_NAV_LINKS} userLabel={principal.roles[0] ?? ''}>
       <Link href="/admin/news" className={styles.backLink}>← All articles</Link>
@@ -106,12 +139,33 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Social preview</h2>
+        <p className={styles.cardMeta}>
+          Live mockup of how this article will actually look once shared — updates as you edit the Title, Excerpt, or
+          Featured image above, before you publish anything.
+        </p>
+        <SocialPreview
+          initialTitle={post.title}
+          initialExcerpt={post.excerpt}
+          articleUrl={`${siteUrl}/insights/news/${post.slug}`}
+          initialImages={initialPreviewImages}
+        />
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Featured image &amp; gallery</h2>
         {post.featuredImage && (
           <MediaThumbnail assetId={post.featuredImage.id} alt={post.title} dominantColors={post.featuredImage.dominantColors} />
         )}
         <div className={styles.formSpacer}>
-          <FeaturedImageForm key={post.updatedAt.toISOString()} postId={post.id} featuredImageId={post.featuredImageId} ogImageId={post.ogImageId} options={imageAssets} />
+          <FeaturedImageForm
+            key={post.updatedAt.toISOString()}
+            postId={post.id}
+            featuredImageId={post.featuredImageId}
+            ogImageId={post.ogImageId}
+            options={imageAssets}
+            previewUrlsByAsset={Object.fromEntries(previewUrlsByAsset)}
+          />
         </div>
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Gallery</h3>
