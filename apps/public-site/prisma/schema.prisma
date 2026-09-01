@@ -522,6 +522,14 @@ model NewsPost {
   // assumption — works the same whether there are 2 offices or 20.
   publishToOfficeIds String[]
 
+  // Per-article platform selection — which social platforms dispatch
+  // picks up when this post is published, independent of office. Same
+  // "empty means all" convention as publishToOfficeIds (dispatch.ts
+  // treats an empty array as every platform, so every post ever
+  // published before this field existed keeps dispatching to whatever
+  // it already dispatched to — no silent behavior change on old rows).
+  publishPlatforms SocialPlatform[] @default([])
+
   @@index([status])
   @@index([campaignId])
 }

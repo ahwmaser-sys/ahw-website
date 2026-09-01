@@ -62,9 +62,15 @@ export async function queueSocialPostsForNewsPost(newsPostId: string): Promise<v
   const destinations = await prisma.publishingDestination.findMany({ where: { officeId: { in: targetOffices.map((o) => o.id) } } });
   const disabled = new Set(destinations.filter((d) => !d.isEnabled).map((d) => `${d.officeId}:${d.platform}`));
 
+  // Per-article platform selection — empty means every platform (same
+  // "empty means all" convention as publishToOfficeIds above), so posts
+  // saved before this field existed keep dispatching exactly as before.
+  const selectedPlatforms = post.publishPlatforms.length > 0 ? new Set(post.publishPlatforms) : null;
+
   for (const office of targetOffices) {
     for (const adapter of socialAdapters) {
       if (disabled.has(`${office.id}:${adapter.platform}`)) continue;
+      if (selectedPlatforms && !selectedPlatforms.has(adapter.platform)) continue;
 
       const variantPurpose = PLATFORM_VARIANT[adapter.platform];
       const platformImageUrl =

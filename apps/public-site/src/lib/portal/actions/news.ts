@@ -69,12 +69,15 @@ export async function createNewsPost(_prevState: ActionState, formData: FormData
   redirect(`/admin/news/${post.id}`);
 }
 
+const PLATFORM_VALUES = ['INSTAGRAM', 'FACEBOOK', 'LINKEDIN', 'GOOGLE_BUSINESS'] as const;
+
 const updateSchema = z.object({
   postId: z.string().min(1),
   title: z.string().trim().min(1, 'Title is required.'),
   excerpt: z.string().trim().min(1, 'Excerpt is required.'),
   body: z.string().trim().min(1, 'Body is required.'),
   publishToOfficeIds: z.array(z.string()),
+  publishPlatforms: z.array(z.enum(PLATFORM_VALUES)),
 });
 
 export async function updateNewsPost(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -90,6 +93,8 @@ export async function updateNewsPost(_prevState: ActionState, formData: FormData
     // ambiguous with "not set yet," since a saved post always has this
     // field explicitly written on every save.
     publishToOfficeIds: formData.getAll('publishToOfficeIds').filter((v): v is string => typeof v === 'string'),
+    // Same "empty means all" convention as publishToOfficeIds.
+    publishPlatforms: formData.getAll('publishPlatforms'),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
@@ -102,6 +107,7 @@ export async function updateNewsPost(_prevState: ActionState, formData: FormData
       excerpt: parsed.data.excerpt,
       body: parsed.data.body,
       publishToOfficeIds: parsed.data.publishToOfficeIds,
+      publishPlatforms: parsed.data.publishPlatforms,
     },
   });
 

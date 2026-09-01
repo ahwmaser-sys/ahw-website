@@ -22,12 +22,20 @@ import { ArticleBodyEditor, type GalleryOption } from './ArticleBodyEditor';
 import styles from '../../../../components/portal/portal-ui.module.css';
 import type { Office } from '@prisma/client';
 
+const PLATFORM_OPTIONS: { value: string; label: string }[] = [
+  { value: 'LINKEDIN', label: 'LinkedIn' },
+  { value: 'FACEBOOK', label: 'Facebook' },
+  { value: 'INSTAGRAM', label: 'Instagram' },
+  { value: 'GOOGLE_BUSINESS', label: 'Google Business Profile' },
+];
+
 export function EditNewsForm({
   postId,
   title,
   excerpt,
   body,
   publishToOfficeIds,
+  publishPlatforms,
   offices,
   galleryOptions,
 }: {
@@ -36,10 +44,12 @@ export function EditNewsForm({
   excerpt: string;
   body: string;
   publishToOfficeIds: string[];
+  publishPlatforms: string[];
   offices: readonly Office[];
   galleryOptions: GalleryOption[];
 }) {
   const allOffices = publishToOfficeIds.length === 0;
+  const allPlatforms = publishPlatforms.length === 0;
   return (
     <ActionForm action={updateNewsPost} submitLabel="Save changes">
       <input type="hidden" name="postId" value={postId} />
@@ -80,6 +90,34 @@ export function EditNewsForm({
               disabled={allOffices}
             />
             <label htmlFor={`office-${office.id}`}>{office.displayName}</label>
+          </div>
+        ))}
+      </div>
+      <div className={styles.field}>
+        <span className={styles.label}>Publish on</span>
+        <div className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            id="publishAllPlatforms"
+            defaultChecked={allPlatforms}
+            onChange={(e) => {
+              const boxes = e.currentTarget.form?.querySelectorAll<HTMLInputElement>('input[name="publishPlatforms"]');
+              boxes?.forEach((box) => { box.disabled = e.currentTarget.checked; if (e.currentTarget.checked) box.checked = false; });
+            }}
+          />
+          <label htmlFor="publishAllPlatforms">All connected platforms</label>
+        </div>
+        {PLATFORM_OPTIONS.map((platform) => (
+          <div key={platform.value} className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              id={`platform-${platform.value}`}
+              name="publishPlatforms"
+              value={platform.value}
+              defaultChecked={publishPlatforms.includes(platform.value)}
+              disabled={allPlatforms}
+            />
+            <label htmlFor={`platform-${platform.value}`}>{platform.label}</label>
           </div>
         ))}
       </div>
