@@ -138,7 +138,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Content</h2>
-        <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} publishPlatforms={post.publishPlatforms} offices={offices} galleryOptions={galleryOptions} />
+        <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} publishPlatforms={post.publishPlatforms} relatedProjectSlug={post.relatedProjectSlug} offices={offices} galleryOptions={galleryOptions} />
       </div>
 
       <div className={styles.section}>

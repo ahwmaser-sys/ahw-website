@@ -75,6 +75,9 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
           })),
         }
       : {}),
+    // Feeds the article page's existing "Related" section — a slug into
+    // packages/ui-components' static project data, not a DB relation.
+    ...(post.relatedProjectSlug ? { relatedProjectSlugs: [post.relatedProjectSlug] } : {}),
   }));
 
   return [...dbItems, ...staticNewsItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

@@ -21,6 +21,7 @@ import { ActionForm } from '../../../../components/portal/ActionForm';
 import { ArticleBodyEditor, type GalleryOption } from './ArticleBodyEditor';
 import styles from '../../../../components/portal/portal-ui.module.css';
 import type { Office } from '@prisma/client';
+import { projects } from '@agp/ui-components';
 
 const PLATFORM_OPTIONS: { value: string; label: string }[] = [
   { value: 'LINKEDIN', label: 'LinkedIn' },
@@ -36,6 +37,7 @@ export function EditNewsForm({
   body,
   publishToOfficeIds,
   publishPlatforms,
+  relatedProjectSlug,
   offices,
   galleryOptions,
 }: {
@@ -45,11 +47,13 @@ export function EditNewsForm({
   body: string;
   publishToOfficeIds: string[];
   publishPlatforms: string[];
+  relatedProjectSlug: string | null;
   offices: readonly Office[];
   galleryOptions: GalleryOption[];
 }) {
   const allOffices = publishToOfficeIds.length === 0;
   const allPlatforms = publishPlatforms.length === 0;
+  const sortedProjects = [...projects].sort((a, b) => a.title.localeCompare(b.title));
   return (
     <ActionForm action={updateNewsPost} submitLabel="Save changes">
       <input type="hidden" name="postId" value={postId} />
@@ -64,6 +68,16 @@ export function EditNewsForm({
       <div className={styles.field}>
         <span className={styles.label}>Body</span>
         <ArticleBodyEditor initialBody={body} galleryOptions={galleryOptions} />
+      </div>
+      <div className={styles.field}>
+        <label className={styles.label} htmlFor="relatedProjectSlug">Related project</label>
+        <select className={styles.select} id="relatedProjectSlug" name="relatedProjectSlug" defaultValue={relatedProjectSlug ?? ''}>
+          <option value="">None</option>
+          {sortedProjects.map((project) => (
+            <option key={project.slug} value={project.slug}>{project.title}</option>
+          ))}
+        </select>
+        <p className={styles.hint}>Shows a linked project card in the article&apos;s &quot;Related&quot; section on the public page.</p>
       </div>
       <div className={styles.field}>
         <span className={styles.label}>Publish to</span>

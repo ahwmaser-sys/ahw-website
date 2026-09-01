@@ -78,6 +78,7 @@ const updateSchema = z.object({
   body: z.string().trim().min(1, 'Body is required.'),
   publishToOfficeIds: z.array(z.string()),
   publishPlatforms: z.array(z.enum(PLATFORM_VALUES)),
+  relatedProjectSlug: z.string(),
 });
 
 export async function updateNewsPost(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -95,6 +96,9 @@ export async function updateNewsPost(_prevState: ActionState, formData: FormData
     publishToOfficeIds: formData.getAll('publishToOfficeIds').filter((v): v is string => typeof v === 'string'),
     // Same "empty means all" convention as publishToOfficeIds.
     publishPlatforms: formData.getAll('publishPlatforms'),
+    // Empty string = "None" option in the select — stored as null, not
+    // an empty-string slug that would never match a real project.
+    relatedProjectSlug: formData.get('relatedProjectSlug') ?? '',
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
@@ -108,6 +112,7 @@ export async function updateNewsPost(_prevState: ActionState, formData: FormData
       body: parsed.data.body,
       publishToOfficeIds: parsed.data.publishToOfficeIds,
       publishPlatforms: parsed.data.publishPlatforms,
+      relatedProjectSlug: parsed.data.relatedProjectSlug || null,
     },
   });
 
