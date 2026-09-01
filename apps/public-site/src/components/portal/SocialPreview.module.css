@@ -149,6 +149,50 @@
   -webkit-box-orient: vertical;
 }
 
+.instagramCard {
+  background: #ffffff;
+  color: #1d1d1f;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  padding: 0.625rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.instagramHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.instagramAvatar {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+  flex-shrink: 0;
+}
+
+.instagramImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #e5e5e5;
+  margin: 0 -0.625rem;
+  width: calc(100% + 1.25rem);
+}
+
+.instagramIconsRow {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.5rem 0 0.25rem;
+  font-size: 1.125rem;
+  color: #1d1d1f;
+}
+
 .noImageHint {
   margin: 0;
   padding: 0.75rem;

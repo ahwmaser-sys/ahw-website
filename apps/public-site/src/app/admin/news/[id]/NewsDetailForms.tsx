@@ -215,6 +215,8 @@ interface PreviewUrls {
   linkedin: string;
   facebook: string;
   google: string;
+  instagram: string;
+  hero: string;
 }
 
 export function FeaturedImageForm({
@@ -254,6 +256,8 @@ export function FeaturedImageForm({
                   data-linkedin={preview?.linkedin ?? ''}
                   data-facebook={preview?.facebook ?? ''}
                   data-google={preview?.google ?? ''}
+                  data-instagram={preview?.instagram ?? ''}
+                  data-hero={preview?.hero ?? ''}
                 >
                   {o.fileName}
                 </option>

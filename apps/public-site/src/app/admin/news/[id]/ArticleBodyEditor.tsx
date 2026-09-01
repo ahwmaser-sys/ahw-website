@@ -107,7 +107,16 @@ export function ArticleBodyEditor({ initialBody, galleryOptions }: { initialBody
     extensions: [StarterKit, ArticleImage.configure({ inline: false })],
     content: parseInitialContent(initialBody),
     immediatelyRender: false,
-    onUpdate: ({ editor: e }) => setJson(JSON.stringify(e.getJSON())),
+    onUpdate: ({ editor: e }) => {
+      const next = JSON.stringify(e.getJSON());
+      setJson(next);
+      // The Article preview panel lives outside this form (it also
+      // needs the live Title/Featured-image fields, which belong to
+      // separate forms entirely) — a DOM CustomEvent is a lighter way
+      // to reach it than lifting body state into a shared parent and
+      // restructuring three independent forms around it.
+      window.dispatchEvent(new CustomEvent('ahw:article-body-change', { detail: next }));
+    },
   });
 
   const usedSrcs = useMemo(() => {

@@ -6,6 +6,7 @@ import { prisma } from '../../../../lib/portal/db';
 import { PortalShell } from '../../../../components/portal/PortalShell';
 import { MediaThumbnail } from '../../../../components/portal/MediaThumbnail';
 import { SocialPreview } from '../../../../components/portal/SocialPreview';
+import { ArticlePreview } from '../../../../components/portal/ArticlePreview';
 import { ADMIN_NAV_LINKS } from '../../nav-links';
 import { getAllOffices } from '../../../../lib/portal/offices';
 import { getSiteUrl } from '../../../../lib/site-config';
@@ -90,7 +91,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
   // panel and the Featured Image picker both need to know, for every
   // candidate image, exactly which pre-cropped file each platform would
   // actually send, not the raw original.
-  const PREVIEW_VARIANTS = { linkedin: 'linkedin', facebook: 'facebook', google: 'google-business' } as const;
+  const PREVIEW_VARIANTS = { linkedin: 'linkedin', facebook: 'facebook', google: 'google-business', instagram: 'instagram-square', hero: 'website-hero' } as const;
   const allAssetIds = imageAssets.map((a) => a.id);
   const previewVariantRows = allAssetIds.length
     ? await prisma.mediaAssetVariant.findMany({
@@ -108,6 +109,8 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
         linkedin: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.linkedin),
         facebook: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.facebook),
         google: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.google),
+        instagram: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.instagram),
+        hero: resolvePreviewUrl(a.id, PREVIEW_VARIANTS.hero),
       },
     ]),
   );
@@ -136,6 +139,21 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Content</h2>
         <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} offices={offices} galleryOptions={galleryOptions} />
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Article preview</h2>
+        <p className={styles.cardMeta}>
+          Renders with the exact same code and styling as the real published page — updates live as you edit the Title,
+          Featured image, or Body above.
+        </p>
+        <ArticlePreview
+          initialTitle={post.title}
+          initialBody={post.body}
+          fallbackAlt={post.title}
+          initialCoverImageUrl={initialPreviewImages?.hero}
+          galleryImages={galleryOptions.map((g) => ({ id: g.id, url: g.squareUrl, alt: g.alt }))}
+        />
       </div>
 
       <div className={styles.section}>

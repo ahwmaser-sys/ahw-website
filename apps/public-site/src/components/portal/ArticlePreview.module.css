@@ -1,0 +1,10 @@
+/* A framed, scrollable window onto the real public page — same
+   component tree and CSS module as app/insights/news/[slug]/page.tsx,
+   just capped in height so it doesn't take over the admin page. */
+.frame {
+  margin-top: 1rem;
+  max-height: 640px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}

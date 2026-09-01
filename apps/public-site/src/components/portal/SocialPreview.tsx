@@ -8,6 +8,7 @@ interface PreviewImages {
   linkedin: string;
   facebook: string;
   google: string;
+  instagram: string;
 }
 
 // Attaches to the existing Title/Excerpt/Featured-image fields by id
@@ -43,7 +44,8 @@ function useLiveFeaturedImage(initial: PreviewImages | undefined): PreviewImages
       const linkedin = opt.getAttribute('data-linkedin');
       const facebook = opt.getAttribute('data-facebook');
       const google = opt.getAttribute('data-google');
-      if (linkedin && facebook && google) setImages({ linkedin, facebook, google });
+      const instagram = opt.getAttribute('data-instagram');
+      if (linkedin && facebook && google && instagram) setImages({ linkedin, facebook, google, instagram });
     };
     el.addEventListener('change', readFromSelectedOption);
     return () => el.removeEventListener('change', readFromSelectedOption);
@@ -77,6 +79,7 @@ export function SocialPreview({
 
   const linkedinCaption = `${title}\n\n${excerpt}\n\n${articleUrl}`;
   const readMoreCaption = `${title}\n\n${excerpt}\n\nRead more: ${articleUrl}`;
+  const instagramCaption = `${title}\n\n${excerpt}\n\nLink in bio: ${articleUrl}\n\n#Architecture #InteriorDesign #AHWArchitects #Design`;
 
   return (
     <div className={styles.grid}>
@@ -153,6 +156,32 @@ export function SocialPreview({
             <p className={styles.noImageHint}>No Featured image selected yet.</p>
           )}
           <p className={styles.captionText}>{readMoreCaption}</p>
+        </div>
+      </div>
+
+      <div className={styles.card}>
+        <p className={styles.platformLabel}>Instagram</p>
+        <div className={styles.instagramCard}>
+          <div className={styles.instagramHeader}>
+            <span className={styles.instagramAvatar} />
+            <div className={styles.authorName}>ahwarchitects</div>
+          </div>
+          {images ? (
+            <div className={styles.instagramImageWrapper}>
+              <Image src={images.instagram} alt={title} fill sizes="400px" className={styles.linkImage} />
+            </div>
+          ) : (
+            <p className={styles.noImageHint}>Instagram has no text-only post type — a Featured image is required.</p>
+          )}
+          <div className={styles.instagramIconsRow}>
+            <span>♡</span>
+            <span>💬</span>
+            <span>➤</span>
+          </div>
+          <p className={styles.captionText}>
+            <strong className={styles.authorName}>ahwarchitects </strong>
+            {instagramCaption}
+          </p>
         </div>
       </div>
     </div>
