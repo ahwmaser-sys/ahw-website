@@ -102,6 +102,7 @@ model User {
   notifications      Notification[]
   activityLogs       ActivityLog[]
   hiddenSocialPosts  HiddenSocialPost[]
+  pinnedSocialPosts  PinnedSocialPost[]
   sessions           Session[]
   passwordResets     PasswordResetToken[]
   emailVerifications EmailVerificationToken[]
@@ -622,6 +623,18 @@ model HiddenSocialPost {
   hiddenAt DateTime @default(now())
   hiddenById String?
   hiddenBy User?    @relation(fields: [hiddenById], references: [id])
+}
+
+// Same id scheme as HiddenSocialPost — a real post is never copied into
+// this table, only referenced by the id live-feed.ts already builds for
+// it. A pinned post always survives the 60-day window / MIN_POSTS
+// trimming in getLiveSocialFeed, and — if it has an image — becomes the
+// featured hero on /social ahead of whatever's merely newest.
+model PinnedSocialPost {
+  id       String   @id
+  pinnedAt DateTime @default(now())
+  pinnedById String?
+  pinnedBy User?    @relation(fields: [pinnedById], references: [id])
 }
 
 // ── Marketing Studio: Campaigns ──

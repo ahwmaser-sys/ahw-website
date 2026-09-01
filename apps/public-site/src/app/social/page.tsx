@@ -88,7 +88,9 @@ export default async function SocialPage() {
   // post gets the large featured treatment; only image-bearing posts
   // are eligible (a text-only feature card has nothing to anchor the
   // large half of the layout), falling back to the plain grid otherwise.
-  const featured = posts.find((post) => post.imageUrl);
+  // A pinned post (see Admin → Marketing → Social Feed) takes the slot
+  // ahead of whatever's merely newest.
+  const featured = posts.find((post) => post.pinned && post.imageUrl) ?? posts.find((post) => post.imageUrl);
   const rest = posts.filter((post) => post.id !== featured?.id);
 
   // Same admin-entered URLs the site footer already uses (Settings →

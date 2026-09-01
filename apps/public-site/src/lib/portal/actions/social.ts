@@ -164,3 +164,41 @@ export async function unhideSocialFeedPost(_prevState: ActionState, formData: Fo
   revalidatePath('/admin/social-feed');
   return { success: 'Restored to the public Social page.' };
 }
+
+const pinnedFeedPostSchema = z.object({ id: z.string().min(1) });
+
+// A pinned post always survives the 60-day window and MIN_POSTS trimming
+// in getLiveSocialFeed (lib/portal/social/live-feed.ts), and takes the
+// featured hero slot on /social ahead of whatever's merely newest — same
+// id-keyed side-table pattern as HiddenSocialPost above.
+export async function pinSocialFeedPost(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = pinnedFeedPostSchema.safeParse({ id: formData.get('id') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  await prisma.pinnedSocialPost.upsert({
+    where: { id: parsed.data.id },
+    create: { id: parsed.data.id, pinnedById: principal.userId },
+    update: {},
+  });
+  await recordActivity({ actorId: principal.userId, action: 'admin.social_feed_post_pinned', entityType: 'PinnedSocialPost', entityId: parsed.data.id });
+  revalidatePath('/social');
+  revalidatePath('/admin/social-feed');
+  return { success: 'Pinned to the public Social page.' };
+}
+
+export async function unpinSocialFeedPost(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = pinnedFeedPostSchema.safeParse({ id: formData.get('id') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  await prisma.pinnedSocialPost.deleteMany({ where: { id: parsed.data.id } });
+  await recordActivity({ actorId: principal.userId, action: 'admin.social_feed_post_unpinned', entityType: 'PinnedSocialPost', entityId: parsed.data.id });
+  revalidatePath('/social');
+  revalidatePath('/admin/social-feed');
+  return { success: 'Unpinned from the public Social page.' };
+}

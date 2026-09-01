@@ -3,7 +3,7 @@ import { requireAdminPage } from '../../../lib/portal/page-guard';
 import { PortalShell } from '../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../nav-links';
 import { getLiveSocialFeed } from '../../../lib/portal/social/live-feed';
-import { HideSocialFeedPostForm, UnhideSocialFeedPostForm } from './SocialFeedForms';
+import { HideSocialFeedPostForm, UnhideSocialFeedPostForm, PinSocialFeedPostForm, UnpinSocialFeedPostForm } from './SocialFeedForms';
 import styles from '../../../components/portal/portal-ui.module.css';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -30,7 +30,7 @@ export default async function AdminSocialFeedPage() {
         The same real posts shown on the public{' '}
         <a href="/social" target="_blank" rel="noreferrer">/social</a> page — pulled live from each connected platform,
         not stored here. Hide a post to remove it from that public page without touching anything on the platform
-        itself. {visibleCount} visible, {hiddenCount} hidden.
+        itself, or pin one to keep it permanently featured regardless of age. {visibleCount} visible, {hiddenCount} hidden.
       </p>
 
       <div className={styles.section}>
@@ -40,8 +40,11 @@ export default async function AdminSocialFeedPage() {
             <div key={post.id} className={styles.card}>
               <div className={styles.cardHeader}>
                 <strong>{PLATFORM_LABEL[post.platform] ?? post.platform} — {post.officeName}</strong>
-                <span className={`${styles.badge} ${post.hidden ? styles.badgeMuted : styles.badgeActive}`}>
-                  {post.hidden ? 'Hidden' : 'Visible'}
+                <span className={styles.buttonRow}>
+                  {post.pinned && <span className={`${styles.badge} ${styles.badgeWarn}`}>Pinned</span>}
+                  <span className={`${styles.badge} ${post.hidden ? styles.badgeMuted : styles.badgeActive}`}>
+                    {post.hidden ? 'Hidden' : 'Visible'}
+                  </span>
                 </span>
               </div>
               {post.caption && <p className={styles.captionText}>{post.caption}</p>}
@@ -52,6 +55,7 @@ export default async function AdminSocialFeedPage() {
               )}
               <div className={styles.buttonRow}>
                 {post.hidden ? <UnhideSocialFeedPostForm id={post.id} /> : <HideSocialFeedPostForm id={post.id} />}
+                {post.pinned ? <UnpinSocialFeedPostForm id={post.id} /> : <PinSocialFeedPostForm id={post.id} />}
               </div>
             </div>
           ))}

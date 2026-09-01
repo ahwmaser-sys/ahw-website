@@ -28,6 +28,11 @@ export interface LiveSocialPost extends LiveSocialPostSource {
   // admin moderation page can show hidden posts (to unhide them) while
   // the public page can filter them out, from the same one function.
   hidden: boolean;
+  // Admin-controlled (see PinnedSocialPost) — a pinned post always
+  // survives the 60-day window and MIN_POSTS trimming below, and the
+  // public page gives it the featured slot ahead of whatever's merely
+  // newest.
+  pinned: boolean;
 }
 
 const GRAPH_API = 'https://graph.facebook.com/v21.0';
@@ -198,8 +203,13 @@ async function fetchGoogleBusinessPosts(officeId: string, officeName: string): P
 // discovery calls: this is a page-render path, not a burst import, and
 // four platforms already run in parallel per office.
 export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
-  const [offices, hiddenRows] = await Promise.all([getActiveOffices(), prisma.hiddenSocialPost.findMany({ select: { id: true } })]);
+  const [offices, hiddenRows, pinnedRows] = await Promise.all([
+    getActiveOffices(),
+    prisma.hiddenSocialPost.findMany({ select: { id: true } }),
+    prisma.pinnedSocialPost.findMany({ select: { id: true } }),
+  ]);
   const hiddenIds = new Set(hiddenRows.map((row) => row.id));
+  const pinnedIds = new Set(pinnedRows.map((row) => row.id));
   const perOffice = await Promise.all(
     offices.map(async (office) => {
       const [facebook, instagram, linkedin, google] = await Promise.all([
@@ -235,13 +245,19 @@ export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
   const deduped = [...seen.values()].sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
 
   const cutoff = Date.now() - MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
-  const withinWindow = deduped.filter((post) => !post.postedAt || new Date(post.postedAt).getTime() >= cutoff);
+  const unpinnedDeduped = deduped.filter((post) => !pinnedIds.has(post.id));
+  const withinWindow = unpinnedDeduped.filter((post) => !post.postedAt || new Date(post.postedAt).getTime() >= cutoff);
   // A quiet month shouldn't leave the page looking empty — reach further
   // back only when the last MAX_AGE_DAYS genuinely didn't have enough
   // real posts, never the other way around (a busy couple of months
   // never gets padded with older ones).
-  const selected = withinWindow.length >= MIN_POSTS ? withinWindow : deduped.slice(0, MIN_POSTS);
+  const selectedUnpinned = withinWindow.length >= MIN_POSTS ? withinWindow : unpinnedDeduped.slice(0, MIN_POSTS);
 
-  return selected.map((post) => ({ ...post, hidden: hiddenIds.has(post.id) }));
+  // Pinned posts always survive, regardless of age or the MIN_POSTS
+  // trimming above — that's the entire point of pinning one.
+  const pinned = deduped.filter((post) => pinnedIds.has(post.id));
+  const selected = [...pinned, ...selectedUnpinned].sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
+
+  return selected.map((post) => ({ ...post, hidden: hiddenIds.has(post.id), pinned: pinnedIds.has(post.id) }));
 }
 
