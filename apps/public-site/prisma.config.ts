@@ -10,7 +10,20 @@ export default defineConfig({
     seed: "node --experimental-strip-types prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"] || "",
+    // `migrate deploy`'s advisory-lock step needs a direct (non-pooled)
+    // connection — Neon's default DATABASE_URL goes through its pooler,
+    // which doesn't reliably hold a session-scoped advisory lock and
+    // repeatedly failed with P1002 ("Timed out trying to acquire a
+    // postgres advisory lock") on three separate, non-concurrent deploy
+    // attempts in a row — a real, repeatable failure, not a transient
+    // one. DATABASE_URL_UNPOOLED is Vercel's own Neon integration's
+    // direct-connection variable, already provisioned alongside
+    // DATABASE_URL — nothing new to add. The runtime app is entirely
+    // unaffected: PrismaClient (lib/portal/db.ts) reads DATABASE_URL
+    // directly through its own adapter, never through this file.
+    // Falls back to DATABASE_URL when the unpooled variant isn't set
+    // (local dev's `prisma dev` proxy only provides one URL).
+    url: process.env["DATABASE_URL_UNPOOLED"] || process.env["DATABASE_URL"] || "",
     // Dev-only. The real DATABASE_URL points at a database literally named
     // "template1" (an artifact of how `prisma dev`'s local proxy names its
     // default DB). Postgres's CREATE DATABASE clones from template1 by
