@@ -43,6 +43,9 @@ const REVALIDATE_SECONDS = 1800;
 // posts — anything older is still on the platform itself, just not
 // duplicated here.
 const MAX_AGE_DAYS = 60;
+// A quiet couple of months would otherwise leave the page looking
+// empty or half-full — see the fallback in getLiveSocialFeed below.
+const MIN_POSTS = 9;
 // AHW cross-posts the same caption to more than one platform (confirmed
 // live — several posts had byte-identical captions on Facebook and
 // Instagram the same day), which otherwise shows as two cards for one
@@ -208,20 +211,20 @@ export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
       return [...facebook, ...instagram, ...linkedin, ...google];
     }),
   );
-  const cutoff = Date.now() - MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
-  const withinWindow = perOffice
+  const candidates = perOffice
     .flat()
     .filter((post) => post.caption || post.imageUrl)
-    .filter((post) => !post.postedAt || new Date(post.postedAt).getTime() >= cutoff)
     .sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
 
   // Cross-posted duplicates: same office, same caption text (once
   // normalized), posted the same calendar day. Only dedupes when there's
   // real caption text to compare — an image-only post always keeps its
   // own card rather than risk collapsing two genuinely different posts
-  // that both happen to have no caption.
+  // that both happen to have no caption. Runs before the age window
+  // below so the fallback (next comment) still starts from a
+  // duplicate-free list.
   const seen = new Map<string, LiveSocialPostSource>();
-  for (const post of withinWindow) {
+  for (const post of candidates) {
     const normalizedCaption = normalizeCaption(post.caption);
     const dedupeKey = normalizedCaption ? `${post.officeId}:${(post.postedAt ?? '').slice(0, 10)}:${normalizedCaption}` : `id:${post.id}`;
     const existing = seen.get(dedupeKey);
@@ -229,9 +232,16 @@ export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
       seen.set(dedupeKey, post);
     }
   }
+  const deduped = [...seen.values()].sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
 
-  return [...seen.values()]
-    .map((post) => ({ ...post, hidden: hiddenIds.has(post.id) }))
-    .sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
+  const cutoff = Date.now() - MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+  const withinWindow = deduped.filter((post) => !post.postedAt || new Date(post.postedAt).getTime() >= cutoff);
+  // A quiet month shouldn't leave the page looking empty — reach further
+  // back only when the last MAX_AGE_DAYS genuinely didn't have enough
+  // real posts, never the other way around (a busy couple of months
+  // never gets padded with older ones).
+  const selected = withinWindow.length >= MIN_POSTS ? withinWindow : deduped.slice(0, MIN_POSTS);
+
+  return selected.map((post) => ({ ...post, hidden: hiddenIds.has(post.id) }));
 }
 

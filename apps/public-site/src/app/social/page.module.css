@@ -41,6 +41,66 @@
   padding: var(--space-16) 0;
 }
 
+.featuredCard {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: stretch;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: var(--space-10);
+  transition: border-color var(--transition-fast);
+}
+
+a.featuredCard:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.featuredImageWrapper {
+  position: relative;
+  min-height: 320px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+a.featuredCard:hover .featuredImageWrapper .image {
+  transform: scale(1.03);
+}
+
+.featuredBody {
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  justify-content: center;
+}
+
+.featuredCaption {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-paper);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .featuredCard {
+    grid-template-columns: 1fr;
+  }
+
+  .featuredImageWrapper {
+    min-height: 240px;
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -191,6 +251,7 @@ a.card:hover .image {
 
 @media (prefers-reduced-motion: reduce) {
   .card,
+  .featuredCard,
   .image {
     transition: none;
   }

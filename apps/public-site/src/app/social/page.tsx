@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { Breadcrumbs, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
-import { getLiveSocialFeed } from '../../lib/portal/social/live-feed';
+import { getLiveSocialFeed, type LiveSocialPost } from '../../lib/portal/social/live-feed';
 import { getActiveOffices, officeSocialLinks } from '../../lib/portal/offices';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
@@ -41,6 +42,28 @@ function formatDate(iso: string | null): string | null {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function PostMeta({ post }: { post: LiveSocialPost }) {
+  return (
+    <div className={styles.cardMeta}>
+      <span className={styles.platform}>
+        <span className={styles.platformDot} style={{ background: PLATFORM_ACCENT[post.platform] }} aria-hidden="true" />
+        {PLATFORM_LABEL[post.platform] ?? post.platform}
+      </span>
+      <span className={styles.office}>{post.officeName}</span>
+    </div>
+  );
+}
+
+function PostLink({ post, children, className }: { post: LiveSocialPost; children: ReactNode; className: string | undefined }) {
+  return post.permalink ? (
+    <a href={post.permalink} target="_blank" rel="noreferrer" className={className}>
+      {children}
+    </a>
+  ) : (
+    <div className={className}>{children}</div>
+  );
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = await getSiteUrl();
   return {
@@ -61,6 +84,12 @@ export default async function SocialPage() {
   // social.ts's hideSocialFeedPost) — real posts stay on the platform
   // itself, this just keeps them off this public page.
   const posts = allPosts.filter((post) => !post.hidden);
+  // getLiveSocialFeed already returns newest-first, so the most recent
+  // post gets the large featured treatment; only image-bearing posts
+  // are eligible (a text-only feature card has nothing to anchor the
+  // large half of the layout), falling back to the plain grid otherwise.
+  const featured = posts.find((post) => post.imageUrl);
+  const rest = posts.filter((post) => post.id !== featured?.id);
 
   // Same admin-entered URLs the site footer already uses (Settings →
   // Offices) — not derived from the OAuth connections above, since an
@@ -89,40 +118,42 @@ export default async function SocialPage() {
           {posts.length === 0 ? (
             <p className={styles.empty}>No recent posts to show right now.</p>
           ) : (
-            <div className={styles.grid}>
-              {posts.map((post) => {
-                const date = formatDate(post.postedAt);
-                const card = (
-                  <>
-                    {post.imageUrl && (
-                      <div className={styles.imageWrapper}>
-                        <Image src={post.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className={styles.image} />
-                      </div>
-                    )}
-                    <div className={styles.cardBody}>
-                      <div className={styles.cardMeta}>
-                        <span className={styles.platform}>
-                          <span className={styles.platformDot} style={{ background: PLATFORM_ACCENT[post.platform] }} aria-hidden="true" />
-                          {PLATFORM_LABEL[post.platform] ?? post.platform}
-                        </span>
-                        <span className={styles.office}>{post.officeName}</span>
-                      </div>
-                      {post.caption && <p className={styles.caption}>{post.caption}</p>}
-                      {date && <time className={styles.date}>{date}</time>}
-                    </div>
-                  </>
-                );
-                return post.permalink ? (
-                  <a key={post.id} href={post.permalink} target="_blank" rel="noreferrer" className={styles.card}>
-                    {card}
-                  </a>
-                ) : (
-                  <div key={post.id} className={styles.card}>
-                    {card}
+            <>
+              {featured && (
+                <PostLink post={featured} className={styles.featuredCard}>
+                  <div className={styles.featuredImageWrapper}>
+                    <Image src={featured.imageUrl!} alt="" fill sizes="(min-width: 900px) 55vw, 100vw" priority className={styles.image} />
                   </div>
-                );
-              })}
-            </div>
+                  <div className={styles.featuredBody}>
+                    <PostMeta post={featured} />
+                    {featured.caption && <p className={styles.featuredCaption}>{featured.caption}</p>}
+                    {formatDate(featured.postedAt) && <time className={styles.date}>{formatDate(featured.postedAt)}</time>}
+                  </div>
+                </PostLink>
+              )}
+
+              {rest.length > 0 && (
+                <div className={styles.grid}>
+                  {rest.map((post) => {
+                    const date = formatDate(post.postedAt);
+                    return (
+                      <PostLink key={post.id} post={post} className={styles.card}>
+                        {post.imageUrl && (
+                          <div className={styles.imageWrapper}>
+                            <Image src={post.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className={styles.image} />
+                          </div>
+                        )}
+                        <div className={styles.cardBody}>
+                          <PostMeta post={post} />
+                          {post.caption && <p className={styles.caption}>{post.caption}</p>}
+                          {date && <time className={styles.date}>{date}</time>}
+                        </div>
+                      </PostLink>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
