@@ -293,6 +293,16 @@ const nextConfig = {
       { pathname: '**', search: '' },
       { pathname: '/api/media/**' },
     ],
+    // The public Social feed (lib/portal/social/live-feed.ts) renders
+    // images straight from each platform's own CDN response — Facebook/
+    // Instagram's Graph API returns highly dynamic scontent-*.fbcdn.net
+    // subdomains (a fixed hostname can't be pinned), Google Business
+    // Profile media lives on googleusercontent.com.
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.fbcdn.net' },
+      { protocol: 'https', hostname: '**.cdninstagram.com' },
+      { protocol: 'https', hostname: '**.googleusercontent.com' },
+    ],
   },
 };
 
