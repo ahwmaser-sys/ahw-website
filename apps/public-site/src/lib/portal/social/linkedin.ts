@@ -13,7 +13,11 @@ interface LinkedInCredential {
   organizationId: string;
 }
 
-const API = 'https://api.linkedin.com/v2';
+const API = 'https://api.linkedin.com/rest';
+// LinkedIn's YYYYMM versioned-API scheme — bump periodically per
+// LinkedIn's API versioning docs. Kept in sync with the same constant
+// in integrations/test.ts.
+const LINKEDIN_API_VERSION = '202608';
 
 export const linkedinAdapter: SocialAdapter = {
   platform: 'LINKEDIN',
@@ -40,30 +44,34 @@ export const linkedinAdapter: SocialAdapter = {
     }
 
     const author = `urn:li:organization:${cred.organizationId}`;
-    const res = await fetch(`${API}/ugcPosts`, {
+    // Posts API (replaces the deprecated ugcPosts API) — see
+    // https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api
+    const res = await fetch(`${API}/posts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${cred.accessToken}`,
         'X-Restli-Protocol-Version': '2.0.0',
+        'Linkedin-Version': LINKEDIN_API_VERSION,
       },
       body: JSON.stringify({
         author,
-        lifecycleState: 'PUBLISHED',
-        specificContent: {
-          'com.linkedin.ugc.ShareContent': {
-            shareCommentary: { text: content.caption },
-            shareMediaCategory: 'NONE',
-          },
+        commentary: content.caption,
+        visibility: 'PUBLIC',
+        distribution: {
+          feedDistribution: 'MAIN_FEED',
+          targetEntities: [],
+          thirdPartyDistributionChannels: [],
         },
-        visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
+        lifecycleState: 'PUBLISHED',
+        isReshareDisabledByAuthor: false,
       }),
     });
     if (!res.ok) {
       const errorBody = await res.text();
       throw new Error(`LinkedIn post failed (${res.status}): ${errorBody}`);
     }
-    const postId = res.headers.get('x-restli-id') ?? res.headers.get('x-linkedin-id');
+    const postId = res.headers.get('x-restli-id');
     if (!postId) {
       throw new Error('LinkedIn post succeeded but returned no post id.');
     }
