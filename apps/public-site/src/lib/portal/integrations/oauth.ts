@@ -31,7 +31,7 @@ export function isOAuthAppConfigured(type: OAuthIntegration): boolean {
   switch (type) {
     case 'INSTAGRAM':
     case 'FACEBOOK':
-      return Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET);
+      return Boolean(process.env.META_APP_ID && process.env.META_APP_SECRET && process.env.META_LOGIN_CONFIG_ID);
     case 'LINKEDIN':
       return Boolean(process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET);
     case 'GOOGLE_BUSINESS':
@@ -44,12 +44,20 @@ export function buildAuthUrl(type: OAuthIntegration, state: string): string {
   switch (type) {
     case 'INSTAGRAM':
     case 'FACEBOOK': {
-      const scope = type === 'INSTAGRAM' ? 'instagram_basic,instagram_content_publish,pages_show_list' : 'pages_manage_posts,pages_read_engagement,pages_show_list';
+      // This app's Facebook/Instagram product is "Facebook Login for
+      // Business" (not classic Facebook Login) — Meta's own docs for it
+      // say to pass config_id instead of scope ("we recommend that you
+      // do not use scope"). Confirmed live: passing scope alone reached
+      // the consent screen but the resulting token had no Page access
+      // (exchangeCode's /me/accounts call below came back empty even for
+      // a Page the connecting admin has full access to). One Login
+      // Configuration in the Meta app carries all 5 permissions needed
+      // by both Facebook and Instagram, so both branches share it.
       const params = new URLSearchParams({
         client_id: process.env.META_APP_ID ?? '',
         redirect_uri: redirect,
         state,
-        scope,
+        config_id: process.env.META_LOGIN_CONFIG_ID ?? '',
         response_type: 'code',
       });
       return `https://www.facebook.com/v21.0/dialog/oauth?${params.toString()}`;
