@@ -136,11 +136,29 @@ export async function exchangeCode(type: OAuthIntegration, code: string): Promis
       }),
     });
     if (!tokenRes.ok) throw new Error(`LinkedIn token exchange failed: ${await tokenRes.text()}`);
-    const tokenBody = (await tokenRes.json()) as { access_token: string };
+    const tokenBody = (await tokenRes.json()) as {
+      access_token: string;
+      expires_in?: number;
+      refresh_token?: string;
+      refresh_token_expires_in?: number;
+    };
     // organizationId isn't derivable from this token alone without extra
     // partner-level permissions — collected from the admin via the
     // Integrations UI's "Organization ID" field alongside this token.
-    return { accessToken: tokenBody.access_token };
+    //
+    // refresh_token is only present when LinkedIn has individually
+    // enabled "programmatic refresh tokens" for this app — not something
+    // requested via scope, so this app may or may not receive one.
+    // Captured here (mirroring the Google Business Profile branch above)
+    // so that presence is observable instead of silently discarded.
+    return {
+      accessToken: tokenBody.access_token,
+      ...(tokenBody.expires_in ? { accessTokenExpiresAt: new Date(Date.now() + tokenBody.expires_in * 1000).toISOString() } : {}),
+      ...(tokenBody.refresh_token ? { refreshToken: tokenBody.refresh_token } : {}),
+      ...(tokenBody.refresh_token_expires_in
+        ? { refreshTokenExpiresAt: new Date(Date.now() + tokenBody.refresh_token_expires_in * 1000).toISOString() }
+        : {}),
+    };
   }
 
   // GOOGLE_BUSINESS

@@ -50,8 +50,24 @@ export async function testIntegration(type: IntegrationType, officeId?: string |
       const cred = await getIntegrationCredential<{ accessToken: string; organizationId?: string }>(type, officeId);
       if (!cred) return { ok: false, error: 'Not connected.' };
       if (!cred.organizationId) return { ok: false, error: 'Missing Organization ID — finish setup below.' };
-      const res = await fetch(`https://api.linkedin.com/v2/organizations/${cred.organizationId}`, {
-        headers: { Authorization: `Bearer ${cred.accessToken}` },
+      // The old v2/organizations/{id} lookup needs Page Access Management
+      // permission (r_organization_admin), which this app never requests —
+      // it only has Content Management scopes (w_organization_social,
+      // r_organization_social). Verify with the same permission the post
+      // publisher actually uses instead: the versioned Posts API's
+      // "find posts by author" finder, which is documented as requiring
+      // r_organization_social. LINKEDIN_API_VERSION matches LinkedIn's
+      // current YYYYMM versioned-API scheme — bump periodically per
+      // LinkedIn's API versioning docs.
+      const LINKEDIN_API_VERSION = '202608';
+      const author = encodeURIComponent(`urn:li:organization:${cred.organizationId}`);
+      const res = await fetch(`https://api.linkedin.com/rest/posts?q=author&author=${author}&count=1`, {
+        headers: {
+          Authorization: `Bearer ${cred.accessToken}`,
+          'X-Restli-Protocol-Version': '2.0.0',
+          'Linkedin-Version': LINKEDIN_API_VERSION,
+          'X-RestLi-Method': 'FINDER',
+        },
       });
       if (!res.ok) return { ok: false, error: await res.text() };
       return { ok: true };
