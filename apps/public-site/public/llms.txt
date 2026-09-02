@@ -23,8 +23,11 @@ AHW Architects operates as an integrated Design & Build firm: the same team carr
 ## Projects
 
 - [Projects](https://ahwspaces.com/projects): Delivered and in-progress residential, commercial, hospitality, workplace, and retail projects across Egypt, Kuwait, and the UAE.
+- [Residential](https://ahwspaces.com/residential): Dedicated overview of AHW's residential design and build experience.
 
 ## Insights
 
 - [Publications](https://ahwspaces.com/insights/publications): Press features and media coverage.
 - [News](https://ahwspaces.com/insights/news): Company announcements.
+- [Social](https://ahwspaces.com/social): Recent posts from AHW's own social channels.
+- [RSS feed](https://ahwspaces.com/insights/feed.xml): Combined feed of News and Publications.
