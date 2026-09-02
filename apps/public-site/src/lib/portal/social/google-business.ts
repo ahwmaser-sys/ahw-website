@@ -1,5 +1,4 @@
 import type { SocialAdapter, SocialPostSource, FormattedSocialContent, PublishResult } from './types';
-import { canonicalNewsUrl } from './types';
 import { getIntegrationCredential } from '../integrations/store';
 import { fetchGoogleBusinessApi } from '../integrations/google-business-http';
 import { getFreshGoogleBusinessAccessToken } from '../integrations/google-business-token';
@@ -34,12 +33,11 @@ export const googleBusinessAdapter: SocialAdapter = {
   },
 
   formatContent(post: SocialPostSource): FormattedSocialContent {
-    const link = canonicalNewsUrl(post.slug, post.siteUrl);
     // GBP "What's New" posts favor a concise summary plus a direct link
     // — closer to Facebook/LinkedIn's register than Instagram's
     // hashtag-heavy caption.
     return {
-      caption: `${post.title}\n\n${post.excerpt}\n\nRead more: ${link}`,
+      caption: `${post.title}\n\n${post.excerpt}\n\nRead more: ${post.canonicalUrl}`,
       imageUrl: post.imageUrl,
     };
   },

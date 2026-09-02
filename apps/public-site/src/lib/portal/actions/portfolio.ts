@@ -9,6 +9,7 @@ import { prisma } from '../db';
 import { recordActivity } from '../audit';
 import { runMediaPipeline } from '../media/pipeline';
 import { projects as legacyProjects, buildSortOrders, buildCreateData, validateEnums } from '../portfolio-legacy-import';
+import { queueSocialPostsForPortfolioProject } from '../social/dispatch';
 import type { ActionState } from '../../../components/portal/ActionForm';
 import type { Prisma } from '@prisma/client';
 
@@ -625,6 +626,52 @@ export async function removePortfolioProjectFaqItem(_prevState: ActionState, for
   revalidatePath(`/admin/portfolio/${parsed.data.projectId}`);
   revalidatePublic(project?.slug);
   return { success: 'FAQ item removed.' };
+}
+
+// ── Publish to Social ──
+// Deliberately separate from the website Publish/Unpublish below — a
+// project going live on /projects and a project being announced on
+// social are two different decisions here (unlike NewsPost, where
+// website-publish is itself the social trigger). Saves the target
+// selection and dispatches in the same submit, rather than a two-step
+// "save targets, then publish" flow.
+
+const socialPlatformValues = ['INSTAGRAM', 'FACEBOOK', 'LINKEDIN', 'GOOGLE_BUSINESS'] as const;
+
+const publishToSocialSchema = z.object({
+  projectId: z.string().min(1),
+  publishToOfficeIds: z.array(z.string()),
+  publishPlatforms: z.array(z.enum(socialPlatformValues)),
+});
+
+export async function publishPortfolioProjectToSocial(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = publishToSocialSchema.safeParse({
+    projectId: formData.get('projectId'),
+    publishToOfficeIds: formData.getAll('publishToOfficeIds').filter((v): v is string => typeof v === 'string'),
+    publishPlatforms: formData.getAll('publishPlatforms'),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' };
+
+  const existing = await prisma.portfolioProject.findUnique({ where: { id: parsed.data.projectId }, select: { heroImageId: true, heroImageUrl: true } });
+  if (!existing) return { error: 'Not found.' };
+  if (!existing.heroImageId && !existing.heroImageUrl) {
+    return { error: 'Set a hero image before publishing to social — Instagram in particular has no text-only post type.' };
+  }
+
+  await prisma.portfolioProject.update({
+    where: { id: parsed.data.projectId },
+    data: { publishToOfficeIds: parsed.data.publishToOfficeIds, publishPlatforms: parsed.data.publishPlatforms },
+  });
+
+  await queueSocialPostsForPortfolioProject(parsed.data.projectId);
+
+  await recordActivity({ actorId: principal.userId, action: 'admin.portfolio_project_published_to_social', entityType: 'PortfolioProject', entityId: parsed.data.projectId });
+
+  revalidatePath(`/admin/portfolio/${parsed.data.projectId}`);
+  return { success: 'Social packages generated.' };
 }
 
 // ── Publish / Delete ──

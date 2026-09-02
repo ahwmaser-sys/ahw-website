@@ -1,5 +1,4 @@
 import type { SocialAdapter, SocialPostSource, FormattedSocialContent, PublishResult } from './types';
-import { canonicalNewsUrl } from './types';
 import { getIntegrationCredential } from '../integrations/store';
 
 // Instagram Basic Display API was shut down December 2024; the Graph
@@ -24,9 +23,8 @@ export const instagramAdapter: SocialAdapter = {
   },
 
   formatContent(post: SocialPostSource): FormattedSocialContent {
-    const link = canonicalNewsUrl(post.slug, post.siteUrl);
     return {
-      caption: `${post.title}\n\n${post.excerpt}\n\nLink in bio: ${link}\n\n#Architecture #InteriorDesign #AHWArchitects #Design`,
+      caption: `${post.title}\n\n${post.excerpt}\n\nLink in bio: ${post.canonicalUrl}\n\n#Architecture #InteriorDesign #AHWArchitects #Design`,
       imageUrl: post.imageUrl,
     };
   },

@@ -1,5 +1,4 @@
 import type { SocialAdapter, SocialPostSource, FormattedSocialContent, PublishResult } from './types';
-import { canonicalNewsUrl } from './types';
 import { getIntegrationCredential } from '../integrations/store';
 
 interface FacebookCredential {
@@ -18,11 +17,10 @@ export const facebookAdapter: SocialAdapter = {
   },
 
   formatContent(post: SocialPostSource): FormattedSocialContent {
-    const link = canonicalNewsUrl(post.slug, post.siteUrl);
     // Facebook favors a direct link-back over "link in bio" workarounds —
     // the platform's own link preview card carries the visual weight.
     return {
-      caption: `${post.title}\n\n${post.excerpt}\n\nRead more: ${link}`,
+      caption: `${post.title}\n\n${post.excerpt}\n\nRead more: ${post.canonicalUrl}`,
       imageUrl: post.imageUrl,
     };
   },

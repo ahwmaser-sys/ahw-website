@@ -15,14 +15,23 @@ import {
   removePortfolioProjectGalleryImage,
   addPortfolioProjectFaqItem,
   removePortfolioProjectFaqItem,
+  publishPortfolioProjectToSocial,
   publishPortfolioProject,
   unpublishPortfolioProject,
   deletePortfolioProject,
 } from '../../../../lib/portal/actions/portfolio';
+import { retrySocialPost, deleteSocialPost } from '../../../../lib/portal/actions/social';
 import { ActionForm } from '../../../../components/portal/ActionForm';
 import styles from '../../../../components/portal/portal-ui.module.css';
+import type { Office } from '@prisma/client';
 
 const SECTOR_OPTIONS = ['RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY', 'WORKPLACE', 'RETAIL'];
+const PLATFORM_OPTIONS: { value: string; label: string }[] = [
+  { value: 'LINKEDIN', label: 'LinkedIn' },
+  { value: 'FACEBOOK', label: 'Facebook' },
+  { value: 'INSTAGRAM', label: 'Instagram' },
+  { value: 'GOOGLE_BUSINESS', label: 'Google Business Profile' },
+];
 const MARKET_OPTIONS = ['EGYPT', 'KUWAIT', 'UAE', 'LEBANON'];
 const TIER_OPTIONS = ['FLAGSHIP', 'STANDARD'];
 
@@ -463,6 +472,100 @@ export function DeleteForm({ projectId }: { projectId: string }) {
   return (
     <ActionForm action={deletePortfolioProject} submitLabel="Delete" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
       <input type="hidden" name="projectId" value={projectId} />
+    </ActionForm>
+  );
+}
+
+export function PublishToSocialForm({
+  projectId,
+  publishToOfficeIds,
+  publishPlatforms,
+  offices,
+}: {
+  projectId: string;
+  publishToOfficeIds: string[];
+  publishPlatforms: string[];
+  offices: readonly Office[];
+}) {
+  const allOffices = publishToOfficeIds.length === 0;
+  const allPlatforms = publishPlatforms.length === 0;
+  return (
+    <ActionForm action={publishPortfolioProjectToSocial} submitLabel="Publish to Social" pendingLabel="Publishing…">
+      <input type="hidden" name="projectId" value={projectId} />
+      <div className={styles.field}>
+        <span className={styles.label}>Publish to</span>
+        <div className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            id="socialAllOffices"
+            defaultChecked={allOffices}
+            onChange={(e) => {
+              const boxes = e.currentTarget.form?.querySelectorAll<HTMLInputElement>('input[name="publishToOfficeIds"]');
+              boxes?.forEach((box) => { box.disabled = e.currentTarget.checked; if (e.currentTarget.checked) box.checked = false; });
+            }}
+          />
+          <label htmlFor="socialAllOffices">All offices</label>
+        </div>
+        {offices.map((office) => (
+          <div key={office.id} className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              id={`social-office-${office.id}`}
+              name="publishToOfficeIds"
+              value={office.id}
+              defaultChecked={publishToOfficeIds.includes(office.id)}
+              disabled={allOffices}
+            />
+            <label htmlFor={`social-office-${office.id}`}>{office.displayName}</label>
+          </div>
+        ))}
+      </div>
+      <div className={styles.field}>
+        <span className={styles.label}>Platforms</span>
+        <div className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            id="socialAllPlatforms"
+            defaultChecked={allPlatforms}
+            onChange={(e) => {
+              const boxes = e.currentTarget.form?.querySelectorAll<HTMLInputElement>('input[name="publishPlatforms"]');
+              boxes?.forEach((box) => { box.disabled = e.currentTarget.checked; if (e.currentTarget.checked) box.checked = false; });
+            }}
+          />
+          <label htmlFor="socialAllPlatforms">All connected platforms</label>
+        </div>
+        {PLATFORM_OPTIONS.map((platform) => (
+          <div key={platform.value} className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              id={`social-platform-${platform.value}`}
+              name="publishPlatforms"
+              value={platform.value}
+              defaultChecked={publishPlatforms.includes(platform.value)}
+              disabled={allPlatforms}
+            />
+            <label htmlFor={`social-platform-${platform.value}`}>{platform.label}</label>
+          </div>
+        ))}
+      </div>
+    </ActionForm>
+  );
+}
+
+export function RetrySocialPostForm({ socialPostId, postId }: { socialPostId: string; postId: string }) {
+  return (
+    <ActionForm action={retrySocialPost} submitLabel="Regenerate / retry" buttonClassName={styles.buttonSecondary} className={styles.buttonRow}>
+      <input type="hidden" name="socialPostId" value={socialPostId} />
+      <input type="hidden" name="postId" value={postId} />
+    </ActionForm>
+  );
+}
+
+export function DeleteSocialPostForm({ socialPostId, postId }: { socialPostId: string; postId: string }) {
+  return (
+    <ActionForm action={deleteSocialPost} submitLabel="Remove" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
+      <input type="hidden" name="socialPostId" value={socialPostId} />
+      <input type="hidden" name="postId" value={postId} />
     </ActionForm>
   );
 }

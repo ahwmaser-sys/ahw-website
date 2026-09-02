@@ -28,7 +28,10 @@ export async function retrySocialPost(_prevState: ActionState, formData: FormDat
     return { error: 'Invalid request.' };
   }
 
-  const socialPost = await prisma.socialPost.findUnique({ where: { id: parsed.data.socialPostId }, include: { newsPost: true } });
+  const socialPost = await prisma.socialPost.findUnique({
+    where: { id: parsed.data.socialPostId },
+    include: { newsPost: true, portfolioProject: true },
+  });
   if (!socialPost) {
     return { error: 'Not found.' };
   }
@@ -39,27 +42,50 @@ export async function retrySocialPost(_prevState: ActionState, formData: FormDat
   }
 
   const siteUrl = await getSiteUrl();
+  // Exactly one of these is set per row (see schema.prisma's own
+  // comment on SocialPost) — this resolves title/excerpt/canonicalUrl/
+  // heroImage from whichever content type actually dispatched this row.
+  const source = socialPost.newsPost
+    ? {
+        title: socialPost.newsPost.title,
+        excerpt: socialPost.newsPost.excerpt,
+        canonicalUrl: `${siteUrl}/insights/news/${socialPost.newsPost.slug}`,
+        featuredImageId: socialPost.newsPost.featuredImageId,
+        adminPath: `/admin/news/${parsed.data.postId}`,
+      }
+    : socialPost.portfolioProject
+      ? {
+          title: socialPost.portfolioProject.title,
+          excerpt: socialPost.portfolioProject.resultStatement || socialPost.portfolioProject.briefDefinitionalSentence || '',
+          canonicalUrl: `${siteUrl}/projects/${socialPost.portfolioProject.slug}`,
+          featuredImageId: socialPost.portfolioProject.heroImageId,
+          adminPath: `/admin/portfolio/${parsed.data.postId}`,
+        }
+      : null;
+  if (!source) {
+    return { error: 'The article or project this post belongs to no longer exists.' };
+  }
+
   let imageUrl: string | undefined;
-  if (socialPost.newsPost.featuredImageId && (await isPubliclyVisible(socialPost.newsPost.featuredImageId))) {
-    imageUrl = `${siteUrl}/api/media/${socialPost.newsPost.featuredImageId}`;
+  if (source.featuredImageId && (await isPubliclyVisible(source.featuredImageId))) {
+    imageUrl = `${siteUrl}/api/media/${source.featuredImageId}`;
     // Same smart-cropped-variant preference as queueSocialPostsForNewsPost
     // (social/dispatch.ts) — retrying used the raw original here, which is
     // what produced the letterboxed Google Business post image.
     const variantPurpose = PLATFORM_VARIANT[adapter.platform];
     const variant = await prisma.mediaAssetVariant.findUnique({
-      where: { assetId_purpose: { assetId: socialPost.newsPost.featuredImageId, purpose: variantPurpose } },
+      where: { assetId_purpose: { assetId: source.featuredImageId, purpose: variantPurpose } },
     });
     if (variant) {
-      imageUrl = `${siteUrl}/api/media/${socialPost.newsPost.featuredImageId}?variant=${variantPurpose}`;
+      imageUrl = `${siteUrl}/api/media/${source.featuredImageId}?variant=${variantPurpose}`;
     }
   }
 
   const content = adapter.formatContent({
-    title: socialPost.newsPost.title,
-    excerpt: socialPost.newsPost.excerpt,
-    slug: socialPost.newsPost.slug,
+    title: source.title,
+    excerpt: source.excerpt,
+    canonicalUrl: source.canonicalUrl,
     imageUrl,
-    siteUrl,
   });
 
   if (!(await adapter.isConfigured(socialPost.officeId))) {
@@ -67,7 +93,7 @@ export async function retrySocialPost(_prevState: ActionState, formData: FormDat
       where: { id: socialPost.id },
       data: { mode: 'MANUAL', status: 'MANUAL', caption: content.caption, errorMessage: null },
     });
-    revalidatePath(`/admin/news/${parsed.data.postId}`);
+    revalidatePath(source.adminPath);
     return { success: 'Package regenerated — no credentials configured, still manual.' };
   }
 
@@ -83,7 +109,7 @@ export async function retrySocialPost(_prevState: ActionState, formData: FormDat
         attemptCount: { increment: 1 },
       },
     });
-    revalidatePath(`/admin/news/${parsed.data.postId}`);
+    revalidatePath(source.adminPath);
     return { success: 'Posted.' };
   } catch (error) {
     await prisma.socialPost.update({
@@ -94,7 +120,7 @@ export async function retrySocialPost(_prevState: ActionState, formData: FormDat
         attemptCount: { increment: 1 },
       },
     });
-    revalidatePath(`/admin/news/${parsed.data.postId}`);
+    revalidatePath(source.adminPath);
     return { error: 'Retry failed — see error on the card.' };
   }
 }
@@ -122,7 +148,7 @@ export async function deleteSocialPost(_prevState: ActionState, formData: FormDa
 
   await prisma.socialPost.delete({ where: { id: socialPost.id } });
   await recordActivity({ actorId: principal.userId, action: 'admin.social_post_deleted', entityType: 'SocialPost', entityId: parsed.data.socialPostId });
-  revalidatePath(`/admin/news/${parsed.data.postId}`);
+  revalidatePath(socialPost.portfolioProjectId ? `/admin/portfolio/${parsed.data.postId}` : `/admin/news/${parsed.data.postId}`);
   return { success: 'Removed.' };
 }
 

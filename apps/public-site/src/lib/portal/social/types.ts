@@ -5,18 +5,20 @@
 export interface SocialPostSource {
   title: string;
   excerpt: string;
-  slug: string;
+  // The full outbound URL adapters link back to — computed by the
+  // caller (dispatch.ts), not built from a bare slug here, since the
+  // caller is the only place that knows which content type this post
+  // came from (a NewsPost links to /insights/news/{slug}, a
+  // PortfolioProject to /projects/{slug}) and therefore which URL shape
+  // applies. Keeps every adapter fully content-type-agnostic — none of
+  // them need to know that a second content type (portfolio projects)
+  // even exists.
+  canonicalUrl: string;
   // Public, unauthenticated URL of the post's featured image, when it has
   // one — resolved by dispatch.ts via the public /api/media/[assetId]
   // route (only ever set when that image is genuinely publicly visible).
   // Image-first platforms (Instagram) require this to publish at all.
   imageUrl?: string | undefined;
-  // The Website Domain (Settings → Brand Kit), resolved once by the
-  // caller (dispatch.ts / actions/social.ts, both already async) — every
-  // adapter's formatContent builds its outbound link from this, never a
-  // hardcoded domain, so changing the domain never requires a code change
-  // here despite formatContent itself staying synchronous.
-  siteUrl: string;
 }
 
 export interface FormattedSocialContent {
@@ -45,8 +47,4 @@ export interface SocialAdapter {
   // Integrations is a config change, never a code change, per the
   // brief's explicit manual-to-auto switching requirement.
   publish(content: FormattedSocialContent, officeId: string): Promise<PublishResult>;
-}
-
-export function canonicalNewsUrl(slug: string, siteUrl: string): string {
-  return `${siteUrl}/insights/news/${slug}`;
 }

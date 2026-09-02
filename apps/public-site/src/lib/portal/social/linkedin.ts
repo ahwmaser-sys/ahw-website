@@ -1,5 +1,4 @@
 import type { SocialAdapter, SocialPostSource, FormattedSocialContent, PublishResult } from './types';
-import { canonicalNewsUrl } from './types';
 import { getIntegrationCredential } from '../integrations/store';
 
 // Posting to a LinkedIn Organization page requires approved partner
@@ -74,11 +73,10 @@ export const linkedinAdapter: SocialAdapter = {
   },
 
   formatContent(post: SocialPostSource): FormattedSocialContent {
-    const link = canonicalNewsUrl(post.slug, post.siteUrl);
     // Professional register, no hashtag stuffing — matches how the
     // brief describes LinkedIn's expected tone versus Instagram's.
     return {
-      caption: `${post.title}\n\n${post.excerpt}\n\n${link}`,
+      caption: `${post.title}\n\n${post.excerpt}\n\n${post.canonicalUrl}`,
       imageUrl: post.imageUrl,
     };
   },

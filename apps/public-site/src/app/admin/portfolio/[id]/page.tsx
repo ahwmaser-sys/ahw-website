@@ -6,6 +6,7 @@ import { prisma } from '../../../../lib/portal/db';
 import { PortalShell } from '../../../../components/portal/PortalShell';
 import { MediaThumbnail } from '../../../../components/portal/MediaThumbnail';
 import { ADMIN_NAV_LINKS } from '../../nav-links';
+import { getAllOffices } from '../../../../lib/portal/offices';
 import {
   EditMetadataForm,
   ImageSlotUploadForm,
@@ -24,10 +25,20 @@ import {
   PublishForm,
   UnpublishForm,
   DeleteForm,
+  PublishToSocialForm,
+  RetrySocialPostForm,
+  DeleteSocialPostForm,
 } from './PortfolioProjectDetailForms';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
+
+const SOCIAL_STATUS_BADGE: Record<string, string> = {
+  POSTED: 'badgeActive',
+  MANUAL: 'badgeWarn',
+  PENDING: 'badgeWarn',
+  FAILED: 'badgeDanger',
+};
 
 const SINGULAR_SLOTS = [
   { slot: 'hero' as const, label: 'Hero image' },
@@ -60,15 +71,19 @@ export default async function AdminPortfolioDetailPage({ params }: { params: Pro
     include: {
       galleryImages: { include: { asset: true }, orderBy: { sortOrder: 'asc' } },
       faqItems: { orderBy: { sortOrder: 'asc' } },
+      socialPosts: { orderBy: [{ platform: 'asc' }, { officeId: 'asc' }], include: { office: { select: { name: true } } } },
     },
   });
   if (!project) notFound();
 
-  const otherProjects = await prisma.portfolioProject.findMany({
-    where: { id: { not: id } },
-    select: { slug: true, title: true },
-    orderBy: { title: 'asc' },
-  });
+  const [otherProjects, offices] = await Promise.all([
+    prisma.portfolioProject.findMany({
+      where: { id: { not: id } },
+      select: { slug: true, title: true },
+      orderBy: { title: 'asc' },
+    }),
+    getAllOffices(),
+  ]);
 
   const imageBySlot: Record<string, { assetId: string | null; url: string | null }> = {
     hero: { assetId: project.heroImageId, url: project.heroImageUrl },
@@ -243,6 +258,49 @@ export default async function AdminPortfolioDetailPage({ params }: { params: Pro
           <DeleteForm projectId={project.id} />
         </div>
       )}
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Publish to Social</h2>
+        <p className={styles.cardMeta}>
+          Announces this project on social — separate from publishing the case-study page itself. Requires a hero image.
+        </p>
+        <PublishToSocialForm
+          projectId={project.id}
+          publishToOfficeIds={project.publishToOfficeIds}
+          publishPlatforms={project.publishPlatforms}
+          offices={offices}
+        />
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Social packages</h2>
+        <p className={styles.cardMeta}>
+          Generated once you click Publish to Social above. Manual mode (the default — no platform credentials are
+          configured) means copy-paste packages, not automatic posting.
+        </p>
+        <div className={styles.cardList}>
+          {project.socialPosts.length === 0 && <p className={styles.cardMeta}>Publish to social to generate packages.</p>}
+          {project.socialPosts.map((sp) => (
+            <div key={sp.id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <strong>{sp.platform} — {sp.office.name}</strong>
+                <span className={`${styles.badge} ${styles[SOCIAL_STATUS_BADGE[sp.status] ?? 'badgeMuted']}`}>{sp.status} · {sp.mode}</span>
+              </div>
+              {sp.caption && <p className={styles.captionText}>{sp.caption}</p>}
+              {sp.permalink && (
+                <a href={sp.permalink} target="_blank" rel="noreferrer" className={styles.cardMeta}>
+                  {sp.permalink}
+                </a>
+              )}
+              {sp.errorMessage && <span className={styles.errorMessage}>{sp.errorMessage}</span>}
+              <div className={styles.buttonRow}>
+                <RetrySocialPostForm socialPostId={sp.id} postId={project.id} />
+                {sp.status !== 'POSTED' && <DeleteSocialPostForm socialPostId={sp.id} postId={project.id} />}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </PortalShell>
   );
 }

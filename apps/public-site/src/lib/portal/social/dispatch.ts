@@ -75,7 +75,12 @@ export async function queueSocialPostsForNewsPost(newsPostId: string): Promise<v
       const variantPurpose = PLATFORM_VARIANT[adapter.platform];
       const platformImageUrl =
         imageUrl && imageVariants.has(variantPurpose) ? `${siteUrl}/api/media/${post.featuredImageId}?variant=${variantPurpose}` : imageUrl;
-      const content = adapter.formatContent({ title: post.title, excerpt: post.excerpt, slug: post.slug, imageUrl: platformImageUrl, siteUrl });
+      const content = adapter.formatContent({
+        title: post.title,
+        excerpt: post.excerpt,
+        canonicalUrl: `${siteUrl}/insights/news/${post.slug}`,
+        imageUrl: platformImageUrl,
+      });
       const configured = await adapter.isConfigured(office.id);
 
       const existing = await prisma.socialPost.findUnique({
@@ -123,6 +128,110 @@ export async function queueSocialPostsForNewsPost(newsPostId: string): Promise<v
         // A social failure must never block or roll back the website
         // publish that already happened — this only updates the
         // SocialPost row's own status for the admin to see and retry.
+        const message = error instanceof Error ? error.message : 'Unknown error.';
+        await prisma.socialPost.update({
+          where: { id: record.id },
+          data: { status: 'FAILED', errorMessage: message },
+        });
+        await recordIntegrationPublish(adapter.platform, office.id, { ok: false, error: message });
+      }
+    }
+  }
+}
+
+// Portfolio-project equivalent of queueSocialPostsForNewsPost above —
+// same office/platform targeting and Auto/Manual/retry mechanics, but
+// NOT wired to the project's own website-publish action. A project
+// going live on /projects and a project being announced on social are
+// deliberately separate decisions here (unlike NewsPost, where
+// publishing the article is itself the trigger) — an admin clicks
+// "Publish to Social" explicitly, which may happen well after (or
+// before) the case-study page itself goes live.
+export async function queueSocialPostsForPortfolioProject(projectId: string): Promise<void> {
+  const project = await prisma.portfolioProject.findUnique({ where: { id: projectId } });
+  if (!project) return;
+
+  const targetOffices =
+    project.publishToOfficeIds.length > 0
+      ? await prisma.office.findMany({ where: { id: { in: project.publishToOfficeIds }, status: 'ACTIVE' } })
+      : await prisma.office.findMany({ where: { status: 'ACTIVE' } });
+  if (targetOffices.length === 0) return;
+
+  const siteUrl = await getSiteUrl();
+  let imageUrl: string | undefined;
+  let imageVariants = new Set<string>();
+  if (project.heroImageId && (await isPubliclyVisible(project.heroImageId))) {
+    imageUrl = `${siteUrl}/api/media/${project.heroImageId}`;
+    const variants = await prisma.mediaAssetVariant.findMany({
+      where: { assetId: project.heroImageId, purpose: { in: Object.values(PLATFORM_VARIANT) } },
+      select: { purpose: true },
+    });
+    imageVariants = new Set(variants.map((v) => v.purpose));
+  }
+
+  const destinations = await prisma.publishingDestination.findMany({ where: { officeId: { in: targetOffices.map((o) => o.id) } } });
+  const disabled = new Set(destinations.filter((d) => !d.isEnabled).map((d) => `${d.officeId}:${d.platform}`));
+
+  const selectedPlatforms = project.publishPlatforms.length > 0 ? new Set(project.publishPlatforms) : null;
+
+  // Same fallback chain the DB-cutover's toLegacyProject() mapper uses
+  // for the public page's own SEO description — a project may have
+  // either field empty, never both by convention (the migrated data
+  // always has resultStatement; briefDefinitionalSentence covers a
+  // freshly created draft that hasn't filled it in yet).
+  const excerpt = project.resultStatement || project.briefDefinitionalSentence || '';
+
+  for (const office of targetOffices) {
+    for (const adapter of socialAdapters) {
+      if (disabled.has(`${office.id}:${adapter.platform}`)) continue;
+      if (selectedPlatforms && !selectedPlatforms.has(adapter.platform)) continue;
+
+      const variantPurpose = PLATFORM_VARIANT[adapter.platform];
+      const platformImageUrl =
+        imageUrl && imageVariants.has(variantPurpose) ? `${siteUrl}/api/media/${project.heroImageId}?variant=${variantPurpose}` : imageUrl;
+      const content = adapter.formatContent({
+        title: project.title,
+        excerpt,
+        canonicalUrl: `${siteUrl}/projects/${project.slug}`,
+        imageUrl: platformImageUrl,
+      });
+      const configured = await adapter.isConfigured(office.id);
+
+      const existing = await prisma.socialPost.findUnique({
+        where: { portfolioProjectId_platform_officeId: { portfolioProjectId: projectId, platform: adapter.platform, officeId: office.id } },
+      });
+
+      if (!configured) {
+        if (existing) {
+          await prisma.socialPost.update({
+            where: { id: existing.id },
+            data: { mode: 'MANUAL', status: 'MANUAL', caption: content.caption },
+          });
+        } else {
+          await prisma.socialPost.create({
+            data: { portfolioProjectId: projectId, platform: adapter.platform, officeId: office.id, mode: 'MANUAL', status: 'MANUAL', caption: content.caption },
+          });
+        }
+        continue;
+      }
+
+      const record = existing
+        ? await prisma.socialPost.update({
+            where: { id: existing.id },
+            data: { mode: 'AUTO', caption: content.caption, attemptCount: { increment: 1 } },
+          })
+        : await prisma.socialPost.create({
+            data: { portfolioProjectId: projectId, platform: adapter.platform, officeId: office.id, mode: 'AUTO', status: 'PENDING', caption: content.caption, attemptCount: 1 },
+          });
+
+      try {
+        const result = await adapter.publish(content, office.id);
+        await prisma.socialPost.update({
+          where: { id: record.id },
+          data: { status: 'POSTED', permalink: result.permalink, postedAt: new Date(), errorMessage: null },
+        });
+        await recordIntegrationPublish(adapter.platform, office.id, { ok: true });
+      } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error.';
         await prisma.socialPost.update({
           where: { id: record.id },

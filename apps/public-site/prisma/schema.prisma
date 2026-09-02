@@ -103,6 +103,7 @@ model User {
   activityLogs       ActivityLog[]
   hiddenSocialPosts  HiddenSocialPost[]
   pinnedSocialPosts  PinnedSocialPost[]
+  linkedSocialPosts  PortfolioSocialPostLink[]
   sessions           Session[]
   passwordResets     PasswordResetToken[]
   emailVerifications EmailVerificationToken[]
@@ -575,8 +576,15 @@ enum SocialPostStatus {
 
 model SocialPost {
   id           String           @id @default(cuid())
-  newsPostId   String
-  newsPost     NewsPost         @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  // Exactly one of newsPostId/portfolioProjectId is set per row — a
+  // dispatch always originates from one or the other, never both, never
+  // neither. Nullable pair (not a polymorphic entityType/entityId string
+  // pair) so each keeps its own real FK/cascade-delete/relation, same
+  // reasoning as PortfolioProject's own *Id/*Url image-slot pairs.
+  newsPostId   String?
+  newsPost     NewsPost?         @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  portfolioProjectId String?
+  portfolioProject   PortfolioProject? @relation(fields: [portfolioProjectId], references: [id], onDelete: Cascade)
   campaignId   String?
   campaign     Campaign?        @relation(fields: [campaignId], references: [id])
   // Which office's connected account this dispatch used — required, not
@@ -605,10 +613,18 @@ model SocialPost {
   gbpCtaType   String?
   gbpCtaUrl    String?
 
+  // Two separate compound-unique constraints rather than one shared
+  // one — Postgres never treats NULL as equal to NULL for uniqueness,
+  // so a NewsPost-sourced row (portfolioProjectId always null) and a
+  // PortfolioProject-sourced row (newsPostId always null) never collide
+  // with each other, while each constraint still correctly enforces
+  // "at most one row per (content, platform, office)" within its own kind.
   @@unique([newsPostId, platform, officeId])
+  @@unique([portfolioProjectId, platform, officeId])
   @@index([status])
   @@index([campaignId])
   @@index([officeId])
+  @@index([portfolioProjectId])
 }
 
 // Admin-controlled visibility for the public /social page (live-feed.ts)
@@ -635,6 +651,25 @@ model PinnedSocialPost {
   pinnedAt DateTime @default(now())
   pinnedById String?
   pinnedBy User?    @relation(fields: [pinnedById], references: [id])
+}
+
+// Same id scheme again — links one specific real, live-pulled post (an
+// Instagram/Facebook/LinkedIn/Google Business post already on the
+// platform, identified the same "PLATFORM:externalId" way as
+// HiddenSocialPost/PinnedSocialPost) to a PortfolioProject, so the
+// public /social page and the project's own page can cross-link. Not
+// the reverse of SocialPost (which tracks a post *this app* pushed
+// out) — this links posts live-fetched from the platforms' own APIs,
+// which may or may not have originated from a SocialPost dispatch.
+model PortfolioSocialPostLink {
+  id         String           @id
+  projectId  String
+  project    PortfolioProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  linkedAt   DateTime         @default(now())
+  linkedById String?
+  linkedBy   User?            @relation(fields: [linkedById], references: [id])
+
+  @@index([projectId])
 }
 
 // ── Marketing Studio: Campaigns ──
@@ -1610,6 +1645,16 @@ model PortfolioProject {
   // never drop it.
   stage String?
 
+  // "Publish to Social" — same shape and "empty means all" convention
+  // as NewsPost.publishToOfficeIds/publishPlatforms, dispatched by
+  // queueSocialPostsForPortfolioProject (social/dispatch.ts) when an
+  // admin clicks Publish to Social on the project's edit page (not
+  // automatic on website-publish, unlike NewsPost — a project going
+  // live on the site and a project being announced on social are
+  // deliberately separate actions here).
+  publishToOfficeIds String[]         @default([])
+  publishPlatforms   SocialPlatform[] @default([])
+
   resultStatement String?
 
   // Singular image slots. Exactly one of each pair is meant to be set
@@ -1632,6 +1677,8 @@ model PortfolioProject {
 
   galleryImages PortfolioProjectImage[]
   faqItems      PortfolioProjectFaqItem[]
+  socialPosts     SocialPost[]
+  socialPostLinks PortfolioSocialPostLink[]
 
   // The Brief
   briefClientProblem        String?
