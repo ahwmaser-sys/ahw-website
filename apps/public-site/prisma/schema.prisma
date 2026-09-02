@@ -1591,7 +1591,12 @@ model PortfolioProject {
   area      String
   year      String
   tier      PortfolioTier
-  services  ServiceLine[]
+  // Free-form, not the 4-value ServiceLine enum (that one's scoped to
+  // MediaAsset's own core-discipline filter) — the real static data
+  // uses 11+ distinct values (Landscape, Furnishing, Renovation,
+  // Construction Supervision, ...), confirmed by surveying every
+  // existing project before writing the migration script.
+  services  String[]
   client    String?
   status    PortfolioProjectStatus @default(DRAFT)
   sortOrder Int                    @default(0)
