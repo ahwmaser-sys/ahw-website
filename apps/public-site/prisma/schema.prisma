@@ -1601,6 +1601,15 @@ model PortfolioProject {
   status    PortfolioProjectStatus @default(DRAFT)
   sortOrder Int                    @default(0)
 
+  // Real-world construction/delivery stage ("Completed", "Design
+  // Phase", "Ongoing", ...) — free text, distinct from `status` above
+  // (this project's admin draft/published state). Confirmed live and
+  // required: lib/homepageAssets.ts's getSelectedWork() reads this for
+  // the homepage "Selected Work" grid, defaulting to "Completed" when
+  // absent — not used on /projects itself, but a real public field,
+  // never drop it.
+  stage String?
+
   resultStatement String?
 
   // Singular image slots. Exactly one of each pair is meant to be set
