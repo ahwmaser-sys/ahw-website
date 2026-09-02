@@ -103,6 +103,7 @@ import { StructuredData, aboutData } from '@agp/ui-components';
 import { getSiteUrl } from '../lib/site-config';
 import { getActiveOfficesForDisplay, officeSocialLinks, getActiveOffices } from '../lib/portal/offices';
 import { getActiveBrandKit } from '../lib/portal/brand-kit';
+import { getPortfolioNavData } from '../lib/portfolio';
 
 // No SearchAction here on purpose: the site has no site-wide search page to
 // point it at (only section-scoped ?q= search inside /insights/news and
@@ -115,11 +116,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [siteUrl, kit, prismaOffices, offices] = await Promise.all([
+  const [siteUrl, kit, prismaOffices, offices, portfolioNav] = await Promise.all([
     getSiteUrl(),
     getActiveBrandKit(),
     getActiveOffices(),
     getActiveOfficesForDisplay(),
+    getPortfolioNavData(),
   ]);
   const legalName = (kit.companyInfo as { legalName?: string } | null)?.legalName ?? 'AHW Architects';
   const footerSettings = kit.footerSettings as { copyrightText?: string } | null;
@@ -219,7 +221,7 @@ export default async function RootLayout({
         <a href="#main-content" className="skipLink">Skip to content</a>
         <StructuredData data={organizationJsonLd} />
         <StructuredData data={websiteJsonLd} />
-        <NavigationHeader />
+        <NavigationHeader portfolioNav={portfolioNav} />
         <div id="app-root">
           <div id="main-content">{children}</div>
         </div>

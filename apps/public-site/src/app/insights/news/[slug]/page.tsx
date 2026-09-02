@@ -2,10 +2,11 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { projects, publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, PublicationCard, SocialShare, ScrollReveal } from '@agp/ui-components';
+import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, PublicationCard, SocialShare, ScrollReveal } from '@agp/ui-components';
 import { getPublicNewsItems } from '../../../../lib/portal/public-news';
 import { recordPageView } from '../../../../lib/portal/analytics/track';
 import { getSiteUrl } from '../../../../lib/site-config';
+import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
 import { renderArticleBody, parseTiptapDoc, renderDocBody } from '../../../../components/article/ArticleBodyRenderer';
 import styles from './page.module.css';
 
@@ -84,9 +85,10 @@ export default async function NewsDetailPage({ params }: Props) {
   ];
 
   // Resolve related content
+  const portfolioProjects = await getPublicPortfolioProjects();
   const relatedProjects = (news.relatedProjectSlugs ?? [])
-    .map((slug) => projects.find((p) => p.slug === slug))
-    .filter((p): p is typeof projects[number] => Boolean(p));
+    .map((slug) => portfolioProjects.find((p) => p.slug === slug))
+    .filter((p): p is typeof portfolioProjects[number] => Boolean(p));
 
   const relatedPublication = news.relatedPublicationId
     ? publications.find(p => p.id === news.relatedPublicationId)

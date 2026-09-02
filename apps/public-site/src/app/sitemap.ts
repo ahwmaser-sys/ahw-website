@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
-import { projects, publications } from '@agp/ui-components';
+import { publications } from '@agp/ui-components';
 import { getPublicNewsItems } from '../lib/portal/public-news';
 import { getActiveOffices } from '../lib/portal/offices';
+import { getPublicPortfolioProjects } from '../lib/portfolio';
 import { getSiteUrl } from '../lib/site-config';
 import { prisma } from '../lib/portal/db';
 
@@ -11,7 +12,12 @@ import { prisma } from '../lib/portal/db';
 export const revalidate = 30;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [newsItems, offices, baseUrl] = await Promise.all([getPublicNewsItems(), getActiveOffices(), getSiteUrl()]);
+  const [newsItems, offices, baseUrl, projects] = await Promise.all([
+    getPublicNewsItems(),
+    getActiveOffices(),
+    getSiteUrl(),
+    getPublicPortfolioProjects(),
+  ]);
 
   // Static marketing pages have no tracked modification date anywhere in
   // the codebase (they're hardcoded components, not DB rows) — omitting
@@ -38,7 +44,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/about/why-ahw`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/about/careers`, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/capability-statement`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/faq`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/privacy-policy`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${baseUrl}/terms-of-service`, changeFrequency: 'yearly', priority: 0.3 },
@@ -57,9 +62,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Static project data (packages/ui-components/data/projects.ts) has no
-  // tracked per-project modification date either — same reasoning as
-  // staticRoutes above.
+  // Projects now come from PortfolioProject (via lib/portfolio.ts) —
+  // real DB rows do carry a genuine updatedAt, but the shared legacy
+  // Project shape this maps into (kept identical to the old static
+  // projects.ts type, for every other consumer's sake) doesn't expose
+  // it, so this keeps the same no-lastModified behavior as before.
   const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
     url: `${baseUrl}/projects/${project.slug}`,
     changeFrequency: 'monthly',

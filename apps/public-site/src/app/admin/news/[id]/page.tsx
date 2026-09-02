@@ -9,6 +9,7 @@ import { SocialPreview } from '../../../../components/portal/SocialPreview';
 import { ArticlePreview } from '../../../../components/portal/ArticlePreview';
 import { ADMIN_NAV_LINKS } from '../../nav-links';
 import { getAllOffices } from '../../../../lib/portal/offices';
+import { getPortfolioProjectOptions } from '../../../../lib/portfolio';
 import { getSiteUrl } from '../../../../lib/site-config';
 import {
   EditNewsForm,
@@ -57,11 +58,12 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
 
   if (!post) notFound();
 
-  const [imageAssets, categories, campaigns, offices] = await Promise.all([
+  const [imageAssets, categories, campaigns, offices, projectOptions] = await Promise.all([
     prisma.mediaAsset.findMany({ where: { kind: 'IMAGE' }, select: { id: true, fileName: true }, orderBy: { createdAt: 'desc' }, take: 100 }),
     prisma.category.findMany({ orderBy: { name: 'asc' } }),
     prisma.campaign.findMany({ select: { id: true, name: true }, orderBy: { createdAt: 'desc' } }),
     getAllOffices(),
+    getPortfolioProjectOptions(),
   ]);
 
   // Same variants the public page already resolves for this article
@@ -138,7 +140,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Content</h2>
-        <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} publishPlatforms={post.publishPlatforms} relatedProjectSlug={post.relatedProjectSlug} offices={offices} galleryOptions={galleryOptions} />
+        <EditNewsForm postId={post.id} title={post.title} excerpt={post.excerpt} body={post.body} publishToOfficeIds={post.publishToOfficeIds} publishPlatforms={post.publishPlatforms} relatedProjectSlug={post.relatedProjectSlug} offices={offices} galleryOptions={galleryOptions} projectOptions={projectOptions} />
       </div>
 
       <div className={styles.section}>

@@ -21,7 +21,6 @@ import { ActionForm } from '../../../../components/portal/ActionForm';
 import { ArticleBodyEditor, type GalleryOption } from './ArticleBodyEditor';
 import styles from '../../../../components/portal/portal-ui.module.css';
 import type { Office } from '@prisma/client';
-import { projects } from '@agp/ui-components';
 
 const PLATFORM_OPTIONS: { value: string; label: string }[] = [
   { value: 'LINKEDIN', label: 'LinkedIn' },
@@ -40,6 +39,7 @@ export function EditNewsForm({
   relatedProjectSlug,
   offices,
   galleryOptions,
+  projectOptions,
 }: {
   postId: string;
   title: string;
@@ -50,10 +50,15 @@ export function EditNewsForm({
   relatedProjectSlug: string | null;
   offices: readonly Office[];
   galleryOptions: GalleryOption[];
+  // Every portfolio project regardless of publish status — an editor
+  // linking an in-progress draft to a news article is a normal
+  // workflow, same convention the old static-array picker had (see
+  // lib/portfolio.ts's getPortfolioProjectOptions).
+  projectOptions: { slug: string; title: string }[];
 }) {
   const allOffices = publishToOfficeIds.length === 0;
   const allPlatforms = publishPlatforms.length === 0;
-  const sortedProjects = [...projects].sort((a, b) => a.title.localeCompare(b.title));
+  const sortedProjects = [...projectOptions].sort((a, b) => a.title.localeCompare(b.title));
   return (
     <ActionForm action={updateNewsPost} submitLabel="Save changes">
       <input type="hidden" name="postId" value={postId} />

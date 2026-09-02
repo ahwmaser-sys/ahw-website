@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { projects } from '@agp/ui-components';
+import { getPublicPortfolioProjects } from './portfolio';
 
 /**
  * Loads homepage imagery from apps/public-site/public/homepage-assets/ at
@@ -62,7 +62,7 @@ export interface SelectedWorkItem {
  * A subfolder whose name doesn't match any real project slug is skipped
  * silently rather than breaking the homepage.
  */
-export function getSelectedWork(): SelectedWorkItem[] {
+export async function getSelectedWork(): Promise<SelectedWorkItem[]> {
   const selectedWorkDir = path.join(ASSETS_ROOT, 'selected-work');
   if (!fs.existsSync(selectedWorkDir)) return [];
 
@@ -72,6 +72,7 @@ export function getSelectedWork(): SelectedWorkItem[] {
     .map((entry) => entry.name)
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
+  const projects = await getPublicPortfolioProjects();
   const items: SelectedWorkItem[] = [];
   for (const folderName of folderNames) {
     const slug = folderName.replace(/^\d+-/, '');

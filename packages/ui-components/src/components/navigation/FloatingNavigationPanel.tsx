@@ -2,61 +2,50 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from './FloatingNavigationPanel.module.css';
-import { projects } from '../../data/projects';
 import { isCommercialSector } from '../../data/sectorTaxonomy';
+import type { ProjectSector } from '../../data/projects';
+
+export interface PortfolioNavData {
+  sectorsInUse: string[];
+  marketsInUse: string[];
+  featuredProjects: { title: string; slug: string }[];
+}
 
 interface FloatingNavigationPanelProps {
   id?: string;
   isOpen: boolean;
   onHoverSection?: (sectionLabel: string | null) => void;
+  // This package has no DB access of its own — the caller (apps/
+  // public-site's root layout) fetches this from the real portfolio
+  // data (lib/portfolio.ts's getPortfolioNavData) and passes it down.
+  // Derived from live project data, not hardcoded — a sector/market
+  // with zero matching projects structurally cannot appear here, and a
+  // new sector shows up in the nav automatically.
+  portfolioNav: PortfolioNavData;
 }
 
-// Derived from the live project data, not hardcoded — a sector/market with
-// zero matching projects structurally cannot appear here, and a new sector
-// added to the data shows up in the nav automatically.
-const sectorsInUse = Array.from(new Set(projects.map((p) => p.sector))).sort();
-const marketsInUse = Array.from(new Set(projects.map((p) => p.market))).sort();
+interface NavGroup {
+  groupLabel: string;
+  items: { label: string; path: string; child?: boolean }[];
+}
 
-// "Featured" is the project data's own explicit tier flag (never array
-// order or recency) — every project already carries an editorial
-// Flagship/Standard call, so this reuses that signal instead of inventing
-// a second one.
-const featuredProjects = projects.filter((p) => p.tier === 'Flagship');
+// subitems and groups are two different rendering modes (a flat list vs.
+// grouped-with-headings), never both on the same entry — explicitly
+// optional on one shared shape (rather than a strict per-entry union) so
+// the render code below can access either uniformly across every entry,
+// whether it came from STATIC_NAV_SECTIONS or the Projects entry built
+// from portfolioNav.
+interface NavItem {
+  label: string;
+  path: string;
+  subitems?: { label: string; path: string }[];
+  groups?: NavGroup[];
+}
 
-const navData = [
-  {
-    label: 'Projects',
-    path: '/projects',
-    groups: [
-      {
-        groupLabel: 'Featured',
-        items: featuredProjects.map((p) => ({ label: p.title, path: `/projects/${p.slug}` })),
-      },
-      {
-        // Two-level: Residential stays flat; Retail/Workplace/Hospitality
-        // nest under a Commercial parent (see data/sectorTaxonomy.ts) —
-        // derived from live data, so a sector with zero projects still
-        // can't appear, and the grouping tracks whatever's actually in
-        // projects.ts rather than a hardcoded list.
-        groupLabel: 'Sector',
-        items: [
-          { label: 'All', path: '/projects?sector=all' },
-          ...sectorsInUse.filter((s) => !isCommercialSector(s)).map((s) => ({ label: s, path: `/projects?sector=${s.toLowerCase()}` })),
-          ...(sectorsInUse.some(isCommercialSector) ? [
-            { label: 'Commercial', path: '/projects?sector=commercial' },
-            ...sectorsInUse.filter(isCommercialSector).map((s) => ({ label: s, path: `/projects?sector=${s.toLowerCase()}`, child: true })),
-          ] : []),
-        ]
-      },
-      {
-        groupLabel: 'Market',
-        items: [
-          { label: 'All', path: '/projects?market=all' },
-          ...marketsInUse.map((m) => ({ label: m, path: `/projects?market=${m.toLowerCase()}` })),
-        ]
-      }
-    ],
-  },
+// Static — Expertise/Insights/About/Contact never depend on project
+// data, only the "Projects" entry (built inside the component below,
+// from the portfolioNav prop) does.
+const STATIC_NAV_SECTIONS: NavItem[] = [
   {
     label: 'Expertise',
     path: '/expertise',
@@ -102,7 +91,8 @@ const slugify = (label: string) => label.toLowerCase().replace(/[^a-z0-9]+/g, '-
 export const FloatingNavigationPanel: React.FC<FloatingNavigationPanelProps> = ({
   id,
   isOpen,
-  onHoverSection
+  onHoverSection,
+  portfolioNav,
 }) => {
   // The one accordion state for the whole panel — identical on every
   // breakpoint. At most one top-level section is expanded at a time;
@@ -112,6 +102,45 @@ export const FloatingNavigationPanel: React.FC<FloatingNavigationPanelProps> = (
   // click, but it's the same state machine touch users drive by tapping
   // the disclosure button — not a separate desktop-only mechanism.
   const [openSection, setOpenSection] = useState<string | null>(null);
+
+  const { sectorsInUse, marketsInUse, featuredProjects } = portfolioNav;
+
+  const navData: NavItem[] = [
+    {
+      label: 'Projects',
+      path: '/projects',
+      groups: [
+        {
+          groupLabel: 'Featured',
+          items: featuredProjects.map((p) => ({ label: p.title, path: `/projects/${p.slug}` })),
+        },
+        {
+          // Two-level: Residential stays flat; Retail/Workplace/Hospitality
+          // nest under a Commercial parent (see data/sectorTaxonomy.ts) —
+          // derived from live data, so a sector with zero projects still
+          // can't appear, and the grouping tracks whatever's actually
+          // published rather than a hardcoded list.
+          groupLabel: 'Sector',
+          items: [
+            { label: 'All', path: '/projects?sector=all' },
+            ...sectorsInUse.filter((s) => !isCommercialSector(s as ProjectSector)).map((s) => ({ label: s, path: `/projects?sector=${s.toLowerCase()}` })),
+            ...(sectorsInUse.some((s) => isCommercialSector(s as ProjectSector)) ? [
+              { label: 'Commercial', path: '/projects?sector=commercial' },
+              ...sectorsInUse.filter((s) => isCommercialSector(s as ProjectSector)).map((s) => ({ label: s, path: `/projects?sector=${s.toLowerCase()}`, child: true })),
+            ] : []),
+          ]
+        },
+        {
+          groupLabel: 'Market',
+          items: [
+            { label: 'All', path: '/projects?market=all' },
+            ...marketsInUse.map((m) => ({ label: m, path: `/projects?market=${m.toLowerCase()}` })),
+          ]
+        }
+      ],
+    },
+    ...STATIC_NAV_SECTIONS,
+  ];
 
   // Always start collapsed the next time the panel opens, rather than
   // re-showing whatever was expanded when it was last closed.

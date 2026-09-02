@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  projects,
-  sortByDisplayOrder,
   faqItems,
   StructuredData,
   Breadcrumbs,
@@ -11,6 +9,7 @@ import {
 } from '@agp/ui-components';
 import { getSiteUrl } from '../../lib/site-config';
 import { getPublicResidentialExperience, type PublicResidentialExperienceEntry } from '../../lib/portal/residential-experience';
+import { getPublicPortfolioProjects } from '../../lib/portfolio';
 import styles from './page.module.css';
 
 const breadcrumbs = [
@@ -66,7 +65,10 @@ export default async function ResidentialPage() {
   const siteUrl = await getSiteUrl();
   const pageUrl = `${siteUrl}/residential`;
 
-  const residentialProjects = sortByDisplayOrder(projects.filter((p) => p.sector === 'Residential')).slice(0, 6);
+  const projects = await getPublicPortfolioProjects();
+  // Already in explicit, curated order (PortfolioProject.sortOrder) —
+  // see /projects/page.tsx's own comment.
+  const residentialProjects = projects.filter((p) => p.sector === 'Residential').slice(0, 6);
   const residentialExperience = await getPublicResidentialExperience();
   const experienceGroups = groupByRegion(residentialExperience);
   const residentialFaq = RESIDENTIAL_FAQ_IDS.map((id) => faqItems.find((f) => f.id === id)).filter((f): f is NonNullable<typeof f> => Boolean(f));

@@ -7,14 +7,21 @@ import styles from './Header.module.css';
 import { MenuTrigger } from './MenuTrigger';
 import { AppearanceToggle } from './AppearanceToggle';
 import { FloatingNavigationPanel } from './FloatingNavigationPanel';
+import type { PortfolioNavData } from './FloatingNavigationPanel';
+// Re-exported so consumers of the package barrel (index.ts does
+// `export * from './components/navigation/Header'`) can import this
+// type from '@agp/ui-components' directly, same as they import Header
+// itself.
+export type { PortfolioNavData };
 
 export interface HeaderProps {
   currentPath?: string;
+  portfolioNav: PortfolioNavData;
 }
 
 const NAV_PANEL_ID = 'primary-navigation-panel';
 
-export const Header: React.FC<HeaderProps> = ({ currentPath = '/' }) => {
+export const Header: React.FC<HeaderProps> = ({ currentPath = '/', portfolioNav }) => {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -180,6 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath = '/' }) => {
               id={NAV_PANEL_ID}
               isOpen={isMenuOpen}
               onHoverSection={setHoveredSection}
+              portfolioNav={portfolioNav}
             />
           </div>
         </nav>

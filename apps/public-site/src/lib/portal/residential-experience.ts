@@ -1,6 +1,7 @@
 import { cache } from 'react';
-import { projects, residentialExperience as staticFallback } from '@agp/ui-components';
+import { residentialExperience as staticFallback } from '@agp/ui-components';
 import { prisma } from './db';
+import { getPublishedPortfolioSlugs } from '../portfolio';
 import type { ResidentialExperience } from '@prisma/client';
 
 export async function listResidentialExperience() {
@@ -59,7 +60,7 @@ export const getPublicResidentialExperience = cache(async (): Promise<PublicResi
       },
       orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
     });
-    const validProjectSlugs = new Set(projects.map((p) => p.slug));
+    const validProjectSlugs = await getPublishedPortfolioSlugs();
     return rows.map((row) => toPublicShape(row, validProjectSlugs));
   } catch (error) {
     // Never render a blank section on a transient DB failure — fall back

@@ -2,11 +2,12 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { projects, publications, newsItems, NativeReveal, StructuredData, HeroSlider, buildWhatsAppLink, Breadcrumbs, buildBreadcrumbJsonLd, isCommercialSector, sortByDisplayOrder } from '@agp/ui-components';
+import { publications, newsItems, NativeReveal, StructuredData, HeroSlider, buildWhatsAppLink, Breadcrumbs, buildBreadcrumbJsonLd, isCommercialSector } from '@agp/ui-components';
 import ProjectFilterBar from '../../../components/ProjectFilterBar';
 import { recordPageView } from '../../../lib/portal/analytics/track';
 import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
+import { getPublicPortfolioProjects, getPublicPortfolioProjectBySlug, getPortfolioNavData } from '../../../lib/portfolio';
 import styles from './page.module.css';
 
 // Maps a project's own, already-authored services[] entry (projects.ts)
@@ -53,24 +54,34 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const projects = await getPublicPortfolioProjects();
   return projects.map((p) => ({
     slug: p.slug,
   }));
 }
 
-// All valid slugs are already enumerated above — projects.ts is static,
-// build-time data, not a CMS/database that could gain a new valid slug
-// between builds. Rejecting anything else at the routing layer (rather
-// than the default dynamicParams=true, which renders on-demand and only
-// then calls notFound()) is both more correct and sidesteps a real
-// Next.js issue where a route with a Suspense boundary in its render
-// path streams a 200 before an in-page notFound() can flip the status.
-export const dynamicParams = false;
+// Projects now come from the DB (via the admin at /admin/portfolio),
+// which can gain a new published slug between deploys — unlike the old
+// static projects.ts, dynamicParams must stay true so a newly-published
+// project is reachable without a rebuild. generateStaticParams above
+// still pre-warms every known-at-build-time slug; this only matters for
+// ones created after that. revalidate keeps every page's DB-backed
+// content fresh on a schedule; admin publish/update actions also call
+// revalidatePath directly, so in practice edits go live immediately and
+// this is a fallback, not the primary freshness mechanism. A previous
+// version of this page relied on dynamicParams=false specifically to
+// dodge a real Next.js issue (a Suspense boundary streaming a 200
+// before an in-page notFound() can flip the status) — this page's
+// render tree has no Suspense boundary, so that risk doesn't apply
+// here; verify with a live HTTP status check on a genuinely unknown
+// slug after deploying this change.
+export const dynamicParams = true;
+export const revalidate = 1800;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const project = projects.find((p) => p.slug === resolvedParams.slug);
+  const project = await getPublicPortfolioProjectBySlug(resolvedParams.slug);
   if (!project) return { title: 'Project Not Found' };
 
   const seo = project.caseStudy?.narrative?.seo;
@@ -318,18 +329,23 @@ function ImageMoments({
 
 export default async function ProjectCaseStudyPage({ params }: Props) {
   const resolvedParams = await params;
-  const project = projects.find((p) => p.slug === resolvedParams.slug);
+  const project = await getPublicPortfolioProjectBySlug(resolvedParams.slug);
 
   if (!project) notFound();
 
   // Content-performance tracking (Marketing Studio analytics) —
-  // entityId is the static portfolio project's slug, not a Prisma
-  // Project.id: this is the public marketing catalog from
-  // packages/ui-components, a distinct concept from the Client Portal's
-  // database-backed Project model. Fire-and-forget, never blocks render.
+  // entityId is the portfolio project's slug, not its DB id, and
+  // distinct from the Client Portal's own Project model (unrelated
+  // entity, see actions/portfolio.ts's own comment on the naming
+  // collision). Fire-and-forget, never blocks render.
   recordPageView({ path: `/projects/${project.slug}`, entityType: 'Project', entityId: project.slug });
 
-  const [offices, siteUrl] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl()]);
+  const [offices, siteUrl, orderedProjects, portfolioNav] = await Promise.all([
+    getActiveOfficesForDisplay(),
+    getSiteUrl(),
+    getPublicPortfolioProjects(),
+    getPortfolioNavData(),
+  ]);
   const msg = `Hi AHW Architects, I'd like to discuss a project like "${project.title}".`;
   // One WhatsApp CTA per office that has a number — however many offices
   // exist, not a fixed Egypt/Kuwait pair.
@@ -337,9 +353,8 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
     .filter((o) => o.contact.whatsapp)
     .map((o) => ({ id: o.id, displayName: o.displayName, href: buildWhatsAppLink(o.contact.whatsapp!, msg) }));
 
-  // Navigation — walks the same explicit, curated order as the Projects
-  // index (data/projectOrder.ts), not raw array position in projects.ts.
-  const orderedProjects = sortByDisplayOrder(projects);
+  // Already in the curated order (PortfolioProject.sortOrder) — see
+  // /projects/page.tsx's own comment.
   const orderedIndex = orderedProjects.findIndex((p) => p.slug === project.slug);
   const prevProject = orderedIndex > 0 ? orderedProjects[orderedIndex - 1] : null;
   const nextProject = orderedIndex < orderedProjects.length - 1 ? orderedProjects[orderedIndex + 1] : null;
@@ -388,7 +403,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
       <main className={styles.main}>
       <StructuredData data={jsonLd} />
       <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
-      <ProjectFilterBar resultCount={projects.length} />
+      <ProjectFilterBar resultCount={orderedProjects.length} sectorsInUse={portfolioNav.sectorsInUse} marketsInUse={portfolioNav.marketsInUse} />
         <div className={styles.datum} />
 
         {/* Hero */}
@@ -449,7 +464,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
       <StructuredData data={buildBreadcrumbJsonLd(breadcrumbs, siteUrl)} />
-      <ProjectFilterBar resultCount={projects.length} />
+      <ProjectFilterBar resultCount={orderedProjects.length} sectorsInUse={portfolioNav.sectorsInUse} marketsInUse={portfolioNav.marketsInUse} />
       <div className={styles.datum} />
 
       {/* ── 1. HERO ── */}
@@ -706,7 +721,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
         <h2 className={styles.relatedHeader}>Continue Exploring</h2>
         <div className={styles.relatedGrid}>
           {cs.relatedProjects.map(slug => {
-            const rel = projects.find(p => p.slug === slug);
+            const rel = orderedProjects.find(p => p.slug === slug);
             if (!rel) return null;
             return (
               <Link key={slug} href={`/projects/${rel.slug}`} className={styles.relatedItem}>

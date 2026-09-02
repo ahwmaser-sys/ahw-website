@@ -1,7 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 
 const { prismaMock } = vi.hoisted(() => ({
-  prismaMock: { residentialExperience: { findMany: vi.fn() } },
+  prismaMock: {
+    residentialExperience: { findMany: vi.fn() },
+    // getPublicResidentialExperience validates linkedProjectSlug against
+    // real published portfolio projects (lib/portfolio.ts's
+    // getPublishedPortfolioSlugs) — stubbed here so that check has
+    // something real to match against instead of throwing (which would
+    // silently divert every test into the static-fallback branch).
+    portfolioProject: { findMany: vi.fn().mockResolvedValue([{ slug: 'khiran-chalet-kuwait' }]) },
+  },
 }));
 vi.mock('./db', () => ({ prisma: prismaMock }));
 

@@ -30,8 +30,13 @@ export const revalidate = 30;
 export default async function HomePage() {
   const heroImages = getRotationImages('hero');
   const precisionImages = getRotationImages('precision');
-  const selectedWork = getSelectedWork();
-  const [offices, siteUrl, egyptOffice, brandKit] = await Promise.all([getActiveOfficesForDisplay(), getSiteUrl(), getOfficeBySlug('egypt'), getActiveBrandKit()]);
+  const [selectedWork, offices, siteUrl, egyptOffice, brandKit] = await Promise.all([
+    getSelectedWork(),
+    getActiveOfficesForDisplay(),
+    getSiteUrl(),
+    getOfficeBySlug('egypt'),
+    getActiveBrandKit(),
+  ]);
   const { yearsOfExperience, totalProjects, globalOffices } = getCompanyInfo(brandKit);
 
   // Client Reviews is Egypt-scoped (see build brief) — reads only from

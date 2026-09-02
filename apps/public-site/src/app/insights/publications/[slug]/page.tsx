@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { publications, projects, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare } from '@agp/ui-components';
+import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare } from '@agp/ui-components';
 import { getSiteUrl } from '../../../../lib/site-config';
+import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
 import styles from './page.module.css';
 
 interface Props {
@@ -82,9 +83,10 @@ export default async function PublicationDetailPage({ params }: Props) {
   ];
 
   // Resolve related projects
+  const portfolioProjects = await getPublicPortfolioProjects();
   const relatedProjects = (pub.relatedProjectSlugs ?? [])
-    .map((slug) => projects.find((p) => p.slug === slug))
-    .filter((p): p is typeof projects[number] => Boolean(p));
+    .map((slug) => portfolioProjects.find((p) => p.slug === slug))
+    .filter((p): p is typeof portfolioProjects[number] => Boolean(p));
 
   return (
     <main className={styles.main}>

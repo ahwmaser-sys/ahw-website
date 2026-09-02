@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { projects, NativeReveal, HeroSlider, Breadcrumbs, StructuredData, buildBreadcrumbJsonLd, isCommercialSector, sortByDisplayOrder } from '@agp/ui-components';
+import { NativeReveal, HeroSlider, Breadcrumbs, StructuredData, buildBreadcrumbJsonLd, isCommercialSector } from '@agp/ui-components';
 import type { Project } from '@agp/ui-components';
 import ProjectFilterBar from '../../components/ProjectFilterBar';
+import { getPublicPortfolioProjects, getPortfolioNavData } from '../../lib/portfolio';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
 
@@ -109,7 +110,12 @@ export default async function ProjectsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const [resolvedParams, siteUrl] = await Promise.all([searchParams, getSiteUrl()]);
+  const [resolvedParams, siteUrl, projects, portfolioNav] = await Promise.all([
+    searchParams,
+    getSiteUrl(),
+    getPublicPortfolioProjects(),
+    getPortfolioNavData(),
+  ]);
   const activeSector = (resolvedParams.sector as string) || 'All';
   const activeMarket = (resolvedParams.market as string) || 'All';
 
@@ -124,10 +130,11 @@ export default async function ProjectsPage({
     return matchSector && matchMarket;
   });
 
-  // Explicit, curated order (Flagship first, then alphabetical within
-  // tier) — never the incidental order projects.ts happens to declare
-  // them in. See data/projectOrder.ts.
-  const orderedProjects = sortByDisplayOrder(filteredProjects);
+  // Already in explicit, curated order (Flagship first, then
+  // alphabetical within tier) — that's PortfolioProject.sortOrder,
+  // persisted from the same curated logic data/projectOrder.ts used to
+  // apply at render time.
+  const orderedProjects = filteredProjects;
 
   // Calculate metrics
   const totalProjects = projects.length;
@@ -197,10 +204,12 @@ export default async function ProjectsPage({
       </section>
 
       {/* Zone C — Filter Bar */}
-      <ProjectFilterBar 
-        activeSector={activeSector} 
-        activeMarket={activeMarket} 
-        resultCount={filteredProjects.length} 
+      <ProjectFilterBar
+        activeSector={activeSector}
+        activeMarket={activeMarket}
+        resultCount={filteredProjects.length}
+        sectorsInUse={portfolioNav.sectorsInUse}
+        marketsInUse={portfolioNav.marketsInUse}
       />
 
       {/* Zone D — Projects Index (The Ledger) */}
