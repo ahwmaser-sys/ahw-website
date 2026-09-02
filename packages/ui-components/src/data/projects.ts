@@ -1945,6 +1945,5 @@ export const principalExperience: PrincipalExperienceEntry[] = [
       detail04: '/ahw-projects-assets/principal-portfolio/sultan-center-al-kout-personal/principal-portfolio-interior-detail-160-hu0t.jpg',
     },
     description: 'A 2,000 m² hypermarket fit-out in Fahaheel — the kind of project where retail design and operational logistics have to work as one system, from refrigerated aisles to peak-hour circulation. Mahmoud Al Wardany led execution and fit-out delivery here during his tenure at a previous firm, prior to founding AHW Architects.\n\nThe relationship built on this project carried forward: Sultan Center later entrusted AHW Architects with the renovation and remodelling of its 4,500 m² Hawally branch — one of the firm\'s flagship projects today.',
-    clientTestimonial: undefined
   }
 ];
