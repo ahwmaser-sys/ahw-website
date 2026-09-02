@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
-import { Breadcrumbs, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
+import Link from 'next/link';
+import { Breadcrumbs, ScrollReveal, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getLiveSocialFeed, type LiveSocialPost } from '../../lib/portal/social/live-feed';
 import { getActiveOffices, officeSocialLinks } from '../../lib/portal/offices';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
+
+// Every Nth real post in the grid is replaced by a CTA tile instead of
+// inserted alongside — someone who's scrolled this deep is already
+// engaged with real, current work, which is the moment a "start your
+// project" ask actually lands instead of reading as a banner to scroll
+// past.
+const CTA_EVERY = 6;
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -64,6 +72,34 @@ function PostLink({ post, children, className }: { post: LiveSocialPost; childre
   );
 }
 
+function SpotlightCard({ post, eyebrow }: { post: LiveSocialPost; eyebrow?: string }) {
+  const date = formatDate(post.postedAt);
+  return (
+    <PostLink post={post} className={styles.spotlightCard}>
+      <div className={styles.spotlightImageWrapper}>
+        <Image src={post.imageUrl!} alt="" fill sizes="(min-width: 900px) 45vw, 100vw" priority className={styles.image} />
+      </div>
+      <div className={styles.spotlightBody}>
+        {eyebrow && <span className={styles.spotlightEyebrow}>{eyebrow}</span>}
+        <PostMeta post={post} />
+        {post.caption && <p className={styles.spotlightCaption}>{post.caption}</p>}
+        {date && <time className={styles.date}>{date}</time>}
+      </div>
+    </PostLink>
+  );
+}
+
+function CtaTile() {
+  return (
+    <Link href="/contact" className={styles.ctaCard}>
+      <span className={styles.ctaEyebrow}>AHW Architects</span>
+      <span className={styles.ctaTitle}>Have a project in mind?</span>
+      <p className={styles.ctaText}>From concept to completion — let&rsquo;s talk about what you&rsquo;re building.</p>
+      <span className={styles.ctaButton}>Start Your Project →</span>
+    </Link>
+  );
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = await getSiteUrl();
   return {
@@ -84,14 +120,42 @@ export default async function SocialPage() {
   // social.ts's hideSocialFeedPost) — real posts stay on the platform
   // itself, this just keeps them off this public page.
   const posts = allPosts.filter((post) => !post.hidden);
-  // getLiveSocialFeed already returns newest-first, so the most recent
-  // post gets the large featured treatment; only image-bearing posts
-  // are eligible (a text-only feature card has nothing to anchor the
-  // large half of the layout), falling back to the plain grid otherwise.
-  // A pinned post (see Admin → Marketing → Social Feed) takes the slot
-  // ahead of whatever's merely newest.
-  const featured = posts.find((post) => post.pinned && post.imageUrl) ?? posts.find((post) => post.imageUrl);
-  const rest = posts.filter((post) => post.id !== featured?.id);
+  // getLiveSocialFeed already returns newest-first. Only image-bearing
+  // posts are eligible for a spotlight slot (a text-only card has
+  // nothing to anchor the large treatment). A pinned post (see Admin →
+  // Marketing → Social Feed) always gets its own spotlight — distinct
+  // from "Latest" rather than merely replacing it — unless it happens
+  // to already be the newest post, in which case one spotlight card
+  // covers both and there's nothing to duplicate.
+  const latestPost = posts.find((post) => post.imageUrl);
+  const pinnedPost = posts.find((post) => post.pinned && post.imageUrl);
+  const showTwoSpotlights = Boolean(pinnedPost && latestPost && pinnedPost.id !== latestPost.id);
+  const spotlightIds = new Set(
+    [latestPost?.id, showTwoSpotlights ? pinnedPost?.id : undefined].filter((id): id is string => Boolean(id)),
+  );
+  const rest = posts.filter((post) => !spotlightIds.has(post.id));
+
+  const gridItems: ReactNode[] = [];
+  rest.forEach((post, index) => {
+    const date = formatDate(post.postedAt);
+    gridItems.push(
+      <PostLink key={post.id} post={post} className={styles.card}>
+        {post.imageUrl && (
+          <div className={styles.imageWrapper}>
+            <Image src={post.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className={styles.image} />
+          </div>
+        )}
+        <div className={styles.cardBody}>
+          <PostMeta post={post} />
+          {post.caption && <p className={styles.caption}>{post.caption}</p>}
+          {date && <time className={styles.date}>{date}</time>}
+        </div>
+      </PostLink>,
+    );
+    if ((index + 1) % CTA_EVERY === 0) {
+      gridItems.push(<CtaTile key={`cta-${index}`} />);
+    }
+  });
 
   // Same admin-entered URLs the site footer already uses (Settings →
   // Offices) — not derived from the OAuth connections above, since an
@@ -110,6 +174,10 @@ export default async function SocialPage() {
       <section className={styles.hero}>
         <div className={styles.container}>
           <Breadcrumbs items={breadcrumbs} />
+          <span className={styles.liveBadge}>
+            <span className={styles.liveDot} aria-hidden="true" />
+            Live from the field
+          </span>
           <h1 className={styles.title}>Social</h1>
           <p className={styles.subtitle}>Recent posts from AHW Architects — pulled live from LinkedIn, Facebook, Instagram, and Google Business Profile.</p>
         </div>
@@ -121,39 +189,32 @@ export default async function SocialPage() {
             <p className={styles.empty}>No recent posts to show right now.</p>
           ) : (
             <>
-              {featured && (
-                <PostLink post={featured} className={styles.featuredCard}>
-                  <div className={styles.featuredImageWrapper}>
-                    <Image src={featured.imageUrl!} alt="" fill sizes="(min-width: 900px) 55vw, 100vw" priority className={styles.image} />
-                  </div>
-                  <div className={styles.featuredBody}>
-                    <PostMeta post={featured} />
-                    {featured.caption && <p className={styles.featuredCaption}>{featured.caption}</p>}
-                    {formatDate(featured.postedAt) && <time className={styles.date}>{formatDate(featured.postedAt)}</time>}
-                  </div>
-                </PostLink>
+              {latestPost && (
+                <ScrollReveal direction="up">
+                  {showTwoSpotlights && pinnedPost ? (
+                    <div className={styles.spotlightGrid}>
+                      <SpotlightCard post={pinnedPost} eyebrow="Pinned" />
+                      <SpotlightCard post={latestPost} eyebrow="Latest" />
+                    </div>
+                  ) : (
+                    <PostLink post={latestPost} className={styles.featuredCard}>
+                      <div className={styles.featuredImageWrapper}>
+                        <Image src={latestPost.imageUrl!} alt="" fill sizes="(min-width: 900px) 55vw, 100vw" priority className={styles.image} />
+                      </div>
+                      <div className={styles.featuredBody}>
+                        <PostMeta post={latestPost} />
+                        {latestPost.caption && <p className={styles.featuredCaption}>{latestPost.caption}</p>}
+                        {formatDate(latestPost.postedAt) && <time className={styles.date}>{formatDate(latestPost.postedAt)}</time>}
+                      </div>
+                    </PostLink>
+                  )}
+                </ScrollReveal>
               )}
 
-              {rest.length > 0 && (
-                <div className={styles.grid}>
-                  {rest.map((post) => {
-                    const date = formatDate(post.postedAt);
-                    return (
-                      <PostLink key={post.id} post={post} className={styles.card}>
-                        {post.imageUrl && (
-                          <div className={styles.imageWrapper}>
-                            <Image src={post.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className={styles.image} />
-                          </div>
-                        )}
-                        <div className={styles.cardBody}>
-                          <PostMeta post={post} />
-                          {post.caption && <p className={styles.caption}>{post.caption}</p>}
-                          {date && <time className={styles.date}>{date}</time>}
-                        </div>
-                      </PostLink>
-                    );
-                  })}
-                </div>
+              {gridItems.length > 0 && (
+                <ScrollReveal direction="up" delay={0.1}>
+                  <div className={styles.grid}>{gridItems}</div>
+                </ScrollReveal>
               )}
             </>
           )}

@@ -133,6 +133,40 @@ async function fetchInstagramPosts(officeId: string, officeName: string): Promis
   }
 }
 
+// The Posts API response only carries an image *reference*
+// (content.media.id, an urn:li:image:... urn) — the actual downloadUrl
+// requires a separate Images API call. Same access token/scope covers
+// both (w_organization_social, already granted at connect time — see
+// oauth.ts), this just wasn't wired up. Batch-fetched once per office
+// per call rather than per-post, and only for image urns — a
+// urn:li:video:... media id (video posts) is left imageless rather than
+// pulling in the separate Videos API for a thumbnail.
+async function resolveLinkedInImageUrls(imageUrns: string[], accessToken: string): Promise<Map<string, string>> {
+  const urls = new Map<string, string>();
+  if (imageUrns.length === 0) return urls;
+  try {
+    const ids = imageUrns.map((urn) => encodeURIComponent(urn)).join(',');
+    const res = await fetch(`https://api.linkedin.com/rest/images?ids=List(${ids})`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'X-Restli-Protocol-Version': '2.0.0',
+        'Linkedin-Version': LINKEDIN_API_VERSION,
+      },
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (!res.ok) return urls;
+    const body = (await res.json()) as {
+      results?: Record<string, { downloadUrl?: string; status?: string }>;
+    };
+    for (const [urn, image] of Object.entries(body.results ?? {})) {
+      if (image.downloadUrl) urls.set(urn, image.downloadUrl);
+    }
+  } catch {
+    // Leave those posts imageless rather than fail the whole office.
+  }
+  return urls;
+}
+
 async function fetchLinkedInPosts(officeId: string, officeName: string): Promise<LiveSocialPostSource[]> {
   const cred = await getIntegrationCredential<LinkedInCredential>('LINKEDIN', officeId);
   if (!cred) return [];
@@ -149,23 +183,30 @@ async function fetchLinkedInPosts(officeId: string, officeName: string): Promise
     });
     if (!res.ok) return [];
     const body = (await res.json()) as {
-      elements?: { id: string; commentary?: string; createdAt?: number }[];
+      elements?: { id: string; commentary?: string; createdAt?: number; content?: { media?: { id?: string } } }[];
     };
-    // The Posts API's own response carries no direct image URL (that
-    // requires a separate Images API lookup per post) and no public
-    // permalink field — linking to the organization's own feed is the
-    // honest option rather than guessing a URL shape.
+    const elements = body.elements ?? [];
+    const imageUrns = elements
+      .map((post) => post.content?.media?.id)
+      .filter((id): id is string => Boolean(id?.startsWith('urn:li:image:')));
+    const imageUrls = await resolveLinkedInImageUrls(imageUrns, cred.accessToken);
+    // No public permalink field on the Posts API response — linking to
+    // the organization's own feed is the honest option rather than
+    // guessing a per-post URL shape.
     const orgPermalink = `https://www.linkedin.com/company/${cred.organizationId}/posts/`;
-    return (body.elements ?? []).map((post) => ({
-      id: `LINKEDIN:${post.id}`,
-      platform: 'LINKEDIN' as const,
-      officeId,
-      officeName,
-      caption: post.commentary ?? null,
-      imageUrl: null,
-      permalink: orgPermalink,
-      postedAt: post.createdAt ? new Date(post.createdAt).toISOString() : null,
-    }));
+    return elements.map((post) => {
+      const mediaId = post.content?.media?.id;
+      return {
+        id: `LINKEDIN:${post.id}`,
+        platform: 'LINKEDIN' as const,
+        officeId,
+        officeName,
+        caption: post.commentary ?? null,
+        imageUrl: (mediaId && imageUrls.get(mediaId)) ?? null,
+        permalink: orgPermalink,
+        postedAt: post.createdAt ? new Date(post.createdAt).toISOString() : null,
+      };
+    });
   } catch {
     return [];
   }

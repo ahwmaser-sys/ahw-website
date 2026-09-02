@@ -14,12 +14,39 @@
   padding: var(--space-32) 0 var(--space-16);
 }
 
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-stone);
+  margin-top: var(--space-6);
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3ECF6B;
+  box-shadow: 0 0 0 rgba(62, 207, 107, 0.6);
+  animation: livePulse 2.2s infinite;
+}
+
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 rgba(62, 207, 107, 0.55); }
+  70% { box-shadow: 0 0 0 6px rgba(62, 207, 107, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(62, 207, 107, 0); }
+}
+
 .title {
   font-family: var(--font-family-secondary);
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: var(--font-weight-light);
   color: var(--color-brand-paper);
-  margin: var(--space-6) 0 var(--space-4);
+  margin: var(--space-3) 0 var(--space-4);
 }
 
 .subtitle {
@@ -99,6 +126,131 @@ a.featuredCard:hover .featuredImageWrapper .image {
   .featuredImageWrapper {
     min-height: 240px;
   }
+}
+
+/* Two-up spotlight row — shown instead of the single .featuredCard when
+   a pinned post is distinct from the newest one, so both get equal,
+   deliberate treatment rather than one arbitrarily winning the slot. */
+.spotlightGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  margin-bottom: var(--space-10);
+}
+
+.spotlightCard {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+a.spotlightCard:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.spotlightImageWrapper {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+a.spotlightCard:hover .spotlightImageWrapper .image {
+  transform: scale(1.03);
+}
+
+.spotlightBody {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.spotlightEyebrow {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-paper);
+}
+
+.spotlightCaption {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-paper);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .spotlightGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* CTA tile — woven into the grid every CTA_EVERY real posts (see
+   page.tsx). Deliberately inverted (paper-on-ink instead of the
+   surrounding cards' subtle glass fill) so it reads as an intentional
+   stop, not a broken card — same white-fill pattern the site's other
+   CTAs already use (about/why-ahw's .primaryButton). */
+.ctaCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  background: #FFFFFF;
+  color: #0F1115;
+  border-radius: 6px;
+  padding: var(--space-6);
+  transition: transform var(--transition-fast);
+}
+
+a.ctaCard:hover {
+  transform: translateY(-2px);
+}
+
+.ctaEyebrow {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #5A6066;
+}
+
+.ctaTitle {
+  font-family: var(--font-family-secondary);
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: var(--font-weight-light);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.ctaText {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: #5A6066;
+  margin: 0;
+}
+
+.ctaButton {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-top: var(--space-2);
 }
 
 .grid {
@@ -252,7 +404,13 @@ a.card:hover .image {
 @media (prefers-reduced-motion: reduce) {
   .card,
   .featuredCard,
+  .spotlightCard,
+  .ctaCard,
   .image {
     transition: none;
+  }
+
+  .liveDot {
+    animation: none;
   }
 }

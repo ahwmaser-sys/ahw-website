@@ -302,6 +302,8 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.fbcdn.net' },
       { protocol: 'https', hostname: '**.cdninstagram.com' },
       { protocol: 'https', hostname: '**.googleusercontent.com' },
+      { protocol: 'https', hostname: '**.licdn.com' },
+      { protocol: 'https', hostname: '**.licdn-ei.com' },
     ],
   },
 };
