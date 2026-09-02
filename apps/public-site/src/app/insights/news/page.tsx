@@ -30,22 +30,29 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function NewsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; q?: string; page?: string }>;
+  searchParams: Promise<{ tag?: string; category?: string; q?: string; page?: string }>;
 }) {
   const [resolvedSearchParams, newsItems, siteUrl] = await Promise.all([searchParams, getPublicNewsItems(), getSiteUrl()]);
   const currentTag = resolvedSearchParams.tag || 'All';
+  // Separate from currentTag/InsightsFilterBar's own filter — categories
+  // (the admin-assigned Category relation, surfaced via CategoryPills on
+  // the article page) are a different taxonomy from the free-text tags
+  // InsightsFilterBar filters by, so a category deep-link narrows the
+  // list independently rather than being folded into the tag filter.
+  const currentCategory = resolvedSearchParams.category;
   const currentQuery = (resolvedSearchParams.q || '').toLowerCase();
-  
+
   // Extract unique tags from news
   const allTags = Array.from(new Set(newsItems.flatMap(n => n.tags || []))).sort();
 
   // Filter logic
   const filteredNews = newsItems.filter((news) => {
     const matchesTag = currentTag === 'All' || (news.tags && news.tags.includes(currentTag));
-    const matchesSearch = 
-      news.title.toLowerCase().includes(currentQuery) || 
+    const matchesCategory = !currentCategory || (news.categories?.some((c) => c.name === currentCategory) ?? false);
+    const matchesSearch =
+      news.title.toLowerCase().includes(currentQuery) ||
       news.excerpt.toLowerCase().includes(currentQuery);
-    return matchesTag && matchesSearch;
+    return matchesTag && matchesCategory && matchesSearch;
   });
 
   const jsonLd = {

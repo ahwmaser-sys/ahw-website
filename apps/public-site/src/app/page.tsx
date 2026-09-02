@@ -5,6 +5,7 @@ import { getActiveOfficesForDisplay, getOfficeBySlug } from '../lib/portal/offic
 import { getSiteUrl } from '../lib/site-config';
 import { getPublishedFeaturedReviews, getGoogleReviewsAggregate, shouldShowReviewCount } from '../lib/portal/reviews/queries';
 import { getActiveBrandKit, getCompanyInfo, getReviewSettings } from '../lib/portal/brand-kit';
+import { getPublicPublications } from '../lib/publications';
 
 export const metadata: Metadata = {
   // Unlike every other route, the homepage's own page.tsx lives in the
@@ -30,12 +31,13 @@ export const revalidate = 30;
 export default async function HomePage() {
   const heroImages = getRotationImages('hero');
   const precisionImages = getRotationImages('precision');
-  const [selectedWork, offices, siteUrl, egyptOffice, brandKit] = await Promise.all([
+  const [selectedWork, offices, siteUrl, egyptOffice, brandKit, publications] = await Promise.all([
     getSelectedWork(),
     getActiveOfficesForDisplay(),
     getSiteUrl(),
     getOfficeBySlug('egypt'),
     getActiveBrandKit(),
+    getPublicPublications(),
   ]);
   const { yearsOfExperience, totalProjects, globalOffices } = getCompanyInfo(brandKit);
 
@@ -62,6 +64,7 @@ export default async function HomePage() {
       reviewsGoogleUrl={egyptOffice?.googleBusinessProfileUrl ?? null}
       reviewsShowCount={reviewsShowCount}
       companyStats={{ yearsOfExperience, totalProjects, globalOffices }}
+      publications={publications}
     />
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, InsightsFilterBar, PublicationCard } from '@agp/ui-components';
+import { StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, InsightsFilterBar, PublicationCard } from '@agp/ui-components';
+import { getPublicPublications } from '../../../lib/publications';
 import { getSiteUrl } from '../../../lib/site-config';
 import styles from './page.module.css';
 
@@ -31,7 +32,7 @@ export default async function PublicationsPage({
 }: {
   searchParams: Promise<{ tag?: string; q?: string; page?: string }>;
 }) {
-  const [resolvedSearchParams, siteUrl] = await Promise.all([searchParams, getSiteUrl()]);
+  const [resolvedSearchParams, publications, siteUrl] = await Promise.all([searchParams, getPublicPublications(), getSiteUrl()]);
   const currentTag = resolvedSearchParams.tag || 'All';
   const currentQuery = (resolvedSearchParams.q || '').toLowerCase();
   

@@ -58,6 +58,7 @@ export const ADMIN_NAV_LINKS: readonly AdminNavGroup[] = [
       { href: '/admin/portfolio', label: 'Portfolio' },
       { href: '/admin/residential-experience', label: 'Residential Experience' },
       { href: '/admin/news', label: 'Articles' },
+      { href: '/admin/publications', label: 'Publications' },
       { href: '/admin/media', label: 'Media' },
     ],
   },

@@ -8,6 +8,7 @@
 }
 
 .pill {
+  display: inline-block;
   font-family: var(--font-family-primary);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
@@ -17,4 +18,10 @@
   border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: var(--tracking-wider);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+a.pill:hover {
+  opacity: 0.8;
 }

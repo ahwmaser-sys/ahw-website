@@ -44,7 +44,8 @@ export default tseslint.config(
             "apps/public-site/scripts/seed-c3-fixtures.ts",
             "apps/public-site/scripts/seed-official-templates.ts",
             "apps/public-site/scripts/seed-sample-reviews.ts",
-            "apps/public-site/scripts/migrate-portfolio-projects.ts"
+            "apps/public-site/scripts/migrate-portfolio-projects.ts",
+            "apps/public-site/scripts/migrate-publications.ts"
           ]
         },
         tsconfigRootDir: import.meta.dirname
@@ -72,7 +73,7 @@ export default tseslint.config(
     // an actual type-safety issue in this one-off script (verified by
     // running it end-to-end against a real database before this file
     // was committed).
-    files: ["apps/public-site/scripts/migrate-portfolio-projects.ts"],
+    files: ["apps/public-site/scripts/migrate-portfolio-projects.ts", "apps/public-site/scripts/migrate-publications.ts"],
     rules: {
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",

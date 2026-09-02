@@ -934,6 +934,7 @@ model MediaAsset {
   portfolioOgFor          PortfolioProject[]      @relation("PortfolioOgImage")
   portfolioGalleryEntries PortfolioProjectImage[]
   avatarUsers             User[]                  @relation("UserAvatar")
+  publicationCoverFor     Publication[]           @relation("PublicationCoverImage")
 
   @@index([kind])
   @@index([orientation])
@@ -1764,4 +1765,43 @@ model PortfolioProjectFaqItem {
   sortOrder Int              @default(0)
 
   @@index([projectId])
+}
+
+enum PublicationStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// Press mentions of AHW (magazine features, awards write-ups, ...) —
+// distinct from NewsPost (AHW's own authored announcements). No
+// internal author: `outlet` (e.g. "Forbes Middle East") is the
+// byline-equivalent shown on the public page.
+model Publication {
+  id        String            @id @default(cuid())
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  slug      String            @unique
+  outlet    String
+  title     String
+  excerpt   String
+  content   String?           @db.Text
+  date      DateTime
+  url       String // link to the original external feature
+  status    PublicationStatus @default(DRAFT)
+
+  // Singular image slot — same *Id/*Url pair convention as
+  // PortfolioProject's own image slots (exactly one set at a time,
+  // enforced in the action layer): *Url holds a migrated legacy path,
+  // *Id a real MediaAsset uploaded via the admin going forward.
+  coverImageId      String?
+  coverImage        MediaAsset? @relation("PublicationCoverImage", fields: [coverImageId], references: [id])
+  coverImageUrl     String?
+  coverImageCaption String?
+
+  relatedProjectSlugs String[] // soft references by slug, same convention as NewsPost.relatedProjectSlug — not FK-enforced
+  tags                String[] // free-text, powers the /insights/publications listing filter
+  isFeatured          Boolean  @default(false)
+  readingTime         String?
+
+  @@index([status])
 }

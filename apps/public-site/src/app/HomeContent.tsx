@@ -1,4 +1,4 @@
-import { Hero, ImageRotator, StructuredData, publications, type Office } from '@agp/ui-components';
+import { Hero, ImageRotator, StructuredData, type Office, type Publication } from '@agp/ui-components';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Review } from '@prisma/client';
@@ -41,6 +41,9 @@ export interface HomeContentProps {
    *  the curated "20 Selected Projects" shown on /projects — the word
    *  is what keeps the two from reading as a contradiction. */
   companyStats: { yearsOfExperience: string; totalProjects: string; globalOffices: string };
+  /** Published press mentions, fetched by app/page.tsx — this component
+   *  never queries the database itself. */
+  publications: Publication[];
 }
 
 // Derives real, verifiable alt text from the curated filename itself
@@ -55,7 +58,7 @@ function altFromFilename(path: string): string {
   return words.map((w) => (w.length > 0 ? w[0]!.toUpperCase() + w.slice(1) : w)).join(' ');
 }
 
-export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl, reviewsShowCount, companyStats }: HomeContentProps) {
+export function HomeContent({ heroImages, precisionImages, selectedWork, offices, siteUrl, reviews, reviewsAggregate, reviewsGoogleUrl, reviewsShowCount, companyStats, publications }: HomeContentProps) {
   // This node shares its @id with the root Organization in layout.tsx, so
   // its single `address` field is what external tools reading "the"
   // business address for that merged entity pick up — deliberately the

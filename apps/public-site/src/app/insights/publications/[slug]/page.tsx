@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare, CategoryPills, ArticlePrevNext } from '@agp/ui-components';
+import { StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare, CategoryPills, ArticlePrevNext } from '@agp/ui-components';
 import { getSiteUrl } from '../../../../lib/site-config';
 import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
+import { getPublicPublications } from '../../../../lib/publications';
 import styles from './page.module.css';
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolvedParams = await params;
+  const [resolvedParams, publications] = await Promise.all([params, getPublicPublications()]);
   const pub = publications.find((p) => p.slug === resolvedParams.slug);
 
   if (!pub) {
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PublicationDetailPage({ params }: Props) {
-  const [resolvedParams, siteUrl] = await Promise.all([params, getSiteUrl()]);
+  const [resolvedParams, siteUrl, publications] = await Promise.all([params, getSiteUrl(), getPublicPublications()]);
   const pub = publications.find((p) => p.slug === resolvedParams.slug);
 
   if (!pub) {
@@ -107,7 +108,7 @@ export default async function PublicationDetailPage({ params }: Props) {
         <header className={styles.header}>
           <div className={styles.container}>
             <Breadcrumbs items={breadcrumbs} />
-            <CategoryPills items={pub.tags ?? []} />
+            <CategoryPills items={pub.tags ?? []} basePath="/insights/publications" paramName="tag" />
             <h1 className={styles.title}>{pub.title}</h1>
             {pub.excerpt && <p className={styles.excerpt}>{pub.excerpt}</p>}
             <div className={styles.bylineRow}>

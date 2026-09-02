@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  publications,
   StructuredData,
   Breadcrumbs,
   buildBreadcrumbJsonLd,
@@ -18,6 +17,7 @@ import { getPublicNewsItems } from '../../../../lib/portal/public-news';
 import { recordPageView } from '../../../../lib/portal/analytics/track';
 import { getSiteUrl } from '../../../../lib/site-config';
 import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
+import { getPublicPublications } from '../../../../lib/publications';
 import { renderArticleBody, parseTiptapDoc, renderDocBody } from '../../../../components/article/ArticleBodyRenderer';
 import styles from './page.module.css';
 
@@ -71,6 +71,18 @@ export default async function NewsDetailPage({ params }: Props) {
     headline: news.title,
     image: news.coverImage ? [news.coverImage] : [],
     datePublished: news.date,
+    // Real author attribution — Google/AI answer engines weight this as
+    // an E-E-A-T signal. Omitted entirely (not a fabricated "AHW
+    // Architects" placeholder) on the rare item with no author data.
+    ...(news.author
+      ? {
+          author: {
+            '@type': 'Person',
+            name: news.author.name,
+            ...(news.author.jobTitle ? { jobTitle: news.author.jobTitle } : {}),
+          },
+        }
+      : {}),
     // @id merges this into the same canonical Organization node every
     // other page anchors to (layout.tsx) rather than declaring a fresh,
     // disconnected "AHW Architects" each time.
@@ -96,7 +108,7 @@ export default async function NewsDetailPage({ params }: Props) {
   ];
 
   // Resolve related content
-  const portfolioProjects = await getPublicPortfolioProjects();
+  const [portfolioProjects, publications] = await Promise.all([getPublicPortfolioProjects(), getPublicPublications()]);
   const relatedProjects = (news.relatedProjectSlugs ?? [])
     .map((slug) => portfolioProjects.find((p) => p.slug === slug))
     .filter((p): p is typeof portfolioProjects[number] => Boolean(p));
@@ -123,7 +135,7 @@ export default async function NewsDetailPage({ params }: Props) {
         <header className={styles.header}>
           <div className={styles.container}>
             <Breadcrumbs items={breadcrumbs} />
-            <CategoryPills items={news.categories?.map((c) => c.name) ?? []} />
+            <CategoryPills items={news.categories?.map((c) => c.name) ?? []} basePath="/insights/news" paramName="category" />
             <h1 className={styles.title}>{news.title}</h1>
             {news.excerpt && <p className={styles.excerpt}>{news.excerpt}</p>}
             <div className={styles.bylineRow}>

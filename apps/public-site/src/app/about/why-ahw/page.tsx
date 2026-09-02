@@ -2,8 +2,9 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { aboutData, publications, ScrollReveal, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd } from '@agp/ui-components';
+import { aboutData, ScrollReveal, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getSiteUrl } from '../../../lib/site-config';
+import { getPublicPublications } from '../../../lib/publications';
 import styles from './page.module.css';
 
 const trackRecordIds = ['years-exp', 'integrated-aec', 'turnkey', 'project-management', 'quality-standards'];
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WhyAhwPage() {
-  const siteUrl = await getSiteUrl();
+  const [siteUrl, publications] = await Promise.all([getSiteUrl(), getPublicPublications()]);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "AboutPage",

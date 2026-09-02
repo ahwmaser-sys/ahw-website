@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { publications, PublicationCard, NewsCard, Breadcrumbs, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
+import { PublicationCard, NewsCard, Breadcrumbs, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getPublicNewsItems } from '../../lib/portal/public-news';
+import { getPublicPublications } from '../../lib/publications';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
 
@@ -41,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InsightsPage() {
-  const [newsItems, siteUrl] = await Promise.all([getPublicNewsItems(), getSiteUrl()]);
+  const [newsItems, publications, siteUrl] = await Promise.all([getPublicNewsItems(), getPublicPublications(), getSiteUrl()]);
   const featuredPublication = publications.find(p => p.isFeatured) || publications[0];
   const featuredNews = newsItems.find(n => n.isFeatured) || newsItems[0];
 

@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next';
-import { publications } from '@agp/ui-components';
 import { getPublicNewsItems } from '../lib/portal/public-news';
 import { getActiveOffices } from '../lib/portal/offices';
 import { getPublicPortfolioProjects } from '../lib/portfolio';
+import { getPublicPublications } from '../lib/publications';
 import { getSiteUrl } from '../lib/site-config';
 import { prisma } from '../lib/portal/db';
 
@@ -12,11 +12,12 @@ import { prisma } from '../lib/portal/db';
 export const revalidate = 30;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [newsItems, offices, baseUrl, projects] = await Promise.all([
+  const [newsItems, offices, baseUrl, projects, publications] = await Promise.all([
     getPublicNewsItems(),
     getActiveOffices(),
     getSiteUrl(),
     getPublicPortfolioProjects(),
+    getPublicPublications(),
   ]);
 
   // Static marketing pages have no tracked modification date anywhere in

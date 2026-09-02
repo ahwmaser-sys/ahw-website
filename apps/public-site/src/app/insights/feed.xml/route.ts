@@ -1,5 +1,5 @@
-import { publications } from '@agp/ui-components';
 import { getPublicNewsItems } from '../../../lib/portal/public-news';
+import { getPublicPublications } from '../../../lib/publications';
 import { getSiteUrl } from '../../../lib/site-config';
 
 function escapeXml(value: string): string {
@@ -12,7 +12,7 @@ function escapeXml(value: string): string {
 }
 
 export async function GET() {
-  const [newsItems, baseUrl] = await Promise.all([getPublicNewsItems(), getSiteUrl()]);
+  const [newsItems, publications, baseUrl] = await Promise.all([getPublicNewsItems(), getPublicPublications(), getSiteUrl()]);
 
   const publicationEntries = publications.map((p) => ({
     title: `${p.outlet}: ${p.title}`,

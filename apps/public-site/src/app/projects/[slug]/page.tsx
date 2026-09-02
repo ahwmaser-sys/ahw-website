@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { publications, newsItems, NativeReveal, StructuredData, HeroSlider, buildWhatsAppLink, Breadcrumbs, buildBreadcrumbJsonLd, isCommercialSector } from '@agp/ui-components';
+import { newsItems, NativeReveal, StructuredData, HeroSlider, buildWhatsAppLink, Breadcrumbs, buildBreadcrumbJsonLd, isCommercialSector } from '@agp/ui-components';
 import ProjectFilterBar from '../../../components/ProjectFilterBar';
 import { recordPageView } from '../../../lib/portal/analytics/track';
 import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
 import { getPublicPortfolioProjects, getPublicPortfolioProjectBySlug, getPortfolioNavData } from '../../../lib/portfolio';
+import { getPublicPublications } from '../../../lib/publications';
 import styles from './page.module.css';
 
 // Maps a project's own, already-authored services[] entry (projects.ts)
@@ -377,6 +378,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
     { label: project.title },
   ];
 
+  const publications = await getPublicPublications();
   const asSeenInPublications = publications.filter((p) => p.relatedProjectSlugs?.includes(project.slug));
   const asSeenInNews = newsItems.filter((n) => n.relatedProjectSlugs?.includes(project.slug));
   const hasPressMentions = asSeenInPublications.length > 0 || asSeenInNews.length > 0;
