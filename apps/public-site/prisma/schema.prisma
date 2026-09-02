@@ -872,16 +872,21 @@ model MediaAsset {
   // empty, which is the one case it's genuinely safe.
   archivedAt      DateTime?
 
-  categories          MediaAssetCategory[]
-  tags                MediaAssetTag[]
-  collections         MediaCollectionAsset[]
-  variants            MediaAssetVariant[]
-  usages              MediaAssetUsage[]
-  newsPostsFeatured   NewsPost[]             @relation("NewsPostFeaturedImage")
-  newsPostsOgImage    NewsPost[]             @relation("NewsPostOgImage")
-  galleryEntries      NewsPostGalleryImage[]
-  landingPagesOgImage LandingPage[]          @relation("LandingPageOgImage")
-  generatedGraphics   GeneratedGraphic[]
+  categories              MediaAssetCategory[]
+  tags                    MediaAssetTag[]
+  collections             MediaCollectionAsset[]
+  variants                MediaAssetVariant[]
+  usages                  MediaAssetUsage[]
+  newsPostsFeatured       NewsPost[]              @relation("NewsPostFeaturedImage")
+  newsPostsOgImage        NewsPost[]              @relation("NewsPostOgImage")
+  galleryEntries          NewsPostGalleryImage[]
+  landingPagesOgImage     LandingPage[]           @relation("LandingPageOgImage")
+  generatedGraphics       GeneratedGraphic[]
+  portfolioHeroFor        PortfolioProject[]      @relation("PortfolioHeroImage")
+  portfolioHubFlagshipFor PortfolioProject[]      @relation("PortfolioHubFlagshipImage")
+  portfolioHubPairFor     PortfolioProject[]      @relation("PortfolioHubPairImage")
+  portfolioOgFor          PortfolioProject[]      @relation("PortfolioOgImage")
+  portfolioGalleryEntries PortfolioProjectImage[]
 
   @@index([kind])
   @@index([orientation])
@@ -1527,4 +1532,163 @@ model ResidentialExperience {
   archivedAt         DateTime?
 
   @@index([status, publicDisplay])
+}
+
+// ── Public Projects Portfolio (case studies) ──
+// Previously 100% hardcoded in packages/ui-components/src/data/
+// projects.ts — no admin access, a new project meant a code change and
+// a redeploy. Migrated into the DB via
+// scripts/migrate-portfolio-projects.ts. Named PortfolioProject (not
+// Project) and routed at /admin/portfolio (not /admin/projects)
+// deliberately — the existing `Project` model above is a completely
+// unrelated client-portal delivery tracker (progress %, milestones,
+// invoices), already using that name and that admin route.
+enum PortfolioSector {
+  RESIDENTIAL
+  COMMERCIAL
+  HOSPITALITY
+  WORKPLACE
+  RETAIL
+}
+
+enum PortfolioMarket {
+  EGYPT
+  KUWAIT
+  UAE
+  LEBANON
+}
+
+enum PortfolioTier {
+  FLAGSHIP
+  STANDARD
+}
+
+enum PortfolioProjectStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// Only the array-style image sections need a join row (see
+// PortfolioProject's own hero/hubFlagship/hubPair/og fields below for
+// the singular slots, direct FK columns — same split this schema
+// already uses for NewsPost's featuredImageId/ogImageId vs. its
+// NewsPostGalleryImage join table).
+enum PortfolioImageSection {
+  DESIGN
+  BUILD
+  RESULT
+}
+
+model PortfolioProject {
+  id        String                 @id @default(cuid())
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  slug      String                 @unique
+  title     String
+  sector    PortfolioSector
+  city      String
+  market    PortfolioMarket
+  area      String
+  year      String
+  tier      PortfolioTier
+  services  ServiceLine[]
+  client    String?
+  status    PortfolioProjectStatus @default(DRAFT)
+  sortOrder Int                    @default(0)
+
+  resultStatement String?
+
+  // Singular image slots. Exactly one of each pair is meant to be set
+  // at a time (enforced in the action layer, not the DB): *Url holds a
+  // migrated legacy /ahw-projects-assets/... path (never copied into
+  // the Media Library), *Id is a real MediaAsset uploaded via the admin
+  // going forward.
+  heroImageId         String?
+  heroImage           MediaAsset? @relation("PortfolioHeroImage", fields: [heroImageId], references: [id])
+  heroImageUrl        String?
+  hubFlagshipImageId  String?
+  hubFlagshipImage    MediaAsset? @relation("PortfolioHubFlagshipImage", fields: [hubFlagshipImageId], references: [id])
+  hubFlagshipImageUrl String?
+  hubPairImageId      String?
+  hubPairImage        MediaAsset? @relation("PortfolioHubPairImage", fields: [hubPairImageId], references: [id])
+  hubPairImageUrl     String?
+  ogImageId           String?
+  ogImage             MediaAsset? @relation("PortfolioOgImage", fields: [ogImageId], references: [id])
+  ogImageUrl          String?
+
+  galleryImages PortfolioProjectImage[]
+  faqItems      PortfolioProjectFaqItem[]
+
+  // The Brief
+  briefClientProblem        String?
+  briefDefinitionalSentence String?
+
+  // The Design
+  designKeyDecision String?
+  designCaption     String? // narrative.imageStory.design — a caption for the whole image group, not per-image
+
+  // The Build
+  buildDuration            String?
+  buildChallengeResolution String?
+  buildFeatures            String[]
+  buildCaption             String?
+
+  // The Result
+  resultOutcomes          String[]
+  resultClientQuoteText   String?
+  resultClientQuoteAuthor String?
+  resultCaption           String?
+
+  // Continue Exploring
+  relatedProjectSlugs   String[] // soft references by slug, validated at save time — same convention as NewsPost.relatedProjectSlug, not FK-enforced
+  relatedExpertiseTitle String?
+  relatedExpertiseHref  String?
+
+  // Narrative — optional editorial layer, matching ProjectNarrative's
+  // "only present for projects with real, verified detail" convention.
+  heroHeadline     String?
+  heroSubtitle     String?
+  story            String[]
+  designPhilosophy String?
+  whyDifferent     String?
+  clientExperience String[]
+  ctaHeadline      String?
+  ctaSubtext       String?
+
+  // SEO — all optional, fall back to title/sector/city/briefDefinitionalSentence at render time
+  seoTitle              String?
+  seoDescription        String?
+  seoFocusKeyword       String?
+  seoSecondaryKeywords  String[]
+  seoOgTitle            String?
+  seoOgDescription      String?
+  seoTwitterTitle       String?
+  seoTwitterDescription String?
+
+  @@index([status])
+  @@index([sortOrder])
+}
+
+model PortfolioProjectImage {
+  id          String                @id @default(cuid())
+  projectId   String
+  project     PortfolioProject      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  section     PortfolioImageSection
+  assetId     String?
+  asset       MediaAsset?           @relation(fields: [assetId], references: [id])
+  externalUrl String? // migrated legacy path — exactly one of assetId/externalUrl set, same convention as the singular slots above
+  sortOrder   Int                   @default(0)
+
+  @@index([projectId, section])
+}
+
+model PortfolioProjectFaqItem {
+  id        String           @id @default(cuid())
+  projectId String
+  project   PortfolioProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+  sortOrder Int              @default(0)
+
+  @@index([projectId])
 }
