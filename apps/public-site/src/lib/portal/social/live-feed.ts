@@ -33,6 +33,10 @@ export interface LiveSocialPost extends LiveSocialPostSource {
   // public page gives it the featured slot ahead of whatever's merely
   // newest.
   pinned: boolean;
+  // Admin-controlled (see PortfolioSocialPostLink) — set when an admin
+  // has linked this real, live-pulled post to a PortfolioProject, so
+  // both /social and the project's own page can cross-link.
+  relatedProjectSlug?: string;
 }
 
 const GRAPH_API = 'https://graph.facebook.com/v21.0';
@@ -244,13 +248,15 @@ async function fetchGoogleBusinessPosts(officeId: string, officeName: string): P
 // discovery calls: this is a page-render path, not a burst import, and
 // four platforms already run in parallel per office.
 export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
-  const [offices, hiddenRows, pinnedRows] = await Promise.all([
+  const [offices, hiddenRows, pinnedRows, linkRows] = await Promise.all([
     getActiveOffices(),
     prisma.hiddenSocialPost.findMany({ select: { id: true } }),
     prisma.pinnedSocialPost.findMany({ select: { id: true } }),
+    prisma.portfolioSocialPostLink.findMany({ select: { id: true, project: { select: { slug: true } } } }),
   ]);
   const hiddenIds = new Set(hiddenRows.map((row) => row.id));
   const pinnedIds = new Set(pinnedRows.map((row) => row.id));
+  const linkedSlugs = new Map(linkRows.map((row) => [row.id, row.project.slug]));
   const perOffice = await Promise.all(
     offices.map(async (office) => {
       const [facebook, instagram, linkedin, google] = await Promise.all([
@@ -299,6 +305,14 @@ export async function getLiveSocialFeed(): Promise<LiveSocialPost[]> {
   const pinned = deduped.filter((post) => pinnedIds.has(post.id));
   const selected = [...pinned, ...selectedUnpinned].sort((a, b) => (b.postedAt ?? '').localeCompare(a.postedAt ?? ''));
 
-  return selected.map((post) => ({ ...post, hidden: hiddenIds.has(post.id), pinned: pinnedIds.has(post.id) }));
+  return selected.map((post) => {
+    const relatedProjectSlug = linkedSlugs.get(post.id);
+    return {
+      ...post,
+      hidden: hiddenIds.has(post.id),
+      pinned: pinnedIds.has(post.id),
+      ...(relatedProjectSlug ? { relatedProjectSlug } : {}),
+    };
+  });
 }
 

@@ -182,3 +182,10 @@ export const getPortfolioNavData = cache(async (): Promise<PortfolioNavData> => 
 export async function getPortfolioProjectOptions(): Promise<{ slug: string; title: string }[]> {
   return prisma.portfolioProject.findMany({ select: { slug: true, title: true }, orderBy: { title: 'asc' } });
 }
+
+// Same "every project regardless of status" convention as the picker
+// above, but keyed by id — PortfolioSocialPostLink.projectId is a real
+// FK, unlike NewsPost.relatedProjectSlug which stores a bare slug.
+export async function getPortfolioProjectOptionsWithId(): Promise<{ id: string; title: string }[]> {
+  return prisma.portfolioProject.findMany({ select: { id: true, title: true }, orderBy: { title: 'asc' } });
+}

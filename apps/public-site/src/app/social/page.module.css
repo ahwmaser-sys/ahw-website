@@ -69,11 +69,6 @@
 }
 
 .featuredCard {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  align-items: stretch;
-  text-decoration: none;
-  color: inherit;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
@@ -82,8 +77,22 @@
   transition: border-color var(--transition-fast);
 }
 
-a.featuredCard:hover {
+.featuredCard:hover {
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+.featuredInner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: stretch;
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (max-width: 767px) {
+  .featuredInner {
+    grid-template-columns: 1fr;
+  }
 }
 
 .featuredImageWrapper {
@@ -93,7 +102,7 @@ a.featuredCard:hover {
   overflow: hidden;
 }
 
-a.featuredCard:hover .featuredImageWrapper .image {
+.featuredCard:hover .featuredImageWrapper .image {
   transform: scale(1.03);
 }
 
@@ -119,10 +128,6 @@ a.featuredCard:hover .featuredImageWrapper .image {
 }
 
 @media (max-width: 767px) {
-  .featuredCard {
-    grid-template-columns: 1fr;
-  }
-
   .featuredImageWrapper {
     min-height: 240px;
   }
@@ -139,10 +144,6 @@ a.featuredCard:hover .featuredImageWrapper .image {
 }
 
 .spotlightCard {
-  display: flex;
-  flex-direction: column;
-  text-decoration: none;
-  color: inherit;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
@@ -150,8 +151,15 @@ a.featuredCard:hover .featuredImageWrapper .image {
   transition: border-color var(--transition-fast);
 }
 
-a.spotlightCard:hover {
+.spotlightCard:hover {
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+.spotlightInner {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
 }
 
 .spotlightImageWrapper {
@@ -161,7 +169,7 @@ a.spotlightCard:hover {
   overflow: hidden;
 }
 
-a.spotlightCard:hover .spotlightImageWrapper .image {
+.spotlightCard:hover .spotlightImageWrapper .image {
   transform: scale(1.03);
 }
 
@@ -262,8 +270,6 @@ a.ctaCard:hover {
 .card {
   display: flex;
   flex-direction: column;
-  text-decoration: none;
-  color: inherit;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
@@ -271,9 +277,21 @@ a.ctaCard:hover {
   transition: border-color var(--transition-fast), transform var(--transition-fast);
 }
 
-a.card:hover {
+.card:hover {
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
+}
+
+/* The clickable-to-permalink region inside .card — kept separate from
+   .card itself so a "View Project" link can sit alongside it as a
+   sibling rather than nested inside (browsers treat a nested <a> as
+   auto-closing the outer one, silently breaking the card link). */
+.cardInner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
 }
 
 .imageWrapper {
@@ -289,7 +307,7 @@ a.card:hover {
   transition: transform var(--transition-slow);
 }
 
-a.card:hover .image {
+.card:hover .image {
   transform: scale(1.04);
 }
 
@@ -399,6 +417,23 @@ a.card:hover .image {
 .followPill:hover {
   background-color: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.4);
+}
+
+.viewProjectLink {
+  display: block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-brand-paper);
+  text-decoration: none;
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background-color var(--transition-fast);
+}
+
+.viewProjectLink:hover {
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -72,20 +72,35 @@ function PostLink({ post, children, className }: { post: LiveSocialPost; childre
   );
 }
 
+// Kept as a plain link, not nested inside PostLink's own anchor — a
+// nested <a> is invalid HTML and browsers auto-close the outer one when
+// they hit it, silently breaking the card's click-through to the
+// platform permalink.
+function ViewProjectLink({ slug }: { slug: string }) {
+  return (
+    <Link href={`/projects/${slug}`} className={styles.viewProjectLink}>
+      View Project →
+    </Link>
+  );
+}
+
 function SpotlightCard({ post, eyebrow }: { post: LiveSocialPost; eyebrow?: string }) {
   const date = formatDate(post.postedAt);
   return (
-    <PostLink post={post} className={styles.spotlightCard}>
-      <div className={styles.spotlightImageWrapper}>
-        <Image src={post.imageUrl!} alt="" fill sizes="(min-width: 900px) 45vw, 100vw" priority className={styles.image} />
-      </div>
-      <div className={styles.spotlightBody}>
-        {eyebrow && <span className={styles.spotlightEyebrow}>{eyebrow}</span>}
-        <PostMeta post={post} />
-        {post.caption && <p className={styles.spotlightCaption}>{post.caption}</p>}
-        {date && <time className={styles.date}>{date}</time>}
-      </div>
-    </PostLink>
+    <div className={styles.spotlightCard}>
+      <PostLink post={post} className={styles.spotlightInner}>
+        <div className={styles.spotlightImageWrapper}>
+          <Image src={post.imageUrl!} alt="" fill sizes="(min-width: 900px) 45vw, 100vw" priority className={styles.image} />
+        </div>
+        <div className={styles.spotlightBody}>
+          {eyebrow && <span className={styles.spotlightEyebrow}>{eyebrow}</span>}
+          <PostMeta post={post} />
+          {post.caption && <p className={styles.spotlightCaption}>{post.caption}</p>}
+          {date && <time className={styles.date}>{date}</time>}
+        </div>
+      </PostLink>
+      {post.relatedProjectSlug && <ViewProjectLink slug={post.relatedProjectSlug} />}
+    </div>
   );
 }
 
@@ -139,18 +154,21 @@ export default async function SocialPage() {
   rest.forEach((post, index) => {
     const date = formatDate(post.postedAt);
     gridItems.push(
-      <PostLink key={post.id} post={post} className={styles.card}>
-        {post.imageUrl && (
-          <div className={styles.imageWrapper}>
-            <Image src={post.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className={styles.image} />
+      <div key={post.id} className={styles.card}>
+        <PostLink post={post} className={styles.cardInner}>
+          {post.imageUrl && (
+            <div className={styles.imageWrapper}>
+              <Image src={post.imageUrl} alt="" fill sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw" className={styles.image} />
+            </div>
+          )}
+          <div className={styles.cardBody}>
+            <PostMeta post={post} />
+            {post.caption && <p className={styles.caption}>{post.caption}</p>}
+            {date && <time className={styles.date}>{date}</time>}
           </div>
-        )}
-        <div className={styles.cardBody}>
-          <PostMeta post={post} />
-          {post.caption && <p className={styles.caption}>{post.caption}</p>}
-          {date && <time className={styles.date}>{date}</time>}
-        </div>
-      </PostLink>,
+        </PostLink>
+        {post.relatedProjectSlug && <ViewProjectLink slug={post.relatedProjectSlug} />}
+      </div>,
     );
     if ((index + 1) % CTA_EVERY === 0) {
       gridItems.push(<CtaTile key={`cta-${index}`} />);
@@ -197,16 +215,19 @@ export default async function SocialPage() {
                       <SpotlightCard post={latestPost} eyebrow="Latest" />
                     </div>
                   ) : (
-                    <PostLink post={latestPost} className={styles.featuredCard}>
-                      <div className={styles.featuredImageWrapper}>
-                        <Image src={latestPost.imageUrl!} alt="" fill sizes="(min-width: 900px) 55vw, 100vw" priority className={styles.image} />
-                      </div>
-                      <div className={styles.featuredBody}>
-                        <PostMeta post={latestPost} />
-                        {latestPost.caption && <p className={styles.featuredCaption}>{latestPost.caption}</p>}
-                        {formatDate(latestPost.postedAt) && <time className={styles.date}>{formatDate(latestPost.postedAt)}</time>}
-                      </div>
-                    </PostLink>
+                    <div className={styles.featuredCard}>
+                      <PostLink post={latestPost} className={styles.featuredInner}>
+                        <div className={styles.featuredImageWrapper}>
+                          <Image src={latestPost.imageUrl!} alt="" fill sizes="(min-width: 900px) 55vw, 100vw" priority className={styles.image} />
+                        </div>
+                        <div className={styles.featuredBody}>
+                          <PostMeta post={latestPost} />
+                          {latestPost.caption && <p className={styles.featuredCaption}>{latestPost.caption}</p>}
+                          {formatDate(latestPost.postedAt) && <time className={styles.date}>{formatDate(latestPost.postedAt)}</time>}
+                        </div>
+                      </PostLink>
+                      {latestPost.relatedProjectSlug && <ViewProjectLink slug={latestPost.relatedProjectSlug} />}
+                    </div>
                   )}
                 </ScrollReveal>
               )}

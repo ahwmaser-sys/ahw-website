@@ -3,7 +3,15 @@ import { requireAdminPage } from '../../../lib/portal/page-guard';
 import { PortalShell } from '../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../nav-links';
 import { getLiveSocialFeed } from '../../../lib/portal/social/live-feed';
-import { HideSocialFeedPostForm, UnhideSocialFeedPostForm, PinSocialFeedPostForm, UnpinSocialFeedPostForm } from './SocialFeedForms';
+import { getPortfolioProjectOptionsWithId } from '../../../lib/portfolio';
+import {
+  HideSocialFeedPostForm,
+  UnhideSocialFeedPostForm,
+  PinSocialFeedPostForm,
+  UnpinSocialFeedPostForm,
+  LinkProjectForm,
+  UnlinkProjectForm,
+} from './SocialFeedForms';
 import styles from '../../../components/portal/portal-ui.module.css';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -17,7 +25,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 
 export default async function AdminSocialFeedPage() {
   const principal = await requireAdminPage();
-  const posts = await getLiveSocialFeed();
+  const [posts, projectOptions] = await Promise.all([getLiveSocialFeed(), getPortfolioProjectOptionsWithId()]);
   const visibleCount = posts.filter((p) => !p.hidden).length;
   const hiddenCount = posts.length - visibleCount;
 
@@ -53,10 +61,20 @@ export default async function AdminSocialFeedPage() {
                   {post.permalink}
                 </a>
               )}
+              {post.relatedProjectSlug && (
+                <a href={`/projects/${post.relatedProjectSlug}`} target="_blank" rel="noreferrer" className={styles.cardMeta}>
+                  Linked project: /projects/{post.relatedProjectSlug}
+                </a>
+              )}
               <div className={styles.buttonRow}>
                 {post.hidden ? <UnhideSocialFeedPostForm id={post.id} /> : <HideSocialFeedPostForm id={post.id} />}
                 {post.pinned ? <UnpinSocialFeedPostForm id={post.id} /> : <PinSocialFeedPostForm id={post.id} />}
               </div>
+              {post.relatedProjectSlug ? (
+                <UnlinkProjectForm id={post.id} />
+              ) : (
+                <LinkProjectForm id={post.id} projectOptions={projectOptions} />
+              )}
             </div>
           ))}
         </div>

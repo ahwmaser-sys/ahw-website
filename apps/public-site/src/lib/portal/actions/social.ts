@@ -228,3 +228,46 @@ export async function unpinSocialFeedPost(_prevState: ActionState, formData: For
   revalidatePath('/admin/social-feed');
   return { success: 'Unpinned from the public Social page.' };
 }
+
+const linkFeedPostSchema = z.object({ id: z.string().min(1), projectId: z.string().min(1) });
+
+// Links a real, live-pulled post (see live-feed.ts's own id scheme) to a
+// PortfolioProject so both /social and the project's own page can
+// cross-link — same id-keyed side-table pattern as
+// HiddenSocialPost/PinnedSocialPost above, just carrying a target id.
+export async function linkSocialFeedPostToProject(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = linkFeedPostSchema.safeParse({ id: formData.get('id'), projectId: formData.get('projectId') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  const project = await prisma.portfolioProject.findUnique({ where: { id: parsed.data.projectId }, select: { id: true } });
+  if (!project) return { error: 'Project not found.' };
+
+  await prisma.portfolioSocialPostLink.upsert({
+    where: { id: parsed.data.id },
+    create: { id: parsed.data.id, projectId: parsed.data.projectId, linkedById: principal.userId },
+    update: { projectId: parsed.data.projectId, linkedById: principal.userId },
+  });
+  await recordActivity({ actorId: principal.userId, action: 'admin.social_feed_post_linked', entityType: 'PortfolioSocialPostLink', entityId: parsed.data.id });
+  revalidatePath('/social');
+  revalidatePath('/admin/social-feed');
+  return { success: 'Linked to the project.' };
+}
+
+const unlinkFeedPostSchema = z.object({ id: z.string().min(1) });
+
+export async function unlinkSocialFeedPostFromProject(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = unlinkFeedPostSchema.safeParse({ id: formData.get('id') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  await prisma.portfolioSocialPostLink.deleteMany({ where: { id: parsed.data.id } });
+  await recordActivity({ actorId: principal.userId, action: 'admin.social_feed_post_unlinked', entityType: 'PortfolioSocialPostLink', entityId: parsed.data.id });
+  revalidatePath('/social');
+  revalidatePath('/admin/social-feed');
+  return { success: 'Unlinked from the project.' };
+}
