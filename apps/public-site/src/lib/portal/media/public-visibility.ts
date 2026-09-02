@@ -25,6 +25,21 @@ export async function isPubliclyVisible(assetId: string): Promise<boolean> {
   });
   if (landingOg) return true;
 
+  const portfolioMatch = await prisma.portfolioProject.findFirst({
+    where: {
+      status: 'PUBLISHED',
+      OR: [{ heroImageId: assetId }, { hubFlagshipImageId: assetId }, { hubPairImageId: assetId }, { ogImageId: assetId }],
+    },
+    select: { id: true },
+  });
+  if (portfolioMatch) return true;
+
+  const portfolioGalleryMatch = await prisma.portfolioProjectImage.findFirst({
+    where: { assetId, project: { status: 'PUBLISHED' } },
+    select: { id: true },
+  });
+  if (portfolioGalleryMatch) return true;
+
   const publishedPages = await prisma.landingPage.findMany({
     where: { status: 'PUBLISHED' },
     select: { blocks: true },
