@@ -69,13 +69,20 @@ export async function generateStaticParams() {
 // ones created after that. revalidate keeps every page's DB-backed
 // content fresh on a schedule; admin publish/update actions also call
 // revalidatePath directly, so in practice edits go live immediately and
-// this is a fallback, not the primary freshness mechanism. A previous
-// version of this page relied on dynamicParams=false specifically to
-// dodge a real Next.js issue (a Suspense boundary streaming a 200
-// before an in-page notFound() can flip the status) — this page's
-// render tree has no Suspense boundary, so that risk doesn't apply
-// here; verify with a live HTTP status check on a genuinely unknown
-// slug after deploying this change.
+// this is a fallback, not the primary freshness mechanism.
+//
+// A previous version of this page used dynamicParams=false specifically
+// to dodge a real Next.js issue where notFound() can't flip the HTTP
+// status once a Suspense-wrapped response has started streaming as 200.
+// Confirmed live after first shipping dynamicParams=true here: an
+// unknown slug rendered the correct "not found" UI but returned HTTP
+// 200, not 404 — app/projects/loading.tsx (a sibling of this route,
+// invisible from inside this file) implicitly wraps this whole segment
+// in <Suspense>, which is exactly the scenario Next's own docs describe
+// as unfixable from inside the page component once streaming begins.
+// Removed that loading.tsx to restore a real 404 status; re-verify with
+// a live curl check (not just visual inspection) after any future
+// change that reintroduces a loading.tsx anywhere above this segment.
 export const dynamicParams = true;
 export const revalidate = 1800;
 
