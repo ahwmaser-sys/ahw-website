@@ -1,31 +1,27 @@
 .share {
   display: flex;
   align-items: center;
+  gap: var(--space-3);
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
   justify-content: center;
-  gap: var(--space-4);
-  margin-top: var(--space-8);
-}
-
-.label {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  color: var(--color-brand-stone);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  margin-right: var(--space-2);
-}
-
-.link {
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-sm);
-  color: var(--color-brand-paper);
-  text-decoration: none;
-  padding: var(--space-2) var(--space-4);
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--color-brand-stone);
   border-radius: 2px;
-  transition: opacity var(--transition-fast);
+  color: var(--color-brand-paper);
+  transition: opacity var(--transition-fast), border-color var(--transition-fast);
 }
 
-.link:hover {
+.iconLink:hover {
   opacity: 0.7;
+  border-color: var(--color-brand-paper);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
 }

@@ -6,11 +6,14 @@ export interface NewsItem {
   date: string;
   slug: string;
   coverImage?: string;
+  coverImageCaption?: string;
   thumbnailImage?: string;
   galleryImages?: { id: string; url: string; alt: string }[];
   relatedProjectSlugs?: string[];
   relatedPublicationId?: string;
   tags?: string[];
+  categories?: { name: string; slug: string }[];
+  author?: { name: string; jobTitle?: string; avatarUrl?: string };
   isFeatured?: boolean;
   readingTime?: string;
 }

@@ -26,6 +26,7 @@ const THUMBNAIL_VARIANT = 'website-thumbnail';
 // tall and it dwarfs a short paragraph, too wide and it barely leaves
 // room to wrap.
 const GALLERY_VARIANT = 'instagram-square';
+const AVATAR_VARIANT = 'avatar-square';
 
 function resolveMediaUrl(assetId: string, variantPurpose: string, hasVariant: Set<string>): string {
   return hasVariant.has(`${assetId}:${variantPurpose}`) ? `/api/media/${assetId}?variant=${variantPurpose}` : `/api/media/${assetId}`;
@@ -35,15 +36,20 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
   const posts = await prisma.newsPost.findMany({
     where: { status: 'PUBLISHED', publishedAt: { lte: new Date() } },
     orderBy: { publishedAt: 'desc' },
-    include: { gallery: { include: { asset: true }, orderBy: { sortOrder: 'asc' } } },
+    include: {
+      gallery: { include: { asset: true }, orderBy: { sortOrder: 'asc' } },
+      author: true,
+      categories: { include: { category: true } },
+    },
   });
 
   const featuredImageIds = posts.map((p) => p.featuredImageId).filter((id): id is string => Boolean(id));
   const galleryImageIds = posts.flatMap((p) => p.gallery.map((g) => g.assetId));
-  const allImageIds = [...new Set([...featuredImageIds, ...galleryImageIds])];
+  const avatarIds = posts.map((p) => p.author.avatarId).filter((id): id is string => Boolean(id));
+  const allImageIds = [...new Set([...featuredImageIds, ...galleryImageIds, ...avatarIds])];
   const variants = allImageIds.length
     ? await prisma.mediaAssetVariant.findMany({
-        where: { assetId: { in: allImageIds }, purpose: { in: [COVER_VARIANT, THUMBNAIL_VARIANT, GALLERY_VARIANT] } },
+        where: { assetId: { in: allImageIds }, purpose: { in: [COVER_VARIANT, THUMBNAIL_VARIANT, GALLERY_VARIANT, AVATAR_VARIANT] } },
         select: { assetId: true, purpose: true },
       })
     : [];
@@ -78,6 +84,15 @@ export async function getPublicNewsItems(): Promise<NewsItem[]> {
     // Feeds the article page's existing "Related" section — a slug into
     // packages/ui-components' static project data, not a DB relation.
     ...(post.relatedProjectSlug ? { relatedProjectSlugs: [post.relatedProjectSlug] } : {}),
+    ...(post.coverImageCaption ? { coverImageCaption: post.coverImageCaption } : {}),
+    ...(post.categories.length > 0
+      ? { categories: post.categories.map((c) => ({ name: c.category.name, slug: c.category.slug })) }
+      : {}),
+    author: {
+      name: post.author.name,
+      ...(post.author.jobTitle ? { jobTitle: post.author.jobTitle } : {}),
+      ...(post.author.avatarId ? { avatarUrl: resolveMediaUrl(post.author.avatarId, AVATAR_VARIANT, hasVariant) } : {}),
+    },
   }));
 
   return [...dbItems, ...staticNewsItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

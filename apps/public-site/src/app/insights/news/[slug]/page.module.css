@@ -46,8 +46,35 @@
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-weight: var(--font-weight-light);
   line-height: var(--line-height-tight);
-  margin: 0 0 var(--space-8) 0;
+  margin: 0 0 var(--space-6) 0;
   max-width: 1000px;
+}
+
+.excerpt {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-light);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-brand-stone);
+  max-width: 800px;
+  margin: 0 0 var(--space-8) 0;
+}
+
+.bylineRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.coverCaption {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--color-brand-stone);
+  margin: var(--space-3) 0 0 0;
 }
 
 .tags {
@@ -67,12 +94,15 @@
   letter-spacing: var(--tracking-widest);
 }
 
+.coverBlock {
+  margin-bottom: var(--space-16);
+}
+
 .coverImageWrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
   background-color: var(--color-brand-stone);
-  margin-bottom: var(--space-16);
 }
 
 .coverImage {

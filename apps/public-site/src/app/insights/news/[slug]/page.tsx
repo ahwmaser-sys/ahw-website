@@ -2,7 +2,18 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, PublicationCard, SocialShare, ScrollReveal } from '@agp/ui-components';
+import {
+  publications,
+  StructuredData,
+  Breadcrumbs,
+  buildBreadcrumbJsonLd,
+  PublicationCard,
+  SocialShare,
+  ScrollReveal,
+  CategoryPills,
+  ArticleByline,
+  ArticlePrevNext,
+} from '@agp/ui-components';
 import { getPublicNewsItems } from '../../../../lib/portal/public-news';
 import { recordPageView } from '../../../../lib/portal/analytics/track';
 import { getSiteUrl } from '../../../../lib/site-config';
@@ -94,6 +105,14 @@ export default async function NewsDetailPage({ params }: Props) {
     ? publications.find(p => p.id === news.relatedPublicationId)
     : null;
 
+  // newsItems is already date-sorted newest-first (see
+  // getPublicNewsItems()'s own final sort) — same findIndex-on-ordered-
+  // list pattern already proven on /projects/[slug], no wraparound at
+  // the ends.
+  const orderedIndex = newsItems.findIndex((n) => n.slug === news.slug);
+  const prevNews = orderedIndex > 0 ? newsItems[orderedIndex - 1] : null;
+  const nextNews = orderedIndex < newsItems.length - 1 ? newsItems[orderedIndex + 1] : null;
+
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
@@ -104,41 +123,40 @@ export default async function NewsDetailPage({ params }: Props) {
         <header className={styles.header}>
           <div className={styles.container}>
             <Breadcrumbs items={breadcrumbs} />
-            <div className={styles.meta}>
-              <time dateTime={news.date} className={styles.date}>
-                {new Date(news.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </time>
-              {news.readingTime && (
-                <>
-                  <span className={styles.separator}>—</span>
-                  <span className={styles.readingTime}>{news.readingTime}</span>
-                </>
-              )}
-            </div>
+            <CategoryPills items={news.categories?.map((c) => c.name) ?? []} />
             <h1 className={styles.title}>{news.title}</h1>
-            {news.tags && (
-              <div className={styles.tags}>
-                {news.tags.map(tag => (
-                  <span key={tag} className={styles.tag}>{tag}</span>
-                ))}
-              </div>
-            )}
+            {news.excerpt && <p className={styles.excerpt}>{news.excerpt}</p>}
+            <div className={styles.bylineRow}>
+              <ArticleByline
+                {...(news.author ? { author: news.author } : {})}
+                date={news.date}
+                {...(news.readingTime ? { readingTime: news.readingTime } : {})}
+              />
+              <SocialShare url={`${siteUrl}/insights/news/${news.slug}`} title={news.title} />
+            </div>
           </div>
         </header>
 
         {/* Cover Image */}
         {news.coverImage && (
           <ScrollReveal direction="none" duration={0.8}>
-            <div className={styles.coverImageWrapper}>
-              <Image
-                src={news.coverImage}
-                alt={news.title}
-                fill
-                sizes="(min-width: 800px) 800px, 100vw"
-                className={styles.coverImage}
-                priority
-                fetchPriority="high"
-              />
+            <div className={styles.coverBlock}>
+              <div className={styles.coverImageWrapper}>
+                <Image
+                  src={news.coverImage}
+                  alt={news.title}
+                  fill
+                  sizes="(min-width: 800px) 800px, 100vw"
+                  className={styles.coverImage}
+                  priority
+                  fetchPriority="high"
+                />
+              </div>
+              {news.coverImageCaption && (
+                <div className={styles.container}>
+                  <p className={styles.coverCaption}><em>{news.coverImageCaption}</em></p>
+                </div>
+              )}
             </div>
           </ScrollReveal>
         )}
@@ -154,7 +172,6 @@ export default async function NewsDetailPage({ params }: Props) {
                   : renderArticleBody(news.content || news.excerpt, news.galleryImages ?? [], styles);
               })()}
             </div>
-            <SocialShare url={`${siteUrl}/insights/news/${news.slug}`} title={news.title} />
           </div>
         </div>
       </article>
@@ -196,6 +213,11 @@ export default async function NewsDetailPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      <ArticlePrevNext
+        prev={prevNews ? { href: `/insights/news/${prevNews.slug}`, title: prevNews.title } : null}
+        next={nextNews ? { href: `/insights/news/${nextNews.slug}`, title: nextNews.title } : null}
+      />
     </main>
   );
 }

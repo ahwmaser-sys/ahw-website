@@ -90,6 +90,13 @@ model User {
   emailVerifiedAt DateTime?
   name            String
   phone           String?
+  // Byline fields — set once per staff account, shown automatically on
+  // every NewsPost that account authors (NewsPost.authorId is already
+  // set to whoever creates the post; the byline just reads from there,
+  // no per-article author picker needed).
+  jobTitle        String?
+  avatarId        String?
+  avatar          MediaAsset? @relation("UserAvatar", fields: [avatarId], references: [id])
 
   // Client-realm users are linked to exactly one Client record. Staff
   // (SUPER_ADMIN/ADMIN/EDITOR) have no Client — realm is inferred from
@@ -484,11 +491,15 @@ model NewsPost {
   campaignId String?
   campaign   Campaign? @relation(fields: [campaignId], references: [id])
 
-  featuredImageId String?
-  featuredImage   MediaAsset?            @relation("NewsPostFeaturedImage", fields: [featuredImageId], references: [id])
-  ogImageId       String?
-  ogImage         MediaAsset?            @relation("NewsPostOgImage", fields: [ogImageId], references: [id])
-  gallery         NewsPostGalleryImage[]
+  featuredImageId   String?
+  featuredImage     MediaAsset?            @relation("NewsPostFeaturedImage", fields: [featuredImageId], references: [id])
+  // Small italic caption rendered directly under the cover image on the
+  // public article page — distinct from altText (accessibility) and
+  // excerpt (SEO/social summary).
+  coverImageCaption String?
+  ogImageId         String?
+  ogImage           MediaAsset?            @relation("NewsPostOgImage", fields: [ogImageId], references: [id])
+  gallery           NewsPostGalleryImage[]
 
   categories NewsPostCategory[]
   tags       NewsPostTag[]
@@ -922,6 +933,7 @@ model MediaAsset {
   portfolioHubPairFor     PortfolioProject[]      @relation("PortfolioHubPairImage")
   portfolioOgFor          PortfolioProject[]      @relation("PortfolioOgImage")
   portfolioGalleryEntries PortfolioProjectImage[]
+  avatarUsers             User[]                  @relation("UserAvatar")
 
   @@index([kind])
   @@index([orientation])

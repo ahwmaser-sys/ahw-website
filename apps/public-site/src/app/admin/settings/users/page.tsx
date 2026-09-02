@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireSuperAdminPage } from '../../../../lib/portal/page-guard';
 import { prisma } from '../../../../lib/portal/db';
 import { PortalShell } from '../../../../components/portal/PortalShell';
@@ -41,7 +42,7 @@ export default async function AdminStaffUsersPage() {
             <tbody>
               {staff.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.name}</td>
+                  <td><Link href={`/admin/settings/users/${u.id}`}>{u.name}</Link></td>
                   <td>{u.email}</td>
                   <td>{u.role.replace('_', ' ')}</td>
                   <td>

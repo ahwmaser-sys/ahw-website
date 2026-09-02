@@ -44,5 +44,10 @@ export async function isPubliclyVisible(assetId: string): Promise<boolean> {
     where: { status: 'PUBLISHED' },
     select: { blocks: true },
   });
-  return publishedPages.some((page) => JSON.stringify(page.blocks).includes(assetId));
+  if (publishedPages.some((page) => JSON.stringify(page.blocks).includes(assetId))) return true;
+
+  // A staff byline photo — visible as long as the account itself is
+  // active, independent of any specific post's own publish state.
+  const avatarMatch = await prisma.user.findFirst({ where: { avatarId: assetId, status: 'ACTIVE' }, select: { id: true } });
+  return Boolean(avatarMatch);
 }

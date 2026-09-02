@@ -26,6 +26,9 @@ export * from './components/insights/InsightsFilterBar';
 export * from './components/insights/PublicationCard';
 export * from './components/insights/NewsCard';
 export * from './components/insights/SocialShare';
+export * from './components/insights/CategoryPills';
+export * from './components/insights/ArticleByline';
+export * from './components/insights/ArticlePrevNext';
 
 // Data
 export * from './data/offices';

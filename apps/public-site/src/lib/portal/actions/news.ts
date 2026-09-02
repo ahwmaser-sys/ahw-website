@@ -329,7 +329,12 @@ export async function updateNewsSeo(_prevState: ActionState, formData: FormData)
   return { success: 'SEO settings saved.' };
 }
 
-const featuredImageSchema = z.object({ postId: z.string().min(1), featuredImageId: z.string().optional(), ogImageId: z.string().optional() });
+const featuredImageSchema = z.object({
+  postId: z.string().min(1),
+  featuredImageId: z.string().optional(),
+  ogImageId: z.string().optional(),
+  coverImageCaption: z.string().trim().optional(),
+});
 
 export async function updateNewsFeaturedImage(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const principal = await requireSession();
@@ -339,6 +344,7 @@ export async function updateNewsFeaturedImage(_prevState: ActionState, formData:
     postId: formData.get('postId'),
     featuredImageId: formData.get('featuredImageId') || undefined,
     ogImageId: formData.get('ogImageId') || undefined,
+    coverImageCaption: formData.get('coverImageCaption') || undefined,
   });
   if (!parsed.success) {
     return { error: 'Invalid request.' };
@@ -346,7 +352,11 @@ export async function updateNewsFeaturedImage(_prevState: ActionState, formData:
 
   await prisma.newsPost.update({
     where: { id: parsed.data.postId },
-    data: { featuredImageId: parsed.data.featuredImageId ?? null, ogImageId: parsed.data.ogImageId ?? null },
+    data: {
+      featuredImageId: parsed.data.featuredImageId ?? null,
+      ogImageId: parsed.data.ogImageId ?? null,
+      coverImageCaption: parsed.data.coverImageCaption ?? null,
+    },
   });
 
   if (parsed.data.featuredImageId) {

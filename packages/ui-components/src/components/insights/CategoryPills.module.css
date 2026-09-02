@@ -1,0 +1,20 @@
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0 0 var(--space-6) 0;
+  padding: 0;
+}
+
+.pill {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-ink);
+  background-color: var(--color-brand-paper);
+  padding: var(--space-2) var(--space-5);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}

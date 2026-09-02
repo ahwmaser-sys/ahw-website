@@ -183,6 +183,7 @@ export default async function AdminNewsDetailPage({ params }: { params: Promise<
             postId={post.id}
             featuredImageId={post.featuredImageId}
             ogImageId={post.ogImageId}
+            coverImageCaption={post.coverImageCaption}
             options={imageAssets}
             previewUrlsByAsset={Object.fromEntries(previewUrlsByAsset)}
           />

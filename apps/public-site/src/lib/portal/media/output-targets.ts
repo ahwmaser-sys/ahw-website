@@ -21,6 +21,7 @@ export const OUTPUT_TARGETS: readonly OutputTarget[] = [
   { key: 'website-hero', label: 'Website Hero', width: 1920, height: 1080 },
   { key: 'website-thumbnail', label: 'Website Thumbnail', width: 800, height: 600 },
   { key: 'open-graph', label: 'Open Graph', width: 1200, height: 630 },
+  { key: 'avatar-square', label: 'Avatar', width: 400, height: 400 },
 ];
 
 export function getOutputTarget(key: string): OutputTarget | undefined {

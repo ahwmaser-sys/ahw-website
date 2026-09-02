@@ -1,0 +1,23 @@
+.navSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.navLink {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.04em;
+  color: var(--color-brand-stone);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.navLink:hover {
+  color: var(--color-brand-paper);
+}

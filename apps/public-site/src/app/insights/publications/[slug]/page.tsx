@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare } from '@agp/ui-components';
+import { publications, StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, SocialShare, CategoryPills, ArticlePrevNext } from '@agp/ui-components';
 import { getSiteUrl } from '../../../../lib/site-config';
 import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
 import styles from './page.module.css';
@@ -88,6 +88,15 @@ export default async function PublicationDetailPage({ params }: Props) {
     .map((slug) => portfolioProjects.find((p) => p.slug === slug))
     .filter((p): p is typeof portfolioProjects[number] => Boolean(p));
 
+  // Sorted by date rather than raw declaration order, so prev/next stays
+  // correct as more entries are hand-added to this static array later —
+  // same findIndex-on-ordered-list pattern as News/Projects, no
+  // wraparound at the ends.
+  const orderedPublications = [...publications].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const orderedIndex = orderedPublications.findIndex((p) => p.slug === pub.slug);
+  const prevPub = orderedIndex > 0 ? orderedPublications[orderedIndex - 1] : null;
+  const nextPub = orderedIndex < orderedPublications.length - 1 ? orderedPublications[orderedIndex + 1] : null;
+
   return (
     <main className={styles.main}>
       <StructuredData data={jsonLd} />
@@ -98,42 +107,47 @@ export default async function PublicationDetailPage({ params }: Props) {
         <header className={styles.header}>
           <div className={styles.container}>
             <Breadcrumbs items={breadcrumbs} />
-            <div className={styles.meta}>
-              <span className={styles.outlet}>{pub.outlet}</span>
-              <span className={styles.separator}>—</span>
-              <time dateTime={pub.date} className={styles.date}>
-                {new Date(pub.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </time>
-              {pub.readingTime && (
-                <>
-                  <span className={styles.separator}>—</span>
-                  <span className={styles.readingTime}>{pub.readingTime}</span>
-                </>
-              )}
-            </div>
+            <CategoryPills items={pub.tags ?? []} />
             <h1 className={styles.title}>{pub.title}</h1>
-            {pub.tags && (
-              <div className={styles.tags}>
-                {pub.tags.map(tag => (
-                  <span key={tag} className={styles.tag}>{tag}</span>
-                ))}
+            {pub.excerpt && <p className={styles.excerpt}>{pub.excerpt}</p>}
+            <div className={styles.bylineRow}>
+              <div className={styles.meta}>
+                <span className={styles.outlet}>{pub.outlet}</span>
+                <span className={styles.separator}>—</span>
+                <time dateTime={pub.date} className={styles.date}>
+                  {new Date(pub.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </time>
+                {pub.readingTime && (
+                  <>
+                    <span className={styles.separator}>—</span>
+                    <span className={styles.readingTime}>{pub.readingTime}</span>
+                  </>
+                )}
               </div>
-            )}
+              <SocialShare url={`${siteUrl}/insights/publications/${pub.slug}`} title={pub.title} />
+            </div>
           </div>
         </header>
 
         {/* Cover Image */}
         {pub.coverImage && (
-          <div className={styles.coverImageWrapper}>
-            <Image
-              src={pub.coverImage}
-              alt={pub.title}
-              fill
-              sizes="(min-width: 800px) 800px, 100vw"
-              className={styles.coverImage}
-              priority
-              fetchPriority="high"
-            />
+          <div className={styles.coverBlock}>
+            <div className={styles.coverImageWrapper}>
+              <Image
+                src={pub.coverImage}
+                alt={pub.title}
+                fill
+                sizes="(min-width: 800px) 800px, 100vw"
+                className={styles.coverImage}
+                priority
+                fetchPriority="high"
+              />
+            </div>
+            {pub.coverImageCaption && (
+              <div className={styles.container}>
+                <p className={styles.coverCaption}><em>{pub.coverImageCaption}</em></p>
+              </div>
+            )}
           </div>
         )}
 
@@ -147,7 +161,7 @@ export default async function PublicationDetailPage({ params }: Props) {
                 <p className={styles.textContent}>{pub.excerpt}</p>
               )}
             </div>
-            
+
             <div className={styles.actions}>
               {pub.url && (
                 <a href={pub.url} target="_blank" rel="noopener noreferrer" className={styles.readOriginalButton}>
@@ -155,7 +169,6 @@ export default async function PublicationDetailPage({ params }: Props) {
                 </a>
               )}
             </div>
-            <SocialShare url={`${siteUrl}/insights/publications/${pub.slug}`} title={pub.title} />
           </div>
         </div>
       </article>
@@ -188,6 +201,11 @@ export default async function PublicationDetailPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      <ArticlePrevNext
+        prev={prevPub ? { href: `/insights/publications/${prevPub.slug}`, title: prevPub.title } : null}
+        next={nextPub ? { href: `/insights/publications/${nextPub.slug}`, title: nextPub.title } : null}
+      />
     </main>
   );
 }

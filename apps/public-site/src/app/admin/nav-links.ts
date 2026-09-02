@@ -38,6 +38,7 @@ export const ADMIN_NAV_LINKS: readonly AdminNavGroup[] = [
     links: [
       { href: '/admin', label: 'Dashboard' },
       { href: '/admin/activity', label: 'Activity' },
+      { href: '/admin/profile', label: 'My Profile' },
     ],
   },
   {

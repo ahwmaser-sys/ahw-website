@@ -280,12 +280,14 @@ export function FeaturedImageForm({
   postId,
   featuredImageId,
   ogImageId,
+  coverImageCaption,
   options,
   previewUrlsByAsset,
 }: {
   postId: string;
   featuredImageId: string | null;
   ogImageId: string | null;
+  coverImageCaption: string | null;
   options: AssetOption[];
   previewUrlsByAsset?: Record<string, PreviewUrls>;
 }) {
@@ -330,6 +332,16 @@ export function FeaturedImageForm({
               <option key={o.id} value={o.id}>{o.fileName}</option>
             ))}
           </select>
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="coverImageCaption">Cover image caption (optional)</label>
+          <input
+            className={styles.input}
+            id="coverImageCaption"
+            name="coverImageCaption"
+            defaultValue={coverImageCaption ?? ''}
+            placeholder="Shown in small italic text directly under the cover image"
+          />
         </div>
       </div>
     </ActionForm>

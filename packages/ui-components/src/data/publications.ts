@@ -8,6 +8,7 @@ export interface Publication {
   date: string;
   url: string;
   coverImage?: string;
+  coverImageCaption?: string;
   relatedProjectSlugs?: string[];
   tags?: string[];
   isFeatured?: boolean;
