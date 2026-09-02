@@ -19,6 +19,52 @@ const API = 'https://api.linkedin.com/rest';
 // in integrations/test.ts.
 const LINKEDIN_API_VERSION = '202608';
 
+// Attaches content.imageUrl to the post, which formatContent computed
+// but publish() used to silently drop — every LinkedIn post went out
+// text-only regardless of the article's featured image. LinkedIn has no
+// Facebook/Instagram-style "just pass a URL" option: the image has to
+// be uploaded to LinkedIn's own storage first (Images API), which
+// returns an urn:li:image:... to reference in the post body. Failure
+// here degrades to a text-only post (still worth publishing) rather
+// than failing the whole thing — same pattern as every other
+// best-effort branch in this adapter layer.
+async function uploadLinkedInImage(imageUrl: string, authorUrn: string, accessToken: string): Promise<string | null> {
+  try {
+    const initRes = await fetch(`${API}/images?action=initializeUpload`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+        'X-Restli-Protocol-Version': '2.0.0',
+        'Linkedin-Version': LINKEDIN_API_VERSION,
+      },
+      body: JSON.stringify({ initializeUploadRequest: { owner: authorUrn } }),
+    });
+    if (!initRes.ok) return null;
+    const initBody = (await initRes.json()) as { value?: { uploadUrl?: string; image?: string } };
+    const { uploadUrl, image: imageUrn } = initBody.value ?? {};
+    if (!uploadUrl || !imageUrn) return null;
+
+    const imageRes = await fetch(imageUrl);
+    if (!imageRes.ok) return null;
+    const imageBytes = await imageRes.arrayBuffer();
+
+    // Per LinkedIn's Images API docs: PUT the raw bytes to the returned
+    // uploadUrl, with the same OAuth token (unlike video uploads, which
+    // explicitly must NOT carry one).
+    const uploadRes = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: imageBytes,
+    });
+    if (!uploadRes.ok) return null;
+
+    return imageUrn;
+  } catch {
+    return null;
+  }
+}
+
 export const linkedinAdapter: SocialAdapter = {
   platform: 'LINKEDIN',
 
@@ -44,6 +90,8 @@ export const linkedinAdapter: SocialAdapter = {
     }
 
     const author = `urn:li:organization:${cred.organizationId}`;
+    const imageUrn = content.imageUrl ? await uploadLinkedInImage(content.imageUrl, author, cred.accessToken) : null;
+
     // Posts API (replaces the deprecated ugcPosts API) — see
     // https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api
     const res = await fetch(`${API}/posts`, {
@@ -63,6 +111,7 @@ export const linkedinAdapter: SocialAdapter = {
           targetEntities: [],
           thirdPartyDistributionChannels: [],
         },
+        ...(imageUrn ? { content: { media: { id: imageUrn } } } : {}),
         lifecycleState: 'PUBLISHED',
         isReshareDisabledByAuthor: false,
       }),
