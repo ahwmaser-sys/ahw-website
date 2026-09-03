@@ -1,6 +1,6 @@
 'use client';
 
-import { createInvoice, recordInvoicePayment } from '../../../../lib/portal/actions/invoices';
+import { createInvoice, recordInvoicePayment, deleteInvoice } from '../../../../lib/portal/actions/invoices';
 import { ActionForm } from '../../../../components/portal/ActionForm';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
@@ -35,6 +35,15 @@ export function RecordPaymentForm({ invoiceId, projectId }: { invoiceId: string;
         <label className={styles.label} htmlFor={`payment-${invoiceId}`}>Payment amount</label>
         <input className={styles.input} id={`payment-${invoiceId}`} name="amount" type="number" step="0.01" min="0.01" required />
       </div>
+    </ActionForm>
+  );
+}
+
+export function DeleteInvoiceButton({ invoiceId, projectId }: { invoiceId: string; projectId: string }) {
+  return (
+    <ActionForm action={deleteInvoice} submitLabel="Delete invoice" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
+      <input type="hidden" name="invoiceId" value={invoiceId} />
+      <input type="hidden" name="projectId" value={projectId} />
     </ActionForm>
   );
 }

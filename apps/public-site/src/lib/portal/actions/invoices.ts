@@ -92,3 +92,43 @@ export async function recordInvoicePayment(_prevState: ActionState, formData: Fo
   revalidatePath(`/admin/projects/${parsed.data.projectId}`);
   return { success: 'Payment recorded.' };
 }
+
+const deleteInvoiceSchema = z.object({ invoiceId: z.string().min(1), projectId: z.string().min(1) });
+
+// A payment already recorded against this invoice is a real financial
+// record — deleting the invoice out from under it would silently orphan
+// that history (or cascade-delete it, per the schema's onDelete on
+// Payment.invoiceId), so this only allows removing an invoice nothing
+// has been paid against yet. Same "archive/guard instead of losing
+// history" principle as deleteProject's document/invoice/message/photo
+// check above.
+export async function deleteInvoice(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = deleteInvoiceSchema.safeParse({ invoiceId: formData.get('invoiceId'), projectId: formData.get('projectId') });
+  if (!parsed.success) {
+    return { error: 'Invalid request.' };
+  }
+
+  const invoice = await prisma.invoice.findUnique({ where: { id: parsed.data.invoiceId }, include: { payments: true } });
+  if (!invoice || invoice.projectId !== parsed.data.projectId) {
+    return { error: 'Invoice not found.' };
+  }
+  if (invoice.payments.length > 0) {
+    return { error: 'This invoice already has a payment recorded against it — it cannot be deleted, to keep the payment history intact.' };
+  }
+
+  await prisma.invoice.delete({ where: { id: parsed.data.invoiceId } });
+
+  await recordActivity({
+    actorId: principal.userId,
+    action: 'admin.invoice_deleted',
+    entityType: 'Invoice',
+    entityId: parsed.data.invoiceId,
+    projectId: parsed.data.projectId,
+  });
+
+  revalidatePath(`/admin/projects/${parsed.data.projectId}`);
+  return { success: 'Invoice deleted.' };
+}

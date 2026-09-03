@@ -11,8 +11,8 @@ import { EditProjectForm } from './ProjectSettingsForms';
 import { AssignClientForm, RemoveMemberButton } from './ProjectPeopleForms';
 import { AddMilestoneForm, ToggleMilestoneButton } from './ProjectMilestoneForms';
 import { PostUpdateForm, ReplyMessageForm, SendNotificationForm, DeleteMessageForm } from './ProjectContentForms';
-import { UploadDocumentForm, UploadPhotoForm } from './ProjectUploadForms';
-import { CreateInvoiceForm, RecordPaymentForm } from './ProjectInvoiceForms';
+import { UploadDocumentForm, UploadPhotoForm, DeletePhotoButton, DeleteDocumentButton } from './ProjectUploadForms';
+import { CreateInvoiceForm, RecordPaymentForm, DeleteInvoiceButton } from './ProjectInvoiceForms';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -159,6 +159,7 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
               </div>
               {photo.caption && <span className={styles.cardMeta}>{photo.caption}</span>}
               <span className={styles.cardMeta}>{formatDate(photo.createdAt)}</span>
+              <DeletePhotoButton photoId={photo.id} projectId={project.id} />
             </div>
           ))}
         </div>
@@ -177,12 +178,13 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
                 <th>Category</th>
                 <th>Uploaded</th>
                 <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {project.documents.length === 0 && (
                 <tr className={styles.emptyRow}>
-                  <td colSpan={4}>No documents uploaded yet.</td>
+                  <td colSpan={5}>No documents uploaded yet.</td>
                 </tr>
               )}
               {project.documents.map((doc) => (
@@ -192,6 +194,9 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
                   <td>{formatDate(doc.createdAt)}</td>
                   <td>
                     <AssetDownloadLink kind="documents" assetId={doc.id} label="Download" />
+                  </td>
+                  <td>
+                    <DeleteDocumentButton documentId={doc.id} projectId={project.id} />
                   </td>
                 </tr>
               ))}
@@ -225,6 +230,7 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
                   Due {formatDate(invoice.dueDate)} · Paid {paid.toFixed(2)} / {Number(invoice.amount).toFixed(2)}
                 </span>
                 {invoice.status !== 'PAID' && <RecordPaymentForm invoiceId={invoice.id} projectId={project.id} />}
+                {invoice.payments.length === 0 && <DeleteInvoiceButton invoiceId={invoice.id} projectId={project.id} />}
               </div>
             );
           })}

@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { requireSession, requireRole } from '../auth-guard';
 import { STAFF_ROLES, SUPER_ADMIN_ONLY } from '../roles';
 import { prisma } from '../db';
+import { deleteFile } from '../storage';
 import { recordActivity } from '../audit';
 import type { ActionState } from '../../../components/portal/ActionForm';
 
@@ -304,4 +305,67 @@ export async function postProjectUpdate(_prevState: ActionState, formData: FormD
 
   revalidatePath(`/admin/projects/${parsed.data.projectId}`);
   return { success: 'Update posted.' };
+}
+
+const deletePhotoSchema = z.object({ photoId: z.string().min(1), projectId: z.string().min(1) });
+
+export async function deletePhoto(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = deletePhotoSchema.safeParse({ photoId: formData.get('photoId'), projectId: formData.get('projectId') });
+  if (!parsed.success) {
+    return { error: 'Invalid request.' };
+  }
+
+  const photo = await prisma.photo.findUnique({ where: { id: parsed.data.photoId } });
+  if (!photo || photo.projectId !== parsed.data.projectId) {
+    return { error: 'Photo not found.' };
+  }
+
+  await deleteFile(photo.storageKey);
+  await prisma.photo.delete({ where: { id: parsed.data.photoId } });
+
+  await recordActivity({
+    actorId: principal.userId,
+    action: 'admin.photo_deleted',
+    entityType: 'Photo',
+    entityId: parsed.data.photoId,
+    projectId: parsed.data.projectId,
+  });
+
+  revalidatePath(`/admin/projects/${parsed.data.projectId}`);
+  return { success: 'Photo deleted.' };
+}
+
+const deleteDocumentSchema = z.object({ documentId: z.string().min(1), projectId: z.string().min(1) });
+
+export async function deleteDocument(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, STAFF_ROLES);
+
+  const parsed = deleteDocumentSchema.safeParse({ documentId: formData.get('documentId'), projectId: formData.get('projectId') });
+  if (!parsed.success) {
+    return { error: 'Invalid request.' };
+  }
+
+  const document = await prisma.document.findUnique({ where: { id: parsed.data.documentId } });
+  if (!document || document.projectId !== parsed.data.projectId) {
+    return { error: 'Document not found.' };
+  }
+
+  await deleteFile(document.storageKey);
+  await prisma.document.delete({ where: { id: parsed.data.documentId } });
+
+  await recordActivity({
+    actorId: principal.userId,
+    action: 'admin.document_deleted',
+    entityType: 'Document',
+    entityId: parsed.data.documentId,
+    projectId: parsed.data.projectId,
+    metadata: { fileName: document.fileName },
+  });
+
+  revalidatePath(`/admin/projects/${parsed.data.projectId}`);
+  return { success: 'Document deleted.' };
 }

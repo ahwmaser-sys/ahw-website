@@ -3,6 +3,8 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { upload } from '@vercel/blob/client';
+import { deletePhoto, deleteDocument } from '../../../../lib/portal/actions/projects';
+import { ActionForm } from '../../../../components/portal/ActionForm';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
 // Uploads straight from the browser to Blob storage (Vercel's own
@@ -140,5 +142,23 @@ export function UploadPhotoForm({ projectId }: { projectId: string }) {
         <button type="submit" className={styles.button} disabled={pending}>{pending ? 'Uploading…' : 'Upload photo'}</button>
       </div>
     </form>
+  );
+}
+
+export function DeletePhotoButton({ photoId, projectId }: { photoId: string; projectId: string }) {
+  return (
+    <ActionForm action={deletePhoto} submitLabel="Delete" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
+      <input type="hidden" name="photoId" value={photoId} />
+      <input type="hidden" name="projectId" value={projectId} />
+    </ActionForm>
+  );
+}
+
+export function DeleteDocumentButton({ documentId, projectId }: { documentId: string; projectId: string }) {
+  return (
+    <ActionForm action={deleteDocument} submitLabel="Delete" buttonClassName={styles.buttonDanger} className={styles.buttonRow}>
+      <input type="hidden" name="documentId" value={documentId} />
+      <input type="hidden" name="projectId" value={projectId} />
+    </ActionForm>
   );
 }
