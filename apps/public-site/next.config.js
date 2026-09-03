@@ -244,6 +244,23 @@ const nextConfig = {
       '../../node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*',
       '../../node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*',
     ],
+    // The photo-token upload route (app/api/portal/uploads/photo-token)
+    // also imports sharp directly (re-encodes the raw blob in
+    // onUploadCompleted) but sits outside /admin/**, so the glob above
+    // never covered it — confirmed live: it 500'd with the exact same
+    // "Could not load the sharp module... libvips-cpp.so.8.18.3: cannot
+    // open shared object file" error the /admin/** fix above was written
+    // for. Every other sharp importer (dominant-color.ts, pipeline.ts,
+    // qrcode.ts, smart-crop.ts) is only ever reached from /admin/** server
+    // actions, so this route is the one exception needing its own entry.
+    '/api/portal/uploads/photo-token': [
+      './node_modules/.pnpm/sharp@*/node_modules/sharp/**/*',
+      './node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*',
+      './node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*',
+      '../../node_modules/.pnpm/sharp@*/node_modules/sharp/**/*',
+      '../../node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-linux-x64/**/*',
+      '../../node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**/*',
+    ],
   },
   experimental: {
     // Default is 4 static-generation workers, each opening its own Prisma
