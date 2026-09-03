@@ -1,7 +1,6 @@
-import { writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
 import type { IntegrationType } from '@prisma/client';
 import { prisma } from './db';
+import { checkStorageWritable } from './storage';
 
 // Company-wide integrations (Email, AI providers) are always the
 // `officeId: null` row. Looked up with findFirst rather than the
@@ -31,14 +30,13 @@ async function checkDatabase(): Promise<HealthCheck> {
 }
 
 async function checkStorage(): Promise<HealthCheck> {
-  const probePath = join(process.cwd(), 'storage', 'portal', '.health-check');
-  try {
-    await writeFile(probePath, String(Date.now()));
-    await unlink(probePath);
-    return { name: 'Storage', status: 'HEALTHY', detail: 'Local filesystem is writable.' };
-  } catch (error) {
-    return { name: 'Storage', status: 'OFFLINE', detail: error instanceof Error ? error.message : 'Not writable.' };
-  }
+  const result = await checkStorageWritable();
+  const prefix = result.backend === 'blob' ? 'Vercel Blob' : 'Local filesystem';
+  return {
+    name: 'Storage',
+    status: result.ok ? 'HEALTHY' : 'OFFLINE',
+    detail: result.ok ? `${prefix} is writable.` : `${prefix}: ${result.detail}`,
+  };
 }
 
 // email.ts's

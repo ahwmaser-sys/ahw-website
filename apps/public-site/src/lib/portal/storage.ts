@@ -101,3 +101,30 @@ export function resolveFilePath(key: string): string {
 export function isUsingBlobStorage(): boolean {
   return useBlob;
 }
+
+// Round-trips a tiny probe file through whichever backend saveFile()
+// actually uses — never local disk unconditionally. The Dashboard's own
+// "Storage" health check used to always probe the local filesystem, even
+// in Blob mode: on Vercel, a serverless function's filesystem is
+// read-only outside /tmp, so that check reported OFFLINE in production
+// even when Blob (the backend every real upload actually uses) was
+// perfectly healthy — a false alarm, confirmed by every image upload
+// this session succeeding while that check showed red.
+export async function checkStorageWritable(): Promise<{ ok: boolean; backend: 'blob' | 'local'; detail: string }> {
+  const backend = useBlob ? 'blob' : 'local';
+  try {
+    if (useBlob) {
+      const probeKey = `.health-check/${Date.now()}`;
+      const blob = await put(probeKey, 'ok', { access: 'public', addRandomSuffix: false, allowOverwrite: true });
+      await del(blob.url);
+      return { ok: true, backend, detail: 'Vercel Blob is writable.' };
+    }
+    const probePath = join(STORAGE_ROOT, '.health-check');
+    await mkdir(dirname(probePath), { recursive: true });
+    await writeFile(probePath, String(Date.now()));
+    await unlink(probePath);
+    return { ok: true, backend, detail: 'Local filesystem is writable.' };
+  } catch (error) {
+    return { ok: false, backend, detail: error instanceof Error ? error.message : 'Not writable.' };
+  }
+}
