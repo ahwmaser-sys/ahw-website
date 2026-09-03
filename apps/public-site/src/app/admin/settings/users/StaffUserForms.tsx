@@ -1,6 +1,6 @@
 'use client';
 
-import { inviteStaffUser, setStaffUserStatus } from '../../../../lib/portal/actions/staff-users';
+import { inviteStaffUser, setStaffUserStatus, sendStaffPasswordReset } from '../../../../lib/portal/actions/staff-users';
 import { ActionForm } from '../../../../components/portal/ActionForm';
 import styles from '../../../../components/portal/portal-ui.module.css';
 
@@ -25,6 +25,14 @@ export function InviteStaffForm() {
           </select>
         </div>
       </div>
+    </ActionForm>
+  );
+}
+
+export function SendPasswordResetForm({ userId }: { userId: string }) {
+  return (
+    <ActionForm action={sendStaffPasswordReset} submitLabel="Send password reset link" buttonClassName={styles.buttonSecondary} className={styles.buttonRow}>
+      <input type="hidden" name="userId" value={userId} />
     </ActionForm>
   );
 }

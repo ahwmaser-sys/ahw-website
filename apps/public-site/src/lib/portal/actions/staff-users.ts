@@ -67,6 +67,35 @@ export async function inviteStaffUser(_prevState: ActionState, formData: FormDat
   return { success: `Invited ${parsed.data.email} as ${parsed.data.role} — they'll receive a password-setup email.` };
 }
 
+const sendResetSchema = z.object({ userId: z.string().min(1) });
+
+// The only supported way to reset an EXISTING staff member's forgotten
+// or lost password — same token/email mechanism inviteStaffUser already
+// uses for a brand-new account, just triggered for an existing one.
+// Deliberately never lets an admin type a new password directly for
+// someone else (that would mean the admin now knows it) — the account
+// owner always sets their own password via the emailed link.
+export async function sendStaffPasswordReset(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const principal = await requireSession();
+  requireRole(principal, SUPER_ADMIN_ONLY);
+
+  const parsed = sendResetSchema.safeParse({ userId: formData.get('userId') });
+  if (!parsed.success) return { error: 'Invalid request.' };
+
+  const user = await prisma.user.findUnique({ where: { id: parsed.data.userId } });
+  if (!user) return { error: 'Not found.' };
+
+  const token = randomBytes(32).toString('hex');
+  const tokenHash = createHash('sha256').update(token).digest('hex');
+  await prisma.passwordResetToken.create({ data: { userId: user.id, tokenHash, expiresAt: new Date(Date.now() + RESET_TTL_MS) } });
+
+  const siteUrl = await getSiteUrl();
+  await sendEmail({ to: user.email, ...passwordResetEmail(`${siteUrl}/admin/reset-password/${token}`) });
+
+  await recordActivity({ actorId: principal.userId, action: 'admin.staff_password_reset_sent', entityType: 'User', entityId: user.id });
+  return { success: `Password reset link sent to ${user.email}.` };
+}
+
 const statusSchema = z.object({ userId: z.string().min(1), status: z.enum(['ACTIVE', 'DISABLED']) });
 
 export async function setStaffUserStatus(_prevState: ActionState, formData: FormData): Promise<ActionState> {

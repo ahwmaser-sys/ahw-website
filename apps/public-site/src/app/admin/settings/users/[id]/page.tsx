@@ -6,6 +6,7 @@ import { prisma } from '../../../../../lib/portal/db';
 import { PortalShell } from '../../../../../components/portal/PortalShell';
 import { ADMIN_NAV_LINKS } from '../../../nav-links';
 import { ProfileForm } from '../../../profile/ProfileForm';
+import { SendPasswordResetForm } from '../StaffUserForms';
 import styles from '../../../../../components/portal/portal-ui.module.css';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -28,6 +29,15 @@ export default async function AdminStaffUserDetailPage({ params }: { params: Pro
 
       <div className={styles.section}>
         <ProfileForm userId={user.id} name={user.name} phone={user.phone} jobTitle={user.jobTitle} avatarId={user.avatarId} />
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Security</h2>
+        <p className={styles.cardMeta}>
+          There's no way to see or set this account's password directly — sends a reset link to {user.email} instead,
+          the same as inviting a new staff member.
+        </p>
+        <SendPasswordResetForm userId={user.id} />
       </div>
     </PortalShell>
   );
