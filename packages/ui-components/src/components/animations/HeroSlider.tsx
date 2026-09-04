@@ -65,7 +65,7 @@ export function HeroSlider({ images, alt, interval = 5000, lightbox = false, siz
             alt={`${alt} - ${index + 1}`}
             fill
             sizes={sizes}
-            quality={90}
+            quality={100}
             className={`${styles.image} ${orientation === 'portrait' ? styles.imagePortrait : ''}`}
             priority={index === 0}
             fetchPriority={index === 0 ? 'high' : undefined}
