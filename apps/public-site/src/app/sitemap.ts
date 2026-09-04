@@ -40,6 +40,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/insights`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/insights/publications`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/insights/news`, changeFrequency: 'weekly', priority: 0.5 },
+    // Real, indexable, non-admin content page (live social feed pulled
+    // from connected accounts, has its own JSON-LD) — was simply never
+    // added here when the route shipped. Confirmed absent from the live
+    // sitemap.xml before this fix.
+    { url: `${baseUrl}/social`, changeFrequency: 'weekly', priority: 0.5 },
     { url: `${baseUrl}/about`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/about/about-us`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/about/why-ahw`, changeFrequency: 'monthly', priority: 0.7 },

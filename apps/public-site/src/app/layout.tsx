@@ -193,6 +193,18 @@ export default async function RootLayout({
       name: leader.name,
       jobTitle: leader.role,
     })),
+    // The full discipline catalog already lives on /expertise's own
+    // Service.hasOfferCatalog (23 items), reachable from this Organization
+    // node via that page's `provider: { '@id': organizationId }` reference.
+    // That graph link is enough for a crawler that resolves @id references
+    // (Google), but many AI/GEO answer systems read one JSON-LD block at a
+    // time without following cross-page @id links — for those, "what does
+    // AHW do" is only answered by the one-sentence `description` above
+    // unless it's stated directly here too. Mirrors the exact 5 disciplines
+    // this site has a dedicated /expertise/* page for — not the fuller
+    // 23-item list, to avoid restating that catalog redundantly on every
+    // single page's Organization node.
+    knowsAbout: ['Architecture', 'Interior Design', 'Design & Build', 'Fit-Out', 'Structural Engineering', 'Project Management'],
     // Distinct from `location` (physical offices): the markets the practice
     // actually delivers projects in, per projects.ts (Egypt, Kuwait, UAE),
     // plus the broader GCC region the firm positions itself as serving.
