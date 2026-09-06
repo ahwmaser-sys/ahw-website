@@ -282,7 +282,24 @@ const nextConfig = {
     serverActions: { bodySizeLimit: '25mb' },
   },
   images: {
-    // Allow quality=100 for high-fidelity project photography
+    // Allow quality=100 for high-fidelity project photography.
+    //
+    // DELIBERATELY NOT CHANGED YET — this is the largest remaining saving and
+    // it is being held until the next Image Optimization billing period.
+    // Three quality values are live at once: quality={100} (11 call sites,
+    // incl. all of projects/[slug]), quality={90} (Hero, Lightbox) and the
+    // implicit default 75 (~20 files). Vercel's cache key is (url, w, q), so
+    // the same photo rendered at two qualities is two transformations —
+    // unifying on 90 would roughly halve project-photography transformations.
+    //
+    // Why not now: usage is ~4.4K of 5K, leaving ~600. Changing q invalidates
+    // nothing but makes every width a brand-new key: /projects alone is ~66
+    // images x 8 widths = ~528 new transformations, which would consume the
+    // remaining allowance on that page's traffic alone. This is exactly the
+    // failure mode of commit 526df22 ("Revert quality=100->90 change: made
+    // currently-broken images worse"), where new q=90 keys could not be
+    // generated against an exhausted quota and MORE images broke, not fewer.
+    // Do this at the START of a fresh period, not near its end.
     qualities: [100, 90, 75],
     // Disable image optimization for local assets served from public/
     unoptimized: false,
@@ -293,7 +310,33 @@ const nextConfig = {
     // ~17KB heavier than needed) has no closer-fitting size to pick from.
     // Adding 1366/1536 (real, common laptop viewport widths) closes that
     // gap without touching any component's own sizes/quality props.
-    deviceSizes: [640, 750, 828, 1080, 1200, 1366, 1536, 1920, 2048, 3840],
+    // 3840 and 1366 removed (was [640,750,828,1080,1200,1366,1536,1920,2048,3840]).
+    // Measured on production HTML: /projects emits srcset entries for ~66
+    // distinct images across 11 widths (~726 possible transformations from
+    // that page alone), and w=3840 is the single most-referenced width
+    // (114 occurrences on /projects, 38 on the homepage) as well as the most
+    // expensive tier to generate and store.
+    //   - 3840: only ever chosen by 4K displays. With 2048 as the new ceiling
+    //     a 4K viewport at the grid's 33vw slot upscales ~1.25x, which is not
+    //     perceptible on architectural photography. Full-bleed heroes were
+    //     already compromising at 3840 on a 4K/DPR2 screen (which would want
+    //     7680), so nothing that was previously pixel-exact stops being so.
+    //   - 1366: redundant — 1200 and 1536 bracket it within 14%, and it was
+    //     added speculatively alongside 1536 for "common laptop widths".
+    // Removing a breakpoint creates NO new cache keys: it only stops future
+    // requests at those widths. Existing cached variants stay valid.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1536, 1920, 2048],
+    // Next 16 defaults minimumCacheTTL to 14400s (4 hours) — verified unset
+    // here, so production was running that default. Every optimized variant
+    // therefore expired and was RE-WRITTEN roughly six times a day. That is
+    // the direct cause of Image Optimization Cache Writes running at ~189K
+    // against a 100K allowance while only ~4.4K transformations exist:
+    // 4.4K x ~6/day x ~7 days ~= 185K, which matches the observed figure.
+    // Project photography under public/ is immutable (content-hashed
+    // filenames, replaced by deploy not in place), so a long TTL is correct
+    // and carries no staleness risk. 31 days is Vercel's maximum.
+    // This changes no cache KEY, so it generates zero new transformations.
+    minimumCacheTTL: 2678400,
     // AVIF first, WebP fallback — Next negotiates via the request's
     // Accept header automatically; this only adds format options; it
     // never lowers the quality values set above.
