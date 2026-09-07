@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
-    "images:generate": "node scripts/generate-image-variants.mjs"
+    "images:generate": "node scripts/generate-image-variants.mjs",
+    "images:audit": "node scripts/audit-image-references.mjs"
   },
   "dependencies": {
     "@agp/api-client": "workspace:*",
@@ -49,6 +50,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "eslint-config-next": "^16.2.12",
+    "pg": "^8.23.0",
     "prisma": "^7.9.1"
   },
   "browserslist": [
