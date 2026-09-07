@@ -13,6 +13,31 @@ export default tseslint.config(
     }
   },
   {
+    // next/image custom loader — runs in the BROWSER, so it gets browser
+    // globals rather than Node ones.
+    files: ["apps/public-site/image-loader.js"],
+    languageOptions: {
+      sourceType: "module",
+      globals: {
+        URLSearchParams: "readonly",
+        URL: "readonly"
+      }
+    }
+  },
+  {
+    // Node-run build scripts (ESM). These execute under `node` during the
+    // build, not in the browser, so they legitimately use Node globals.
+    files: ["apps/public-site/scripts/**/*.mjs"],
+    languageOptions: {
+      sourceType: "module",
+      globals: {
+        process: "readonly",
+        console: "readonly",
+        URL: "readonly"
+      }
+    }
+  },
+  {
     files: ["**/*.cjs"],
     languageOptions: {
       sourceType: "commonjs",

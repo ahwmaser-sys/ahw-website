@@ -16,7 +16,13 @@ import { isPubliclyVisible } from '../../../../lib/portal/media/public-visibilit
 
 export async function GET(request: Request, { params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = await params;
-  const variantPurpose = new URL(request.url).searchParams.get('variant');
+  const search = new URL(request.url).searchParams;
+  // `?w=` is what ../../../image-loader.js requests for uploaded media: a
+  // width-only display variant written by the media pipeline (whole image
+  // scaled, never cropped). It is mapped onto the same variant lookup as
+  // `?variant=`, whose purposes are the social crops.
+  const requestedWidth = search.get('w');
+  const variantPurpose = search.get('variant') ?? (requestedWidth ? `w${requestedWidth}` : null);
 
   const visible = await isPubliclyVisible(assetId);
   if (!visible) {
@@ -28,11 +34,28 @@ export async function GET(request: Request, { params }: { params: Promise<{ asse
       where: { assetId_purpose: { assetId, purpose: variantPurpose } },
     });
     if (!variant) {
+      // A width that was never generated (an older asset, or a failed
+      // variant) falls through to the original below rather than 404ing --
+      // the loader cannot know which widths exist for a given upload.
+      if (requestedWidth) {
+        const original = await prisma.mediaAsset.findUnique({ where: { id: assetId } });
+        if (original) {
+          const originalData = await readFileByKey(original.storageKey);
+          return new Response(new Uint8Array(originalData), {
+            headers: { 'Content-Type': original.fileType, 'Cache-Control': 'public, max-age=31536000, immutable' },
+          });
+        }
+      }
       return Response.json({ error: 'Not found.' }, { status: 404 });
     }
     const data = await readFileByKey(variant.storageKey);
     return new Response(new Uint8Array(data), {
-      headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=3600' },
+      headers: {
+        // Display widths are AVIF; the social crops are JPEG.
+        'Content-Type': variant.storageKey.endsWith('.avif') ? 'image/avif' : 'image/jpeg',
+        // Media is immutable: an edit replaces the reference, never the bytes.
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
     });
   }
 

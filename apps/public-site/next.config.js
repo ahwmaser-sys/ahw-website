@@ -300,6 +300,38 @@ const nextConfig = {
     // currently-broken images worse"), where new q=90 keys could not be
     // generated against an exhausted quota and MORE images broke, not fewer.
     // Do this at the START of a fresh period, not near its end.
+    // ── PRE-GENERATED VARIANTS: Vercel no longer optimizes anything ──────
+    //
+    // `loader: 'custom'` replaces Next's built-in /_next/image endpoint with
+    // ./image-loader.js, which returns a plain static URL under /_img/.
+    // Vercel bills a transformation per (source, width, quality) cache MISS
+    // or STALE -- 5,000/month on Hobby, re-billed roughly monthly because
+    // variants expire, measured at ~2,800/month at 20 projects and rising
+    // ~105 per new project. Past the allowance Vercel answers 402 and the
+    // browser shows alt text instead of the photo: the outage this site
+    // already had (see 502a943 / 526df22).
+    //
+    // Every width is now written to public/_img/ at build time by
+    // scripts/generate-image-variants.mjs, so the browser fetches a file that
+    // already exists. Transformations drop to ZERO and stay there no matter
+    // how many projects the site carries.
+    //
+    // The images themselves are scaled by WIDTH ONLY -- the height follows
+    // the source aspect ratio, so nothing is cropped and nothing is
+    // stretched. Verified across all eight widths on a 4240x2384 source:
+    // ratio 1.7785 in, 1.7778 out at every size.
+    loader: 'custom',
+    loaderFile: './image-loader.js',
+
+    // Kept because next/image still uses these to decide WHICH widths to put
+    // in a srcset -- and therefore which filenames it asks the loader for.
+    // They must stay in step with DEVICE_WIDTHS/IMAGE_WIDTHS in the generator.
+    //
+    // `qualities`, `minimumCacheTTL` and `formats` below are now inert: they
+    // only ever configured Vercel's optimizer, which is no longer in the
+    // path. They are left in place, with their original reasoning intact, so
+    // that reverting this change is a two-line edit rather than an
+    // archaeology exercise.
     qualities: [100, 90, 75],
     // Disable image optimization for local assets served from public/
     unoptimized: false,

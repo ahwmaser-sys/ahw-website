@@ -12,3 +12,8 @@ node_modules
 # Database backups (Settings → Backup & Restore) — real data, never committed.
 /storage/backups/*
 !/storage/backups/.gitkeep
+
+# Pre-generated responsive image variants (scripts/generate-image-variants.mjs).
+# Build artifact, regenerated on every deploy -- ~1,900 binaries that would
+# permanently bloat the repo for every clone if committed.
+/public/_img/

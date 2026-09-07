@@ -10,6 +10,15 @@ import { extractDominantColors } from './dominant-color';
 import { extractVideoMetadata } from './video';
 import { OUTPUT_TARGETS } from './output-targets';
 
+// Must stay in step with `images.deviceSizes` in next.config.js and with
+// DEVICE_WIDTHS in scripts/generate-image-variants.mjs -- next/image only ever
+// asks the loader for one of these widths.
+const DISPLAY_WIDTHS = [640, 750, 828, 1080, 1200, 1536, 1920, 2048] as const;
+// Matches AVIF_QUALITY in scripts/generate-image-variants.mjs so an uploaded
+// photo is encoded identically to the site's static photography. Chosen by
+// measured error against the source, not by feel -- see that file.
+const DISPLAY_AVIF_QUALITY = 72;
+
 export interface PipelineInput {
   buffer: Buffer;
   fileName: string;
@@ -139,6 +148,41 @@ export async function runMediaPipeline(input: PipelineInput): Promise<PipelineRe
       const cropped = await smartCropToBuffer(input.buffer, target);
       const variantKey = await saveFile(`${prefix}/${assetId}/${target.key}.jpg`, cropped);
       variants.push({ purpose: target.key, storageKey: variantKey, width: target.width, height: target.height });
+    }
+
+    // DISPLAY WIDTHS — the same treatment the site's static photography gets
+    // from scripts/generate-image-variants.mjs, applied to uploaded media so
+    // that an image added through the admin needs no runtime optimization
+    // either.
+    //
+    // These are deliberately NOT the OUTPUT_TARGETS above. Those are social
+    // crops: fixed width AND height, cropped to a platform's aspect ratio.
+    // These pass a width only, so sharp derives the height from the source
+    // ratio -- the whole photo, scaled. Nothing cropped, nothing stretched.
+    //
+    // `withoutEnlargement` means a small upload is never blown up; the file
+    // is still written at every width so ../../image-loader.js can compute a
+    // URL in the browser without checking whether it exists.
+    for (const width of DISPLAY_WIDTHS) {
+      try {
+        const scaled = await sharp(input.buffer)
+          .rotate()
+          .resize({ width, withoutEnlargement: true, fit: 'inside' })
+          .avif({ quality: DISPLAY_AVIF_QUALITY, effort: 2 })
+          .toBuffer();
+        const scaledKey = await saveFile(`${prefix}/${assetId}/w${width}.avif`, scaled);
+        const scaledMeta = await sharp(scaled).metadata();
+        variants.push({
+          purpose: `w${width}`,
+          storageKey: scaledKey,
+          width: scaledMeta.width ?? width,
+          height: scaledMeta.height ?? 0,
+        });
+      } catch (error) {
+        // A display width that cannot be produced degrades to the original
+        // being served instead, which every consumer already tolerates.
+        console.error(`Media pipeline: display width ${width} failed for asset ${assetId}`, error);
+      }
     }
   }
 
