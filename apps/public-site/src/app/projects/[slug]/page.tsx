@@ -423,6 +423,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
                 images={[project.heroImage].filter(Boolean) as string[]}
                 alt={`${project.title}, ${project.sector}, ${project.city} — designed and built by AHW Architects`}
                 lightbox
+                priority
               />
             </NativeReveal>
           )}
@@ -489,6 +490,7 @@ export default async function ProjectCaseStudyPage({ params }: Props) {
               ])).filter(Boolean)}
               alt={`${project.title}, ${project.sector}, ${project.city} — designed and built by AHW Architects`}
               lightbox
+              priority
             />
           </NativeReveal>
         )}

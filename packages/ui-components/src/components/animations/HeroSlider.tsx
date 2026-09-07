@@ -22,9 +22,27 @@ interface HeroSliderProps {
   sizes?: string;
   /** Image orientation. Defaults to landscape. */
   orientation?: 'landscape' | 'portrait' | undefined;
+  /**
+   * Marks this slider's first slide as the page's LCP image: eager, high
+   * fetch priority, and preloaded.
+   *
+   * OFF BY DEFAULT, and that default is load-bearing. Slide 0 used to get
+   * `priority` unconditionally, which is right for ONE hero and wrong
+   * everywhere else: /projects renders 20 of these sliders, so 20 images
+   * were requested eagerly at high priority on first paint, most of them far
+   * below the fold. Measured on the live page: 22 eager/high-priority images,
+   * 2.8MB of image transfer, LCP 5.3s locally and 48.8s at P75 in Vercel
+   * Speed Insights. They were all competing with the one image the visitor
+   * could actually see.
+   *
+   * With this false, next/image lazy-loads the slide, so a below-the-fold
+   * slider costs nothing until it is scrolled near. Set it true on exactly
+   * one slider per page: the one that is visible first.
+   */
+  priority?: boolean;
 }
 
-export function HeroSlider({ images, alt, interval = 5000, lightbox = false, sizes = '100vw', orientation = 'landscape' }: HeroSliderProps) {
+export function HeroSlider({ images, alt, interval = 5000, lightbox = false, sizes = '100vw', orientation = 'landscape', priority = false }: HeroSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -67,8 +85,8 @@ export function HeroSlider({ images, alt, interval = 5000, lightbox = false, siz
             sizes={sizes}
             quality={100}
             className={`${styles.image} ${orientation === 'portrait' ? styles.imagePortrait : ''}`}
-            priority={index === 0}
-            fetchPriority={index === 0 ? 'high' : undefined}
+            priority={priority && index === 0}
+            fetchPriority={priority && index === 0 ? 'high' : undefined}
             draggable={false}
             onContextMenu={(e) => e.preventDefault()}
           />

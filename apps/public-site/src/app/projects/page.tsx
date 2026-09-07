@@ -182,10 +182,14 @@ export default async function ProjectsPage({
       {/* Zone B — Editorial Opening */}
       <section className={styles.opening}>
         <NativeReveal behavior="drift" className={styles.bgImageWrapper}>
+          {/* The only above-the-fold slider on this page, so the only one that
+              preloads. The 20 project cards below deliberately do not — see
+              HeroSlider's `priority` prop for the measurements. */}
           <HeroSlider
             images={Array.from(new Set(heroSourceProjects.map((p) => p.heroImage).filter(Boolean))) as string[]}
             alt={`AHW Architects ${activeSector !== 'All' ? activeSector : ''} projects`}
             interval={5000}
+            priority
           />
         </NativeReveal>
         <div className={styles.content}>
