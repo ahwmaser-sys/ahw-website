@@ -8,7 +8,7 @@ import styles from './page.module.css';
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
-  { label: 'Insights' },
+  { label: 'Insights: News & Press Features' },
 ];
 
 // Otherwise Next prerenders this once at build time and a freshly
@@ -20,8 +20,8 @@ export const revalidate = 30;
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = await getSiteUrl();
   return {
-    title: 'Insights',
-    description: 'A hub for publications, press features, and company news from AHW Architects.',
+    title: 'Insights: News & Press Features',
+    description: 'Press features, published articles, and company news from AHW Architects — our work, thinking, and projects across Egypt, Kuwait, and the Gulf.',
     alternates: {
       canonical: `${siteUrl}/insights`,
       types: {
@@ -29,14 +29,14 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: 'Insights',
-      description: 'A hub for publications, press features, and company news from AHW Architects.',
+      title: 'Insights: News & Press Features',
+      description: 'Press features, published articles, and company news from AHW Architects — our work, thinking, and projects across Egypt, Kuwait, and the Gulf.',
       url: '/insights',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Insights',
-      description: 'A hub for publications, press features, and company news from AHW Architects.',
+      title: 'Insights: News & Press Features',
+      description: 'Press features, published articles, and company news from AHW Architects — our work, thinking, and projects across Egypt, Kuwait, and the Gulf.',
     },
   };
 }

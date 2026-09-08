@@ -41,25 +41,25 @@ function StrengthCard({ strength }: { strength: { id: string; title: string; des
 const breadcrumbs = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Why AHW' },
+  { label: 'Why AHW: One Team, Concept to Handover' },
 ];
 
 export const metadata: Metadata = {
-  title: 'Why AHW',
-  description: 'As a fully integrated Architecture, Interior Design, Engineering, and Construction management firm, AHW Architects provides turnkey delivery for commercial, residential, and hospitality projects.',
+  title: 'Why AHW: One Team, Concept to Handover',
+  description: 'One integrated team for architecture, interior design, engineering, and construction — turnkey delivery for commercial, residential, and hospitality.',
   alternates: {
     canonical: '/about/why-ahw',
   },
   openGraph: {
-    title: 'Why AHW',
-    description: 'As a fully integrated Architecture, Interior Design, Engineering, and Construction management firm, AHW Architects provides turnkey delivery for commercial, residential, and hospitality projects.',
+    title: 'Why AHW: One Team, Concept to Handover',
+    description: 'One integrated team for architecture, interior design, engineering, and construction — turnkey delivery for commercial, residential, and hospitality.',
     url: '/about/why-ahw',
     images: [{ url: '/images/about/ahw_why_ahw.jpg', width: 1200, height: 630, alt: 'AHW Architects — Why AHW' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Why AHW',
-    description: 'As a fully integrated Architecture, Interior Design, Engineering, and Construction management firm, AHW Architects provides turnkey delivery for commercial, residential, and hospitality projects.',
+    title: 'Why AHW: One Team, Concept to Handover',
+    description: 'One integrated team for architecture, interior design, engineering, and construction — turnkey delivery for commercial, residential, and hospitality.',
     images: ['/images/about/ahw_why_ahw.jpg'],
   },
 };

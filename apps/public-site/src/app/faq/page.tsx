@@ -9,19 +9,19 @@ const breadcrumbs = [
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions',
-  description: 'Common questions about AHW Architects’ Design & Build model, services, locations, and how to start a project.',
+  description: 'Common questions about AHW Architects’ design & build model, services, offices in Egypt and Kuwait, project timelines, and how to get started.',
   alternates: {
     canonical: '/faq',
   },
   openGraph: {
     title: 'Frequently Asked Questions',
-    description: 'Common questions about AHW Architects’ Design & Build model, services, locations, and how to start a project.',
+    description: 'Common questions about AHW Architects’ design & build model, services, offices in Egypt and Kuwait, project timelines, and how to get started.',
     url: '/faq',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Frequently Asked Questions',
-    description: 'Common questions about AHW Architects’ Design & Build model, services, locations, and how to start a project.',
+    description: 'Common questions about AHW Architects’ design & build model, services, offices in Egypt and Kuwait, project timelines, and how to get started.',
   },
 };
 

@@ -9,21 +9,21 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Interior Fit-Out Company in Egypt & Kuwait | Turnkey Delivery',
-  description: 'Premium turnkey interior fit-out spanning retail design, hospitality design, and commercial design — authority approvals, installations, and handover across Egypt and the Gulf.',
+  title: 'Interior Fit-Out Company in Egypt & Kuwait',
+  description: 'Turnkey interior fit-out for retail, hospitality, and commercial spaces — approvals, installation, and handover across Egypt and the Gulf.',
   alternates: {
     canonical: '/expertise/fit-out',
   },
   openGraph: {
-    title: 'Interior Fit-Out Company in Egypt & Kuwait | Turnkey Delivery',
-    description: 'Premium turnkey interior fit-out spanning retail design, hospitality design, and commercial design — authority approvals, installations, and handover across Egypt and the Gulf.',
+    title: 'Interior Fit-Out Company in Egypt & Kuwait',
+    description: 'Turnkey interior fit-out for retail, hospitality, and commercial spaces — approvals, installation, and handover across Egypt and the Gulf.',
     url: '/expertise/fit-out',
     images: [{ url: '/images/expertise/ahw_act4_built_dubai.jpg', width: 1200, height: 630, alt: 'AHW Architects — Fit-Out discipline' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Interior Fit-Out Company in Egypt & Kuwait | Turnkey Delivery',
-    description: 'Premium turnkey interior fit-out spanning retail design, hospitality design, and commercial design — authority approvals, installations, and handover across Egypt and the Gulf.',
+    title: 'Interior Fit-Out Company in Egypt & Kuwait',
+    description: 'Turnkey interior fit-out for retail, hospitality, and commercial spaces — approvals, installation, and handover across Egypt and the Gulf.',
     images: ['/images/expertise/ahw_act4_built_dubai.jpg'],
   },
 };

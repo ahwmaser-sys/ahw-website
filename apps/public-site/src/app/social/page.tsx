@@ -17,7 +17,7 @@ const CTA_EVERY = 6;
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
-  { label: 'Social' },
+  { label: 'Social Feed & Latest Updates' },
 ];
 
 // Refetches from each platform at most every 30 minutes (see
@@ -118,12 +118,12 @@ function CtaTile() {
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = await getSiteUrl();
   return {
-    title: 'Social',
-    description: 'Recent posts from AHW Architects across LinkedIn, Facebook, Instagram, and Google Business Profile.',
+    title: 'Social Feed & Latest Updates',
+    description: 'Latest updates from AHW Architects across LinkedIn, Facebook, Instagram, and Google Business Profile — project progress, site visits, and news.',
     alternates: { canonical: `${siteUrl}/social` },
     openGraph: {
-      title: 'Social',
-      description: 'Recent posts from AHW Architects across LinkedIn, Facebook, Instagram, and Google Business Profile.',
+      title: 'Social Feed & Latest Updates',
+      description: 'Latest updates from AHW Architects across LinkedIn, Facebook, Instagram, and Google Business Profile — project progress, site visits, and news.',
       url: '/social',
     },
   };

@@ -7,6 +7,7 @@ import { getSiteUrl } from '../../../../lib/site-config';
 import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
 import { getPublicPublications } from '../../../../lib/publications';
 import styles from './page.module.css';
+import { absoluteUrl } from '../../../../lib/absolute-url';
 
 interface Props {
   params: Promise<{
@@ -53,7 +54,9 @@ export default async function PublicationDetailPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: pub.title,
-    image: pub.coverImage ? [pub.coverImage] : [],
+    // ABSOLUTE url — see the same fix on the news article page. JSON-LD is
+    // emitted verbatim, so a site-relative path here is dropped by Google.
+    image: pub.coverImage ? [absoluteUrl(pub.coverImage, siteUrl)] : [],
     datePublished: pub.date,
     author: {
       '@type': 'Organization',

@@ -15,22 +15,29 @@ const breadcrumbs = [
   { label: 'About' },
 ];
 
+// A dedicated meta description rather than reusing aboutData.visionStatement.
+// That statement is page COPY written to be read on the page, and at 205
+// characters Google truncates it in results — this says the same thing inside
+// the ~160 characters a snippet actually shows.
+const ABOUT_DESCRIPTION =
+  'AHW Architects is an integrated design & build practice in Kuwait and Egypt — architecture, interior design, engineering, and construction in one team.';
+
 export const metadata: Metadata = {
   title: 'About Us | Design & Build',
-  description: aboutData.visionStatement,
+  description: ABOUT_DESCRIPTION,
   alternates: {
     canonical: '/about',
   },
   openGraph: {
     title: 'About Us | Design & Build',
-    description: aboutData.visionStatement,
+    description: ABOUT_DESCRIPTION,
     url: '/about',
     images: [{ url: '/images/placeholders/ahw_hero_background.jpg', width: 1200, height: 630, alt: 'AHW Architects — About Us' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'About Us | Design & Build',
-    description: aboutData.visionStatement,
+    description: ABOUT_DESCRIPTION,
     images: ['/images/placeholders/ahw_hero_background.jpg'],
   },
 };

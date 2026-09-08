@@ -9,20 +9,20 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Architecture Firm in Egypt & Kuwait | Master Planning & Design',
+  title: 'Architecture Firm in Egypt & Kuwait',
   description: 'AHW Architects delivers master planning, urban design, and architecture across Egypt, Kuwait, and the Gulf — from land strategy to iconic, buildable form.',
   alternates: {
     canonical: '/expertise/architecture',
   },
   openGraph: {
-    title: 'Architecture Firm in Egypt & Kuwait | Master Planning & Design',
+    title: 'Architecture Firm in Egypt & Kuwait',
     description: 'AHW Architects delivers master planning, urban design, and architecture across Egypt, Kuwait, and the Gulf — from land strategy to iconic, buildable form.',
     url: '/expertise/architecture',
     images: [{ url: '/images/expertise/ahw_act1_built.jpg', width: 1200, height: 630, alt: 'AHW Architects — Architecture discipline' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Architecture Firm in Egypt & Kuwait | Master Planning & Design',
+    title: 'Architecture Firm in Egypt & Kuwait',
     description: 'AHW Architects delivers master planning, urban design, and architecture across Egypt, Kuwait, and the Gulf — from land strategy to iconic, buildable form.',
     images: ['/images/expertise/ahw_act1_built.jpg'],
   },

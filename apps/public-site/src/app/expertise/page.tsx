@@ -8,20 +8,20 @@ const breadcrumbs = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
-  description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
+  title: 'Architecture, Engineering & Interior Design',
+  description: 'Architecture, structural engineering, interior design, project management, and design-build across Egypt and the Gulf — concept to handover.',
   alternates: {
     canonical: '/expertise',
   },
   openGraph: {
-    title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
-    description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
+    title: 'Architecture, Engineering & Interior Design',
+    description: 'Architecture, structural engineering, interior design, project management, and design-build across Egypt and the Gulf — concept to handover.',
     url: '/expertise',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Architecture, Structural Engineering, Interior Design & Project Management Services',
-    description: 'Full-service architecture, structural engineering, MEP coordination, interior design, project management, and design-build construction — spanning residential, commercial, retail, hospitality, and workplace projects across Egypt and the Gulf.',
+    title: 'Architecture, Engineering & Interior Design',
+    description: 'Architecture, structural engineering, interior design, project management, and design-build across Egypt and the Gulf — concept to handover.',
   },
 };
 

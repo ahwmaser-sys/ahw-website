@@ -20,6 +20,7 @@ import { getPublicPortfolioProjects } from '../../../../lib/portfolio';
 import { getPublicPublications } from '../../../../lib/publications';
 import { renderArticleBody, parseTiptapDoc, renderDocBody } from '../../../../components/article/ArticleBodyRenderer';
 import styles from './page.module.css';
+import { absoluteUrl } from '../../../../lib/absolute-url';
 
 interface Props {
   params: Promise<{
@@ -69,8 +70,22 @@ export default async function NewsDetailPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: news.title,
-    image: news.coverImage ? [news.coverImage] : [],
+    // ABSOLUTE url. `news.coverImage` is a site-relative path
+    // (/api/media/<id>?variant=...), and unlike the `openGraph` block above —
+    // which Next resolves against `metadataBase` — JSON-LD is emitted
+    // verbatim. Google rejects relative URLs in structured data, so the
+    // article's image was being silently dropped from rich results.
+    image: news.coverImage ? [absoluteUrl(news.coverImage, siteUrl)] : [],
     datePublished: news.date,
+    // Freshness signal. Answer engines weight recency, and without this an
+    // updated article still reads as first-published-and-untouched.
+    ...(news.updatedAt ? { dateModified: news.updatedAt } : {}),
+    // Tells crawlers which URL this article IS, rather than leaving them to
+    // infer it from context.
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/insights/news/${news.slug}` },
+    ...(news.categories && news.categories.length > 0
+      ? { articleSection: news.categories.map((c) => c.name) }
+      : {}),
     // Real author attribution — Google/AI answer engines weight this as
     // an E-E-A-T signal. Omitted entirely (not a fabricated "AHW
     // Architects" placeholder) on the rare item with no author data.

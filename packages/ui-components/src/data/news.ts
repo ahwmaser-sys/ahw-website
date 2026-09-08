@@ -4,6 +4,11 @@ export interface NewsItem {
   excerpt: string;
   content?: string;
   date: string;
+  /** ISO timestamp, present only when the item was edited after publishing.
+   *  Drives `dateModified` in the article's JSON-LD — a freshness signal
+   *  answer engines weight. Optional because a never-edited post should not
+   *  claim a modification date. */
+  updatedAt?: string;
   slug: string;
   coverImage?: string;
   coverImageCaption?: string;

@@ -18,7 +18,7 @@ const breadcrumbs = [
 ];
 
 const TITLE = 'Residential Architecture & Interior Design in Egypt & Kuwait | AHW Architects';
-const DESCRIPTION = 'AHW Architects designs and builds private residences, villas, and apartments across Egypt and Kuwait — architecture, interior design, engineering, and construction under one accountable team.';
+const DESCRIPTION = 'Private residences, villas, and apartments across Egypt and Kuwait — architecture, interior design, engineering, and construction under one team.';
 
 export const metadata: Metadata = {
   title: 'Residential Architecture & Interior Design',
