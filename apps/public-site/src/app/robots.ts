@@ -14,7 +14,18 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: {
       userAgent: '*',
-      allow: '/',
+      // '/api/media/' is listed explicitly because `Disallow: /api/` was
+      // blocking it, and every article cover image is served from there --
+      // both the NewsArticle/Article JSON-LD `image` and og:image resolve to
+      // https://<site>/api/media/<id>?variant=... So the images loaded fine
+      // for visitors and were unfetchable for exactly the clients that need
+      // them: Google (no image in rich results), and the LinkedIn/Facebook/X
+      // fetchers, which honour robots.txt (no image on a shared link).
+      //
+      // Google and Bing resolve a conflict between Allow and Disallow by the
+      // longest matching path, so the more specific '/api/media/' wins over
+      // '/api/'; the rest of the API stays closed.
+      allow: ['/', '/api/media/'],
       disallow: ['/api/', '/admin/', '/client/'],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
