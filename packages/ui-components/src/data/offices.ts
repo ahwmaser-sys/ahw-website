@@ -41,6 +41,15 @@ export interface Office {
   };
 
   workingHours: string;
+  /**
+   * The same hours in schema.org's syntax, e.g. ["Su-Th 09:00-17:00"].
+   * `workingHours` above is prose for a visitor and Google cannot parse it,
+   * so the machine-readable form is carried separately rather than derived
+   * from that sentence. Empty when an office has not had hours recorded.
+   */
+  openingHoursSchema?: string[];
+  /** Google Maps pin for the office, used for LocalBusiness.geo. */
+  geo?: { latitude: number; longitude: number };
   timezone: string;
 
   // Optional legal/registration identity — present only when an admin has

@@ -93,7 +93,34 @@ export function UpdateOfficeForm({ office }: { office: Office }) {
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="workingHours">Working hours</label>
-          <input className={styles.input} id="workingHours" name="workingHours" defaultValue={office.workingHours ?? ''} />
+          <input className={styles.input} id="workingHours" name="workingHours" defaultValue={office.workingHours ?? ''} placeholder="Sunday - Thursday: 9:00 AM - 5:00 PM" />
+          <p className={styles.hint}>Shown to visitors on the contact page. Write it however reads best.</p>
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="openingHoursSchema">Working hours (for search engines)</label>
+          <textarea
+            className={styles.input}
+            id="openingHoursSchema"
+            name="openingHoursSchema"
+            rows={2}
+            defaultValue={(office.openingHoursSchema ?? []).join('\n')}
+            placeholder="Su-Th 09:00-17:00"
+          />
+          <p className={styles.hint}>
+            The same hours in the format Google reads — the sentence above is prose it cannot parse.
+            Two-digit 24-hour times, one line per block of days (Su Mo Tu We Th Fr Sa; a range like
+            Su-Th, or a list like Mo,We). Leave out the days the office is closed. Must match the
+            Google Business Profile listing.
+          </p>
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="latitude">Latitude</label>
+          <input className={styles.input} id="latitude" name="latitude" type="number" step="any" defaultValue={office.latitude ?? ''} placeholder="29.961645" />
+          <p className={styles.hint}>From the office&rsquo;s own Google Maps pin: long-press the building, then copy the two numbers.</p>
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor="longitude">Longitude</label>
+          <input className={styles.input} id="longitude" name="longitude" type="number" step="any" defaultValue={office.longitude ?? ''} placeholder="31.296449" />
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="timezone">Timezone</label>

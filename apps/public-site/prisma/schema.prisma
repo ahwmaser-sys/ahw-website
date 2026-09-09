@@ -206,10 +206,21 @@ model Office {
   mapLink         String? // short share link (e.g. maps.app.goo.gl/...)
   mapEmbedUrl     String? // full google.com/maps/embed?pb=... iframe src
 
+  // Physical coordinates, for LocalBusiness.geo. Read off the office's own
+  // Google Maps pin -- the whole point is that they agree with the Google
+  // Business Profile listing, so they are never derived from the address.
+  latitude        Float?
+  longitude       Float?
+
   phones          String[]
   emails          String[] // first entry is the primary/display email by convention
   website         String? // office-specific page/domain, if distinct from the global site
-  workingHours    String?
+  workingHours    String? // human sentence shown on the page, e.g. "Sunday - Thursday: 9:00 AM - 6:00 PM"
+  // The same hours in schema.org's own syntax, e.g. ["Su-Th 09:00-18:00"].
+  // Kept separate from workingHours on purpose: that field is prose written
+  // for a visitor and Google cannot parse it, while this one is never shown
+  // to anyone. One list entry per distinct block of days.
+  openingHoursSchema String[]
   timezone        String?
   defaultLanguage String   @default("en")
 

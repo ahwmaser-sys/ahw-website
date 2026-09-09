@@ -2,6 +2,7 @@ import { ContactSection } from '../../../features/contact/components/ContactSect
 import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
 import type { Metadata } from 'next';
+import { parseOpeningHours } from '../../../lib/opening-hours';
 
 type ContactPageProps = {
   params: Promise<{ office?: string[] }>;
@@ -92,11 +93,36 @@ export default async function ContactPage(props: ContactPageProps) {
         '@type': 'PostalAddress',
         streetAddress: office.address.street,
         addressLocality: office.address.city,
+        ...(office.address.postalCode ? { postalCode: office.address.postalCode } : {}),
         addressCountry: office.country,
       },
       telephone: office.contact.phones[0],
       email: office.contact.primaryEmail,
-      openingHours: office.workingHours,
+      // `openingHours` was being handed office.workingHours, which is the
+      // sentence shown on the page ("Sunday - Thursday: 9:00 AM - 5:00 PM").
+      // schema.org defines this property in its own syntax, so that value
+      // was unreadable and the hours effectively absent. The parsable form
+      // now comes from its own field and the prose is no longer emitted.
+      ...(() => {
+        // An entry that does not parse is dropped, not emitted half-filled:
+        // publishing the wrong hours sends someone to a closed office.
+        const hours = (office.openingHoursSchema ?? [])
+          .map(parseOpeningHours)
+          .filter((h): h is NonNullable<typeof h> => h !== null)
+          .map((h) => ({ '@type': 'OpeningHoursSpecification', ...h }));
+        return hours.length > 0 ? { openingHoursSpecification: hours } : {};
+      })(),
+      // Coordinates let local and AI search answer "near me" and "open now"
+      // for a real walk-in office; the address alone does not.
+      ...(office.geo
+        ? {
+            geo: {
+              '@type': 'GeoCoordinates',
+              latitude: office.geo.latitude,
+              longitude: office.geo.longitude,
+            },
+          }
+        : {}),
       hasMap: office.address.mapLink,
       sameAs: [office.contact.instagram, office.contact.facebook, office.contact.linkedin].filter(Boolean),
     })),

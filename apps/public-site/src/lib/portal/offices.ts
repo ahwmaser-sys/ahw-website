@@ -97,6 +97,13 @@ export function toLegacyOfficeShape(office: PrismaOffice): LegacyOfficeShape {
       ...(social.linkedin ? { linkedin: social.linkedin } : {}),
     },
     workingHours: office.workingHours ?? '',
+    ...(office.openingHoursSchema.length > 0
+      ? { openingHoursSchema: office.openingHoursSchema }
+      : {}),
+    // Both or neither: a half-set coordinate is not a location.
+    ...(office.latitude !== null && office.longitude !== null
+      ? { geo: { latitude: office.latitude, longitude: office.longitude } }
+      : {}),
     timezone: office.timezone ?? '',
     ...(legal ? { legal } : {}),
   };

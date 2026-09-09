@@ -45,6 +45,27 @@ const officeSchema = z.object({
   emails: z.array(z.string().email('Enter valid emails only.')).min(1, 'At least one email is required.'),
   website: z.string().trim().optional(),
   workingHours: z.string().trim().optional(),
+  // schema.org's own syntax, one entry per block of days. Validated against
+  // the same shape parseOpeningHours() accepts, because anything it cannot
+  // read is silently dropped from the page's structured data -- far better
+  // to refuse it here, where someone can see why.
+  openingHoursSchema: z
+    .array(
+      z
+        .string()
+        .trim()
+        .regex(
+          /^[A-Za-z,-]+\s+\d{2}:\d{2}-\d{2}:\d{2}$/,
+          'Use schema.org hours, e.g. "Su-Th 09:00-17:00" (two-digit times).'
+        )
+    )
+    .optional(),
+  // Latitude and longitude are read off the office's Google Maps pin. Range
+  // checks only: they catch a swapped pair or a stray digit, which is the
+  // realistic mistake, and no check can tell a plausible wrong pin from a
+  // right one.
+  latitude: z.coerce.number().min(-90).max(90).optional(),
+  longitude: z.coerce.number().min(-180).max(180).optional(),
   timezone: z.string().trim().optional(),
   defaultLanguage: z.string().trim().min(1),
   googleBusinessProfileUrl: z.string().trim().optional(),
@@ -81,6 +102,18 @@ function readOfficeForm(formData: FormData) {
     emails: splitList(formData.get('emails')),
     website: formData.get('website') || undefined,
     workingHours: formData.get('workingHours') || undefined,
+    // A textarea always yields a string, but FormData's type allows File, so
+    // narrow rather than stringify -- String(File) would quietly become
+    // "[object File]" and fail validation with a baffling message.
+    openingHoursSchema: (typeof formData.get('openingHoursSchema') === 'string'
+      ? (formData.get('openingHoursSchema') as string)
+      : ''
+    )
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean),
+    latitude: formData.get('latitude') || undefined,
+    longitude: formData.get('longitude') || undefined,
     timezone: formData.get('timezone') || undefined,
     defaultLanguage: formData.get('defaultLanguage') || 'en',
     googleBusinessProfileUrl: formData.get('googleBusinessProfileUrl') || undefined,
@@ -147,6 +180,9 @@ export async function createOffice(_prevState: ActionState, formData: FormData):
       emails: data.emails,
       website: data.website ?? null,
       workingHours: data.workingHours ?? null,
+      openingHoursSchema: data.openingHoursSchema ?? [],
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
       timezone: data.timezone ?? null,
       defaultLanguage: data.defaultLanguage,
       googleBusinessProfileUrl: data.googleBusinessProfileUrl ?? null,
@@ -204,6 +240,9 @@ export async function updateOffice(_prevState: ActionState, formData: FormData):
       emails: data.emails,
       website: data.website ?? null,
       workingHours: data.workingHours ?? null,
+      openingHoursSchema: data.openingHoursSchema ?? [],
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
       timezone: data.timezone ?? null,
       defaultLanguage: data.defaultLanguage,
       googleBusinessProfileUrl: data.googleBusinessProfileUrl ?? null,
