@@ -7,6 +7,7 @@ import { getLiveSocialFeed, type LiveSocialPost } from '../../lib/portal/social/
 import { getActiveOffices, officeSocialLinks } from '../../lib/portal/offices';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
+import { ogImages } from '../../lib/og-image';
 
 // Every Nth real post in the grid is replaced by a CTA tile instead of
 // inserted alongside — someone who's scrolled this deep is already
@@ -125,6 +126,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: 'Social Feed & Latest Updates',
       description: 'Latest updates from AHW Architects across LinkedIn, Facebook, Instagram, and Google Business Profile — project progress, site visits, and news.',
       url: '/social',
+          images: ogImages('Latest updates from AHW Architects'),
     },
   };
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { LegalPage, StructuredData, faqItems, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getSiteUrl } from '../../lib/site-config';
+import { ogImages, twitterImages } from '../../lib/og-image';
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -17,11 +18,13 @@ export const metadata: Metadata = {
     title: 'Frequently Asked Questions',
     description: 'Common questions about AHW Architects’ design & build model, services, offices in Egypt and Kuwait, project timelines, and how to get started.',
     url: '/faq',
+      images: ogImages('Common questions about working with AHW Architects'),
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Frequently Asked Questions',
     description: 'Common questions about AHW Architects’ design & build model, services, offices in Egypt and Kuwait, project timelines, and how to get started.',
+      images: twitterImages,
   },
 };
 

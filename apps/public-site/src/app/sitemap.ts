@@ -51,6 +51,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/about/careers`, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/faq`, changeFrequency: 'monthly', priority: 0.6 },
+    // Indexable (`robots: index, follow`), returns 200, and carries more
+    // real traffic than any other route in Vercel Speed Insights -- it was
+    // simply never listed here, so Google was never told it exists. Priority
+    // matches /contact: for a practice that bids on work, the capability
+    // statement is a decision-stage page, not a leaf.
+    //
+    // The /print variant stays out: it already serves `noindex, nofollow`
+    // and canonicals here, so listing it would ask Google to crawl a URL
+    // that tells it to go away.
+    { url: `${baseUrl}/capability-statement`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/privacy-policy`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${baseUrl}/terms-of-service`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${baseUrl}/cookie-policy`, changeFrequency: 'yearly', priority: 0.3 },

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { TheDatum, StructuredData, buildBreadcrumbJsonLd } from '@agp/ui-components';
 import { getSiteUrl } from '../../lib/site-config';
+import { ogImages, twitterImages } from '../../lib/og-image';
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -17,11 +18,13 @@ export const metadata: Metadata = {
     title: 'Architecture, Engineering & Interior Design',
     description: 'Architecture, structural engineering, interior design, project management, and design-build across Egypt and the Gulf — concept to handover.',
     url: '/expertise',
+      images: ogImages('AHW Architects — architecture, engineering, interior design and fit-out'),
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Architecture, Engineering & Interior Design',
     description: 'Architecture, structural engineering, interior design, project management, and design-build across Egypt and the Gulf — concept to handover.',
+      images: twitterImages,
   },
 };
 

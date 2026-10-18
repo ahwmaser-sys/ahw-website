@@ -11,6 +11,7 @@ import { getSiteUrl } from '../../lib/site-config';
 import { getPublicResidentialExperience, type PublicResidentialExperienceEntry } from '../../lib/portal/residential-experience';
 import { getPublicPortfolioProjects } from '../../lib/portfolio';
 import styles from './page.module.css';
+import { ogImages, twitterImages } from '../../lib/og-image';
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -31,11 +32,13 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: '/residential',
     type: 'website',
+      images: ogImages('Private residences, villas and apartments by AHW Architects'),
   },
   twitter: {
     card: 'summary_large_image',
     title: TITLE,
     description: DESCRIPTION,
+      images: twitterImages,
   },
 };
 

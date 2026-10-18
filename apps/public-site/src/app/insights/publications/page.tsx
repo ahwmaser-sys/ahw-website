@@ -3,6 +3,7 @@ import { StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, InsightsFilterBar, 
 import { getPublicPublications } from '../../../lib/publications';
 import { getSiteUrl } from '../../../lib/site-config';
 import styles from './page.module.css';
+import { ogImages, twitterImages } from '../../../lib/og-image';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = await getSiteUrl();
@@ -18,11 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: 'Publications | AHW Architects in the Press',
       description: 'Press features and publications covering AHW Architects across regional and international media.',
       url: '/insights/publications',
+          images: ogImages('AHW Architects in the press'),
     },
     twitter: {
       card: 'summary_large_image',
       title: 'Publications | AHW Architects in the Press',
       description: 'Press features and publications covering AHW Architects across regional and international media.',
+          images: twitterImages,
     },
   };
 }

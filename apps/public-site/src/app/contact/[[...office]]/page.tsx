@@ -3,6 +3,7 @@ import { getActiveOfficesForDisplay } from '../../../lib/portal/offices';
 import { getSiteUrl } from '../../../lib/site-config';
 import type { Metadata } from 'next';
 import { parseOpeningHours } from '../../../lib/opening-hours';
+import { ogImages, twitterImages } from '../../../lib/og-image';
 
 type ContactPageProps = {
   params: Promise<{ office?: string[] }>;
@@ -32,8 +33,15 @@ export async function generateMetadata(props: ContactPageProps): Promise<Metadat
       alternates: {
         canonical: `/contact/${office.id}`,
       },
-      openGraph: { title, description, url: `/contact/${office.id}` },
-      twitter: { card: 'summary_large_image', title, description },
+      openGraph: {
+        title,
+        description,
+        url: `/contact/${office.id}`,
+        // Named per office: this metadata is generated for each one, so a
+        // shared string would describe the Cairo card as Kuwait's.
+        images: ogImages(`Contact AHW Architects in ${office.address.city}`),
+      },
+      twitter: { card: 'summary_large_image', title, description, images: twitterImages },
     };
   }
 
@@ -46,8 +54,13 @@ export async function generateMetadata(props: ContactPageProps): Promise<Metadat
     alternates: {
       canonical: '/contact',
     },
-    openGraph: { title, description, url: '/contact' },
-    twitter: { card: 'summary_large_image', title, description },
+    openGraph: {
+      title,
+      description,
+      url: '/contact',
+      images: ogImages('Contact AHW Architects in Cairo and Kuwait City'),
+    },
+    twitter: { card: 'summary_large_image', title, description, images: twitterImages },
   };
 }
 

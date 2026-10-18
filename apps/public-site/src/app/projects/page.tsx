@@ -6,6 +6,7 @@ import ProjectFilterBar from '../../components/ProjectFilterBar';
 import { getPublicPortfolioProjects, getPortfolioNavData } from '../../lib/portfolio';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
+import { ogImages, twitterImages } from '../../lib/og-image';
 
 const BASE_BREADCRUMBS = [
   { label: 'Home', href: '/' },
@@ -61,11 +62,13 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
       description,
       url: '/projects',
       type: 'website',
+          images: ogImages('Projects by AHW Architects across Egypt, Kuwait and the Gulf'),
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+          images: twitterImages,
     },
   };
 }

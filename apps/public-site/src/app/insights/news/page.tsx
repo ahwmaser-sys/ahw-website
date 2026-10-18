@@ -3,6 +3,7 @@ import { StructuredData, Breadcrumbs, buildBreadcrumbJsonLd, InsightsFilterBar, 
 import { getPublicNewsItems } from '../../../lib/portal/public-news';
 import { getSiteUrl } from '../../../lib/site-config';
 import styles from './page.module.css';
+import { ogImages, twitterImages } from '../../../lib/og-image';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = await getSiteUrl();
@@ -18,11 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: 'News | AHW Architects',
       description: 'Announcements, updates, and news from AHW Architects.',
       url: '/insights/news',
+          images: ogImages('News from AHW Architects'),
     },
     twitter: {
       card: 'summary_large_image',
       title: 'News | AHW Architects',
       description: 'Announcements, updates, and news from AHW Architects.',
+          images: twitterImages,
     },
   };
 }

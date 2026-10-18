@@ -5,6 +5,7 @@ import { getPublicNewsItems } from '../../lib/portal/public-news';
 import { getPublicPublications } from '../../lib/publications';
 import { getSiteUrl } from '../../lib/site-config';
 import styles from './page.module.css';
+import { ogImages, twitterImages } from '../../lib/og-image';
 
 const breadcrumbs = [
   { label: 'Home', href: '/' },
@@ -32,11 +33,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: 'Insights: News & Press Features',
       description: 'Press features, published articles, and company news from AHW Architects — our work, thinking, and projects across Egypt, Kuwait, and the Gulf.',
       url: '/insights',
+          images: ogImages('Press, publications and news from AHW Architects'),
     },
     twitter: {
       card: 'summary_large_image',
       title: 'Insights: News & Press Features',
       description: 'Press features, published articles, and company news from AHW Architects — our work, thinking, and projects across Egypt, Kuwait, and the Gulf.',
+          images: twitterImages,
     },
   };
 }
