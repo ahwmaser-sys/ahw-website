@@ -65,7 +65,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
       // business would actually segment leads by.
       trackEvent('generate_lead', {
         office_id: data.officeId,
-        project_type: data.projectType,
+        ...(data.projectType ? { project_type: data.projectType } : {}),
         ...(data.timeline ? { timeline: data.timeline } : {}),
       });
 
@@ -143,6 +143,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             className={`${styles.input} ${errors.fullName ? styles.inputError : ''}`}
             placeholder="John Doe"
             {...register('fullName')}
+            aria-required
             aria-invalid={!!errors.fullName}
             aria-describedby={errors.fullName ? 'fullName-error' : undefined}
           />
@@ -170,6 +171,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
             placeholder="john@example.com"
             {...register('email')}
+            aria-required
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'email-error' : undefined}
           />
@@ -184,6 +186,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
             placeholder={phonePlaceholder}
             {...register('phone')}
+            aria-required
             aria-invalid={!!errors.phone}
             aria-describedby={errors.phone ? 'phone-error' : undefined}
           />
@@ -193,7 +196,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
 
       <div className={styles.row}>
         <div className={styles.field}>
-          <label htmlFor="country" className={styles.label}>Country *</label>
+          <label htmlFor="country" className={styles.label}>Country</label>
           <input
             id="country"
             type="text"
@@ -207,7 +210,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="projectType" className={styles.label}>Project Type *</label>
+          <label htmlFor="projectType" className={styles.label}>Project Type</label>
           <select
             id="projectType"
             className={`${styles.select} ${errors.projectType ? styles.inputError : ''}`}
@@ -215,7 +218,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             aria-invalid={!!errors.projectType}
             aria-describedby={errors.projectType ? 'projectType-error' : undefined}
           >
-            <option value="" disabled>Select Type</option>
+            <option value="">Select Type (Optional)</option>
             <option value="Architecture">Architecture</option>
             <option value="Interior Design">Interior Design</option>
             <option value="Design & Build">Design & Build</option>
@@ -246,7 +249,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="timeline" className={styles.label}>Timeline *</label>
+          <label htmlFor="timeline" className={styles.label}>Timeline</label>
           <select
             id="timeline"
             className={`${styles.select} ${errors.timeline ? styles.inputError : ''}`}
@@ -254,7 +257,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
             aria-invalid={!!errors.timeline}
             aria-describedby={errors.timeline ? 'timeline-error' : undefined}
           >
-            <option value="" disabled>Select Timeline</option>
+            <option value="">Select Timeline (Optional)</option>
             <option value="Immediate">Immediate</option>
             <option value="1-3 Months">1–3 Months</option>
             <option value="3-6 Months">3–6 Months</option>
@@ -272,6 +275,7 @@ export function ContactForm({ officeId }: ContactFormProps) {
           className={`${styles.textarea} ${errors.message ? styles.inputError : ''}`}
           placeholder="Tell us about your project..."
           {...register('message')}
+            aria-required
           aria-invalid={!!errors.message}
           aria-describedby={errors.message ? 'message-error' : undefined}
         />

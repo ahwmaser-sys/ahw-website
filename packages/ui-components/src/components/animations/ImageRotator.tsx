@@ -21,7 +21,6 @@ export interface ImageRotatorProps {
    *  text contrast; a standalone showcase (no overlaid text) should use 1. */
   activeOpacity?: number;
   sizes?: string;
-  quality?: number;
   className?: string;
   /** Whether the first image is the page's actual LCP candidate — true by
    *  default (Hero's usage, where that's always correct). A rotator used
@@ -45,7 +44,6 @@ export function ImageRotator({
   intervalMs = 6500,
   activeOpacity = 1,
   sizes = '100vw',
-  quality = 90,
   className = '',
   priority = true,
 }: ImageRotatorProps) {
@@ -95,7 +93,6 @@ export function ImageRotator({
           alt={alts?.[index] ?? alt}
           fill
           sizes={sizes}
-          quality={quality}
           priority={priority && index === 0}
           fetchPriority={priority && index === 0 ? 'high' : undefined}
           className={styles.rotatorImage}

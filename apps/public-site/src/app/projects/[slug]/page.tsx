@@ -159,7 +159,6 @@ function ImageMoments({
             alt={`${projectTitle} — ${label}`}
             fill
             sizes="100vw"
-            quality={100}
             className={styles.momentImage}
             draggable={false}
           />
@@ -180,7 +179,6 @@ function ImageMoments({
                 alt={`${projectTitle} — ${label} ${i + 1}`}
                 fill
                 sizes="(max-width: 768px) 50vw, 50vw"
-                quality={100}
                 className={styles.momentImage}
                 draggable={false}
               />
@@ -202,7 +200,6 @@ function ImageMoments({
             alt={`${projectTitle} — ${label} 1`}
             fill
             sizes="100vw"
-            quality={100}
             className={styles.momentImage}
             draggable={false}
           />
@@ -217,7 +214,6 @@ function ImageMoments({
                 alt={`${projectTitle} — ${label} ${i + 2}`}
                 fill
                 sizes="(max-width: 768px) 50vw, 45vw"
-                quality={100}
                 className={styles.momentImage}
                 draggable={false}
               />
@@ -239,7 +235,6 @@ function ImageMoments({
             alt={`${projectTitle} — ${label} 1`}
             fill
             sizes="100vw"
-            quality={100}
             className={styles.momentImage}
             draggable={false}
           />
@@ -253,7 +248,6 @@ function ImageMoments({
               alt={`${projectTitle} — ${label} 2`}
               fill
               sizes="(max-width: 768px) 100vw, 60vw"
-              quality={100}
               className={styles.momentImage}
               draggable={false}
             />
@@ -264,7 +258,6 @@ function ImageMoments({
               alt={`${projectTitle} — ${label} 3`}
               fill
               sizes="(max-width: 768px) 100vw, 30vw"
-              quality={100}
               className={styles.momentImage}
               draggable={false}
             />
@@ -288,7 +281,6 @@ function ImageMoments({
           alt={`${projectTitle} — ${label} 1`}
           fill
           sizes="100vw"
-          quality={100}
           className={styles.momentImage}
           draggable={false}
         />
@@ -303,7 +295,6 @@ function ImageMoments({
               alt={`${projectTitle} — ${label} ${i + 2}`}
               fill
               sizes="(max-width: 768px) 100vw, 30vw"
-              quality={100}
               className={styles.momentImage}
               draggable={false}
             />
@@ -322,7 +313,6 @@ function ImageMoments({
                   alt={`${projectTitle} — ${label} ${i + 5}`}
                   fill
                   sizes="(max-width: 768px) 50vw, 45vw"
-                  quality={100}
                   className={styles.momentImage}
                   draggable={false}
                 />

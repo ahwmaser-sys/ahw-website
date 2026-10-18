@@ -128,7 +128,6 @@ export function Lightbox({ images, alt, index, onIndexChange, onClose, triggerRe
           alt={`${alt} — image ${index + 1} of ${images.length}`}
           fill
           sizes="100vw"
-          quality={90}
           className={styles.image}
           draggable={false}
           onContextMenu={(e) => e.preventDefault()}

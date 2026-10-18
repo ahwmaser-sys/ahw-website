@@ -24,11 +24,11 @@ model Enquiry {
   company String?
   email   String
   phone   String
-  country String
+  country String?
 
-  projectType String
+  projectType String?
   budget      String?
-  timeline    String
+  timeline    String?
   message     String  @db.Text
 
   ipAddress String?

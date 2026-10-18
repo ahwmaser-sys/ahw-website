@@ -109,7 +109,6 @@ export const Hero: React.FC<HeroProps> = ({
           priority
           fetchPriority="high"
           sizes="100vw"
-          quality={90}
           className={`${styles.videoBackground} ${loaded ? styles.videoLoaded : ''}`}
           style={{ transform: `translateY(${offsetY * 0.3}px) scale(${loaded ? 1 : 1.05})` }}
         />

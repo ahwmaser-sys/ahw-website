@@ -100,7 +100,7 @@ export default async function AdminEnquiriesPage({ searchParams }: { searchParam
               <tr key={e.id}>
                 <td>{e.name}{e.company ? ` (${e.company})` : ''}</td>
                 <td>{e.office}</td>
-                <td>{e.projectType}</td>
+                <td>{e.projectType ?? <span aria-label="Not provided">&mdash;</span>}</td>
                 <td><a href={`mailto:${e.email}`}>{e.email}</a></td>
                 <td>
                   {attributionLabel(e)}

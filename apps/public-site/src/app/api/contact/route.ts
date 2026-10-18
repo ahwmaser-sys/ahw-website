@@ -75,10 +75,10 @@ export async function POST(request: Request) {
           company: data.company || null,
           email: data.email,
           phone: data.phone,
-          country: data.country,
-          projectType: data.projectType,
+          country: data.country || null,
+          projectType: data.projectType || null,
           budget: data.budget || null,
-          timeline: data.timeline,
+          timeline: data.timeline || null,
           message: data.message,
           ipAddress,
           userAgent,
@@ -119,10 +119,10 @@ export async function POST(request: Request) {
         ...(data.company ? { company: data.company } : {}),
         email: data.email,
         phone: data.phone,
-        country: data.country,
-        projectType: data.projectType,
+        ...(data.country ? { country: data.country } : {}),
+        ...(data.projectType ? { projectType: data.projectType } : {}),
         ...(data.budget ? { budget: data.budget } : {}),
-        timeline: data.timeline,
+        ...(data.timeline ? { timeline: data.timeline } : {}),
         message: data.message,
         officeName,
       })
@@ -143,7 +143,11 @@ export async function POST(request: Request) {
       to: destinationEmail,
       ...(emailSettings.secondaryContactEmail ? { cc: emailSettings.secondaryContactEmail } : {}),
       ...(sender.replyTo ? { replyTo: sender.replyTo } : {}),
-      subject: `New Enquiry from ${stripControlChars(data.fullName)} - ${stripControlChars(data.projectType)}`,
+      // Project type is optional now, so the subject drops the dash rather
+      // than ending in one when the visitor did not pick a type.
+      subject: data.projectType
+        ? `New Enquiry from ${stripControlChars(data.fullName)} - ${stripControlChars(data.projectType)}`
+        : `New Enquiry from ${stripControlChars(data.fullName)}`,
       html: internalHtml,
     });
 

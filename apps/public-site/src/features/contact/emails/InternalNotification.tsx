@@ -16,10 +16,10 @@ interface InternalNotificationProps {
   company?: string;
   email: string;
   phone: string;
-  country: string;
-  projectType: string;
+  country?: string;
+  projectType?: string;
   budget?: string;
-  timeline: string;
+  timeline?: string;
   message: string;
   officeName: string;
 }
@@ -39,7 +39,7 @@ export function InternalNotificationEmail({
   return (
     <Html>
       <Head />
-      <Preview>New Lead: {projectType} Inquiry from {name}</Preview>
+      <Preview>{projectType ? `New Lead: ${projectType} Inquiry from ${name}` : `New Lead from ${name}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>AHW Architects | New Inquiry</Heading>
@@ -55,15 +55,15 @@ export function InternalNotificationEmail({
             {company && <Text style={text}><strong>Company:</strong> {company}</Text>}
             <Text style={text}><strong>Email:</strong> {email}</Text>
             <Text style={text}><strong>Phone:</strong> {phone}</Text>
-            <Text style={text}><strong>Country:</strong> {country}</Text>
+            {country && <Text style={text}><strong>Country:</strong> {country}</Text>}
           </Section>
 
           <Hr style={hr} />
 
           <Section>
             <Heading as="h2" style={h2}>Project Details</Heading>
-            <Text style={text}><strong>Project Type:</strong> {projectType}</Text>
-            <Text style={text}><strong>Timeline:</strong> {timeline}</Text>
+            {projectType && <Text style={text}><strong>Project Type:</strong> {projectType}</Text>}
+            {timeline && <Text style={text}><strong>Timeline:</strong> {timeline}</Text>}
             {budget && <Text style={text}><strong>Estimated Budget:</strong> {budget}</Text>}
           </Section>
 

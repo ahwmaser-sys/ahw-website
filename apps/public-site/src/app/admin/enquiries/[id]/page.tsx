@@ -15,6 +15,11 @@ function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
 }
 
+// Country, project type and timeline are optional on the contact form, so a
+// real enquiry can legitimately arrive without them. Saying so beats leaving
+// the line blank, which reads like a bug rather than a visitor's choice.
+const NOT_PROVIDED = 'Not provided';
+
 export default async function AdminEnquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const principal = await requireAdminPage();
   const { id } = await params;
@@ -41,7 +46,7 @@ export default async function AdminEnquiryDetailPage({ params }: { params: Promi
         <p className={styles.cardMeta}>
           Email: <a href={`mailto:${enquiry.email}`}>{enquiry.email}</a><br />
           Phone: <a href={`tel:${enquiry.phone}`}>{enquiry.phone}</a><br />
-          Country: {enquiry.country}<br />
+          Country: {enquiry.country ?? NOT_PROVIDED}<br />
           Office: {enquiry.office}
         </p>
       </div>
@@ -49,9 +54,9 @@ export default async function AdminEnquiryDetailPage({ params }: { params: Promi
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Project</h2>
         <p className={styles.cardMeta}>
-          Type: {enquiry.projectType}<br />
+          Type: {enquiry.projectType ?? NOT_PROVIDED}<br />
           {enquiry.budget && <>Budget: {enquiry.budget}<br /></>}
-          Timeline: {enquiry.timeline}
+          Timeline: {enquiry.timeline ?? NOT_PROVIDED}
         </p>
       </div>
 
