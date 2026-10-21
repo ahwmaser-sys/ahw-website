@@ -24,7 +24,16 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    // Named explicitly rather than widening to "**/*.js": this is the
+    // next/image loader (next.config.js points at it by path, so it
+    // cannot be TypeScript) and it has a test that imports it.
+    "image-loader.js"
+  ],
   "exclude": ["node_modules", "prisma/seed.ts", "scripts/**/*.ts"],
   "references": [
     { "path": "../../packages/api-client" },

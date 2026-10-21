@@ -26,6 +26,36 @@ function isExternal(src) {
   return /^https?:\/\//i.test(src) || src.startsWith('data:') || src.startsWith('blob:');
 }
 
+/**
+ * Percent-encodes the two characters that silently destroy a `srcset`.
+ *
+ * `srcset` is a COMMA-separated list whose entries are split on whitespace:
+ *
+ *   srcset="/a/photo.640.avif 640w, /a/photo.1200.avif 1200w"
+ *
+ * so a path containing a space or a comma is not merely ugly, it is
+ * unparseable. "/18-AUREA SOCIAL HOUSE/x.640.avif 640w" reads as the URL
+ * "/18-AUREA", the descriptor "SOCIAL", and then garbage. The browser throws
+ * the whole list away and falls back to the plain `src`, which next/image
+ * sets to the LARGEST width.
+ *
+ * That is exactly what was happening: three project folders have spaces in
+ * their names (40 images), and every phone loading them downloaded the 2048px
+ * variant -- 264KB where 146KB would do -- with `sizes` and DPR making no
+ * difference at all. It was invisible because the image still appeared,
+ * correctly, just far too big. Measured on /projects: DPR 1, 2 and 3 all
+ * fetched the same 2048 file.
+ *
+ * Encoding only these two is deliberate. Both are illegal in a URL path
+ * unescaped, so this cannot corrupt a valid path, and it is idempotent: an
+ * already-encoded "%20" contains no space to re-encode. A blanket
+ * encodeURI()/encodeURIComponent() would double-encode anything already
+ * escaped, turning "%20" into "%2520" and breaking paths that currently work.
+ */
+function encodeForSrcset(path) {
+  return path.replace(/ /g, '%20').replace(/,/g, '%2C');
+}
+
 export default function imageLoader({ src, width, quality }) {
   // Remote images (Vercel Blob, uploaded media served through /api/media, any
   // third-party host) have no build-time variant — there is no file on disk to
@@ -73,5 +103,5 @@ export default function imageLoader({ src, width, quality }) {
   void quality;
 
   const clean = src.split('?')[0].split('#')[0];
-  return `/_img${clean}.${width}.avif`;
+  return `/_img${encodeForSrcset(clean)}.${width}.avif`;
 }
