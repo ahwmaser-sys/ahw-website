@@ -71,4 +71,52 @@ describe('dependency security floors', () => {
     expect(v, 'sharp must be installed').not.toBeNull();
     expect(atLeast(v!, [0, 35, 5]), `resolved sharp@${v!.join('.')}`).toBe(true);
   });
+
+  // The rest are transitive: pinned by a parent, so the lever is
+  // pnpm.overrides in the root package.json, not a dependency bump.
+  // A package a parent later stops using is skipped, not failed -- the
+  // floor exists to stop a downgrade, not to require a package forever.
+  const TRANSITIVE: Array<[string, number[], string]> = [
+    ['nanoid', [3, 3, 18], 'infinite loop in custom generators'],
+    ['deepmerge-ts', [8, 0, 0], 'stack exhaustion when merging'],
+    ['undici', [8, 10, 2], 'denial of service via unrequested data'],
+    ['source-map-js', [1, 2, 2], 'event-loop denial of service'],
+    ['markdown-it', [15, 0, 3], 'quadratic-time rendering'],
+    ['fast-uri', [4, 1, 5], 'SSRF and authority injection'],
+    ['mysql2', [3, 23, 1], 'auth downgrade, unbounded zlib inflate'],
+  ];
+
+  for (const [pkg, floor, why] of TRANSITIVE) {
+    it(`runs a ${pkg} without the advisory: ${why}`, () => {
+      const v = resolvedVersion(pkg);
+      if (v === null) return; // no longer in the tree
+      expect(atLeast(v, floor), `resolved ${pkg}@${v.join('.')}`).toBe(true);
+    });
+  }
+
+  /**
+   * ACCEPTED RISK, reviewed 2026-10-23: @tiptap/core stays on 2.x.
+   *
+   * The advisory (mergeAttributes() treating an own __proto__ key as a real
+   * attribute, moderate) is patched in 3.30.4. That is a major version of a
+   * whole editor ecosystem -- @tiptap/react, /pm, /starter-kit and
+   * /extension-image are all on 2.11.5 -- so an override pinning core to 3.x
+   * alone would break the editor at RUNTIME, where neither tsc nor this
+   * suite would see it.
+   *
+   * What the risk actually is: the editor runs on one admin page
+   * (admin/news/[id]/ArticleBodyEditor.tsx), behind authentication. Reaching
+   * it means an authenticated staff member pasting crafted content into the
+   * article body. That is a narrow path compared with breaking the only tool
+   * the team writes articles with.
+   *
+   * This assertion is the reminder, not a rubber stamp: it FAILS the moment
+   * someone moves Tiptap to 3.x, which is when the exception should be
+   * deleted and the floor added back to TRANSITIVE above.
+   */
+  it('still runs Tiptap 2.x, so the accepted-risk note above still applies', () => {
+    const v = resolvedVersion('@tiptap/core');
+    if (v === null) return;
+    expect(v[0], `resolved @tiptap/core@${v.join('.')} -- revisit the exception`).toBe(2);
+  });
 });
