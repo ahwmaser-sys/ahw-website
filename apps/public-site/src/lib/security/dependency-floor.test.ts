@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 
@@ -12,12 +14,35 @@ const require = createRequire(import.meta.url);
  * quietly undone by a later `pnpm install` that re-resolves downwards.
  */
 function resolvedVersion(pkg: string): number[] | null {
+  // Two lookups on purpose. Many packages (sharp among them) restrict their
+  // `exports` map and refuse `require('<pkg>/package.json')`, so when that
+  // throws we resolve the package's entry point instead and walk up to the
+  // nearest package.json that actually belongs to it. Without the fallback
+  // this helper reports "not installed" for a package that plainly is, and
+  // the floor silently stops being checked.
+  let version: string | undefined;
   try {
-    const { version } = require(`${pkg}/package.json`) as { version: string };
-    return version.split('.').slice(0, 3).map((n) => parseInt(n, 10) || 0);
+    ({ version } = require(`${pkg}/package.json`) as { version: string });
   } catch {
-    return null; // not installed — a parent dropped it
+    try {
+      let dir = dirname(require.resolve(pkg));
+      for (let up = 0; up < 8 && dir !== dirname(dir); up += 1) {
+        const candidate = join(dir, 'package.json');
+        if (existsSync(candidate)) {
+          const parsed = JSON.parse(readFileSync(candidate, 'utf8')) as { name?: string; version?: string };
+          if (parsed.name === pkg && parsed.version) {
+            version = parsed.version;
+            break;
+          }
+        }
+        dir = dirname(dir);
+      }
+    } catch {
+      return null;
+    }
   }
+  if (!version) return null;
+  return version.split('.').slice(0, 3).map((n) => parseInt(n, 10) || 0);
 }
 
 function atLeast(actual: number[], floor: number[]): boolean {
@@ -37,5 +62,13 @@ describe('dependency security floors', () => {
     const v = resolvedVersion('next');
     expect(v, 'next must be installed').not.toBeNull();
     expect(atLeast(v!, [16, 4, 1]), `resolved next@${v!.join('.')}`).toBe(true);
+  });
+
+  it('runs a sharp without the libheif and librsvg advisories', () => {
+    // Two high advisories reached through sharp's bundled image codecs:
+    // libheif (GHSA-g89c-p67h-r4..) and librsvg. Patched at 0.35.5.
+    const v = resolvedVersion('sharp');
+    expect(v, 'sharp must be installed').not.toBeNull();
+    expect(atLeast(v!, [0, 35, 5]), `resolved sharp@${v!.join('.')}`).toBe(true);
   });
 });
